@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36414.22 d17.14
+VisualStudioVersion = 17.14.36414.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SolutionExtensions", "SolutionExtensions\SolutionExtensions.csproj", "{ABC0B3A4-1A73-4607-AE47-223CD5AD3EE9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSIXTests", "VSIXTests\VSIXTests.csproj", "{CA8839FD-6F56-4F61-AACF-8EA9C31F3103}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,18 @@ Global
 		{ABC0B3A4-1A73-4607-AE47-223CD5AD3EE9}.Release|arm64.Build.0 = Release|arm64
 		{ABC0B3A4-1A73-4607-AE47-223CD5AD3EE9}.Release|x86.ActiveCfg = Release|x86
 		{ABC0B3A4-1A73-4607-AE47-223CD5AD3EE9}.Release|x86.Build.0 = Release|x86
+		{CA8839FD-6F56-4F61-AACF-8EA9C31F3103}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA8839FD-6F56-4F61-AACF-8EA9C31F3103}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA8839FD-6F56-4F61-AACF-8EA9C31F3103}.Debug|arm64.ActiveCfg = Debug|arm64
+		{CA8839FD-6F56-4F61-AACF-8EA9C31F3103}.Debug|arm64.Build.0 = Debug|arm64
+		{CA8839FD-6F56-4F61-AACF-8EA9C31F3103}.Debug|x86.ActiveCfg = Debug|x86
+		{CA8839FD-6F56-4F61-AACF-8EA9C31F3103}.Debug|x86.Build.0 = Debug|x86
+		{CA8839FD-6F56-4F61-AACF-8EA9C31F3103}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA8839FD-6F56-4F61-AACF-8EA9C31F3103}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA8839FD-6F56-4F61-AACF-8EA9C31F3103}.Release|arm64.ActiveCfg = Release|arm64
+		{CA8839FD-6F56-4F61-AACF-8EA9C31F3103}.Release|arm64.Build.0 = Release|arm64
+		{CA8839FD-6F56-4F61-AACF-8EA9C31F3103}.Release|x86.ActiveCfg = Release|x86
+		{CA8839FD-6F56-4F61-AACF-8EA9C31F3103}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
