@@ -8,9 +8,9 @@ using Task = System.Threading.Tasks.Task;
 
 namespace SolutionExtensions
 {
-    internal sealed class CommandAddConfig : CommandBase
+    public sealed class CommandAddConfig : CommandBase
     {
-        private CommandAddConfig() : base(0x0100)
+        public CommandAddConfig() : base(0x0100)
         {
         }
 
@@ -21,6 +21,8 @@ namespace SolutionExtensions
             string title = "CommandAddConfig";
             var dte = this.package.GetService<DTE, DTE>();
             dte.AddToOutputPane($"Command clicked", GetType().Name);
+            var wnd = this.package.CreateToolWindow<ToolWindows.ExtensionsListToolWindowPane>();
+            //wnd.Content.
             // Show a message box to prove we were here
             VsShellUtilities.ShowMessageBox(
                 this.package,

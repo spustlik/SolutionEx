@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -83,16 +84,34 @@ namespace SolutionExtensions
                 outputPane.Activate();
             outputPane.OutputString($"{msg}\n");
         }
+        public static async Task SwitchToUiThreadAsync(this AsyncPackage package)
+        {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
+        }
 
-        public static void CreateToolWindow<T>(this Package package) where T : ToolWindowPane
+
+        public static Task<TC> InitCommandAsync<TC>(this AsyncPackage package) where TC : CommandBase, new()
+        {
+            return CommandBase.InitializeAsync<TC>(package);
+        }
+        public static async Task<OleMenuCommandService> GetMenuCommandServiceAsync(this AsyncPackage package)
+        {
+            var svc = await package.GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
+            if (svc == null) throw new Exception($"Cannot create IMenuCommandService");
+            return svc;
+        }
+
+
+        public static T CreateToolWindow<T>(this Package package) where T : ToolWindowPane
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            ToolWindowPane window = package.FindToolWindow(typeof(T), 0, true);
-            if (window == null || window.Frame == null)
+            ToolWindowPane pane = package.FindToolWindow(typeof(T), 0, true);
+            if (pane == null || pane.Frame == null)
                 throw new NotSupportedException($"Cannot create tool window {typeof(T).Name}");
 
-            IVsWindowFrame windowFrame = (IVsWindowFrame)window.Frame;
+            IVsWindowFrame windowFrame = (IVsWindowFrame)pane.Frame;
             Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(windowFrame.Show());
+            return pane as T;
         }
 
     }

@@ -15,9 +15,8 @@ namespace SolutionExtensions
         {
             // Switch to the main thread - the call to AddCommand in CommandAddConfig's constructor requires
             // the UI thread.
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
-            OleMenuCommandService commandService = await package.GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
-            if (commandService == null) throw new ArgumentNullException(nameof(commandService));
+            await package.SwitchToUiThreadAsync();
+            var commandService = await package.GetMenuCommandServiceAsync();
             var cmd = new TC();
             cmd.Init(package, commandService);
             return cmd;

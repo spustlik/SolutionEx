@@ -31,6 +31,7 @@ namespace SolutionExtensions
     [Guid(SolutionExtensionsPackage.PackageGuidString)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideAutoLoad(UIContextGuids80.SolutionExists, PackageAutoLoadFlags.BackgroundLoad)]
+    [ProvideToolWindow(typeof(ToolWindows.ExtensionsListToolWindowPane))]
     public sealed class SolutionExtensionsPackage : AsyncPackage
     {
         /// <summary>
@@ -51,10 +52,11 @@ namespace SolutionExtensions
             // When initialized asynchronously, the current thread may be a background thread at this point.
             // Do any initialization that requires the UI thread after switching to the UI thread.
             await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+            await this.SwitchToUiThreadAsync();
             dte = await this.GetServiceAsync<DTE, DTE>();
             // err: AddToOutputPane("Started",true);
             dte.Events.SolutionEvents.Opened += this.OnSolutionOpened;
-            await CommandAddConfig.InitializeAsync(this);
+            await this.InitCommandAsync<CommandAddConfig>();
         }
 
         void OnSolutionOpened()
