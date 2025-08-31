@@ -1,5 +1,6 @@
 ﻿using EnvDTE;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -82,5 +83,17 @@ namespace SolutionExtensions
                 outputPane.Activate();
             outputPane.OutputString($"{msg}\n");
         }
+
+        public static void CreateToolWindow<T>(this Package package) where T : ToolWindowPane
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            ToolWindowPane window = package.FindToolWindow(typeof(T), 0, true);
+            if (window == null || window.Frame == null)
+                throw new NotSupportedException($"Cannot create tool window {typeof(T).Name}");
+
+            IVsWindowFrame windowFrame = (IVsWindowFrame)window.Frame;
+            Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(windowFrame.Show());
+        }
+
     }
 }
