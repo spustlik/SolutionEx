@@ -11,7 +11,7 @@ namespace SolutionExtensions
         {
             this.Caption = caption;
             this.Content = content;
-            content.Tag = this;
+            content.Tag = this; //can use dependency property instead 
         }
         public new TC Content { get => base.Content as TC; set => base.Content = value; }
     }
