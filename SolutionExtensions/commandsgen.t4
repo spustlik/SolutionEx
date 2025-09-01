@@ -1,0 +1,79 @@
+﻿<#@ template debug="false" hostSpecific="true" language="C#" #>
+<#@ output extension=".vsct" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Reflection" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Text.RegularExpressions" #>
+<#@ assembly name="System.Xml"#>
+<#@ assembly name="System.Xml.Linq"#>
+<#@ import namespace="System.Xml.Linq" #>
+<#
+	var commands = new List<Command>();
+	commands.Add(new Command(){Id=0x0100,Title="Solution extensions",Visible=true});
+	for(var i=0;i<1;i++){
+		commands.Add(new Command(){Id=0x0200+i,Title="Solution Extension " + (i+1)});
+	}
+	//commands.Add(new Command(){Id=0x0101,Title="Extension 1"});
+#>
+<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<Extern href="stdidcmd.h"/>
+	<Extern href="vsshlids.h"/>
+	<Commands package="guidCommandsPackage">
+		<Groups>
+			<Group guid="guidCommandsPackageCmdSet" id="MyMenuGroup" priority="0x0600">
+				<Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS"/>
+			</Group>
+		</Groups>
+		<Buttons>
+<#
+	foreach(var c in commands) 
+	{
+#>
+			<Button guid="guidCommandsPackageCmdSet" id="<#=c.IdSymbol#>" priority="0x0100" type="Button">
+				<Parent guid="guidCommandsPackageCmdSet" id="MyMenuGroup" />
+<#
+		if(!c.Visible)
+		{
+#>
+				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
+<#
+		}
+#>
+				<Strings>
+					<ButtonText><#=c.Title#></ButtonText>
+				</Strings>
+			</Button>
+<# 
+	} 
+#>
+		</Buttons>
+	</Commands>
+	<Symbols>
+		<GuidSymbol name="guidCommandsPackage" value="{ac39d443-46d7-4bf6-9691-552e1d504216}" />
+		<GuidSymbol name="guidCommandsPackageCmdSet" value="{7a30b1a0-c6bb-41ee-a9b4-f15017e2fee5}">
+			<IDSymbol name="MyMenuGroup" value="0x1020" />
+<#
+	foreach(var c in commands) 
+	{
+		var v = "0x" + c.Id.ToString("X4");
+#>
+			<IDSymbol name="<#=c.IdSymbol#>" value="<#=v#>" />
+<# 
+	} 
+#>
+		</GuidSymbol>
+	</Symbols>
+</CommandTable>
+<#+
+	// Define a simple class to represent a command
+	class Command {
+		public int Id;
+		public string Title;
+		public string IdSymbol { get { return "idCommand" + Id.ToString("X4"); } }
+		public bool Visible = false;
+	}
+#>

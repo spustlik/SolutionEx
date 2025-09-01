@@ -68,6 +68,10 @@
     <Compile Include="Commands\DataExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="commandsgen.t4">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>commandsgen.vsct</LastGenOutput>
+    </None>
     <None Include="Key.snk" />
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
@@ -99,7 +103,13 @@
     <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.14.2101" NoWarn="NU1604" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="commands-template.vsct" />
+    <None Include="commandsok.vsct" />
+    <None Include="commands-compare.vsct" />
+    <Content Include="commandsgen.vsct">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>commandsgen.t4</DependentUpon>
+    </Content>
     <Content Include="Resources\CommandAddConfig.png" />
     <VSCTCompile Include="commands.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>
@@ -113,6 +123,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Themes\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
