@@ -74,8 +74,6 @@ namespace SolutionExtensions.ToolWindows
             }
         }
 
-        //public ObservableCollection<string> ClassList { get; } = new ObservableCollection<string>();
-
     }
 
     public partial class ExtensionsListToolWindow : UserControl
