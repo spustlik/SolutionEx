@@ -1,12 +1,11 @@
 ﻿using EnvDTE;
+using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SolutionExtensions
@@ -26,12 +25,14 @@ namespace SolutionExtensions
             }
             return null;
         }
-        public static Project AddSolutionItemsProject(this Solution solution, string folderName)
+        public static Project AddSolutionFolder(this Solution solution, string folderName = null)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            const string solutionFolderKind = "{66A26720-8FB5-11D2-AA7E-00C04F688DDE}";
-            var p = solution.AddFromTemplate(solutionFolderKind, folderName, folderName);
-            return p;
+            if (folderName == null)
+                folderName = SOLUTION_ITEMS_FOLDER;
+            var s2 = solution as Solution2;
+            var folder = s2.AddSolutionFolder(SOLUTION_ITEMS_FOLDER);
+            return folder;
         }
 
         public static ProjectItem FindProjectItem(this Project project, string filePath)
@@ -101,6 +102,27 @@ namespace SolutionExtensions
             return svc;
         }
 
+        public static void AddShortCutToCommand(this Command command, string shortCut)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            //var command = GetCommandByName(dte2, "SolutionExtensions.MyCommand");
+            // Assign shortcut if not already present
+            var bindings = ((object[])command.Bindings).Cast<string>().ToList();
+            var sc = "Global::" + shortCut;
+            if (!bindings.Contains(sc))
+            {
+                bindings.Add(sc);
+                command.Bindings = bindings.ToArray();
+            }
+        }
+
+        public static Command GetCommandByName(this DTE dte, string name)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var commands = dte.Commands;
+            var command = commands.Item(name, 0);
+            return command;
+        }
 
         public static T CreateToolWindow<T>(this Package package) where T : ToolWindowPane
         {

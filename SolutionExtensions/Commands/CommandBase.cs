@@ -1,7 +1,6 @@
 ﻿using Microsoft.VisualStudio.Shell;
 using System;
 using System.ComponentModel.Design;
-using System.IO.Packaging;
 using System.Threading.Tasks;
 
 namespace SolutionExtensions
@@ -18,26 +17,22 @@ namespace SolutionExtensions
             await package.SwitchToUiThreadAsync();
             var commandService = await package.GetMenuCommandServiceAsync();
             var cmd = new TC();
-            cmd.Init(package, commandService);
+            cmd.package = package;
+            var menuCommandID = new CommandID(cmd.CommandSet, cmd.CommandId);
+            var menuItem = new MenuCommand(cmd.Execute, menuCommandID);
+            commandService.AddCommand(menuItem);
             return cmd;
         }
 
+        // in commands.vsct
         public Guid CommandSet = new Guid("7a30b1a0-c6bb-41ee-a9b4-f15017e2fee5");
         protected AsyncPackage package { get; private set; }
+        protected IAsyncServiceProvider ServiceProvider => package;
         public readonly int CommandId;
-        protected Microsoft.VisualStudio.Shell.IAsyncServiceProvider ServiceProvider => this.package;
 
         protected CommandBase(int commandId)
         {
             this.CommandId = commandId;
-        }
-        void Init(AsyncPackage package, OleMenuCommandService commandService)
-        {
-            this.package = package ?? throw new ArgumentNullException(nameof(package));
-            this.package = package;
-            var menuCommandID = new CommandID(CommandSet, CommandId);
-            var menuItem = new MenuCommand(this.Execute, menuCommandID);
-            commandService.AddCommand(menuItem);
         }
         /// <summary>
         /// This function is the callback used to execute the command when the menu item is clicked.

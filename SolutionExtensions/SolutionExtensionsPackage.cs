@@ -1,4 +1,5 @@
-﻿using EnvDTE;
+﻿using Community.VisualStudio.Toolkit;
+using EnvDTE;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
@@ -32,14 +33,15 @@ namespace SolutionExtensions
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideAutoLoad(UIContextGuids80.SolutionExists, PackageAutoLoadFlags.BackgroundLoad)]
     [ProvideToolWindow(typeof(ToolWindows.ExtensionsListToolWindowPane))]
-    public sealed class SolutionExtensionsPackage : AsyncPackage
+    public sealed class SolutionExtensionsPackage : ToolkitPackage
     {
         /// <summary>
         /// SolutionExtensionsPackage GUID string.
         /// </summary>
         public const string PackageGuidString = "ac39d443-46d7-4bf6-9691-552e1d504216";
         private DTE dte;
-
+        public ExtensionManager ExtensionManager { get; private set; }
+        public ExtensionsModel Model { get; private set; }
         /// <summary>
         /// Initialization of the package; this method is called right after the package is sited, so this is the place
         /// where you can put all the initialization code that rely on services provided by VisualStudio.
@@ -54,9 +56,12 @@ namespace SolutionExtensions
             await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
             await this.SwitchToUiThreadAsync();
             dte = await this.GetServiceAsync<DTE, DTE>();
+            ExtensionManager = new ExtensionManager(this);
+            Model = new ExtensionsModel();
             // err: AddToOutputPane("Started",true);
             dte.Events.SolutionEvents.Opened += this.OnSolutionOpened;
             await this.InitCommandAsync<CommandAddConfig>();
+            this.RegisterToolWindows();
         }
 
         void OnSolutionOpened()
