@@ -1,0 +1,4 @@
+# Solution extensions configuration file
+# format: [Title]|[ShortCutKey]|[ClassName]|DllPath
+My extension 1||my.cls|D:\SkillDriver\Source\SimCreator\SimCreator\_Tools\VSDevelo\bin\Debug\VSDevelo.dll
+New extension2||ExtensionSamples.Sample1|D:\GitHub\SolutionEx\SampleSol\ClassLibrary1\ExtensionSamples\bin\Debug\ExtensionSamples.dll
