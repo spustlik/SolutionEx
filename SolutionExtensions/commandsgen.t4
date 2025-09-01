@@ -12,7 +12,7 @@
 <#
 	var commands = new List<Command>();
 	commands.Add(new Command(){Id=0x0100,Title="Solution extensions",Visible=true});
-	for(var i=0;i<1;i++){
+	for(var i=0;i<10;i++){
 		commands.Add(new Command(){Id=0x0200+i,Title="Solution Extension " + (i+1)});
 	}
 	//commands.Add(new Command(){Id=0x0101,Title="Extension 1"});
@@ -37,10 +37,13 @@
 <#
 		if(!c.Visible)
 		{
+			//this is not working, or guid need to be unique, not CmdSet
+			/*
 #>
 				<CommandFlag>DefaultInvisible</CommandFlag>
 				<CommandFlag>DynamicVisibility</CommandFlag>
 <#
+			*/
 		}
 #>
 				<Strings>

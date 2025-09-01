@@ -17,10 +17,62 @@
 			</Button>
 			<Button guid="guidCommandsPackageCmdSet" id="idCommand0200" priority="0x0100" type="Button">
 				<Parent guid="guidCommandsPackageCmdSet" id="MyMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
-				<CommandFlag>DynamicVisibility</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 1</ButtonText>
+				</Strings>
+			</Button>
+			<Button guid="guidCommandsPackageCmdSet" id="idCommand0201" priority="0x0100" type="Button">
+				<Parent guid="guidCommandsPackageCmdSet" id="MyMenuGroup" />
+				<Strings>
+					<ButtonText>Solution Extension 2</ButtonText>
+				</Strings>
+			</Button>
+			<Button guid="guidCommandsPackageCmdSet" id="idCommand0202" priority="0x0100" type="Button">
+				<Parent guid="guidCommandsPackageCmdSet" id="MyMenuGroup" />
+				<Strings>
+					<ButtonText>Solution Extension 3</ButtonText>
+				</Strings>
+			</Button>
+			<Button guid="guidCommandsPackageCmdSet" id="idCommand0203" priority="0x0100" type="Button">
+				<Parent guid="guidCommandsPackageCmdSet" id="MyMenuGroup" />
+				<Strings>
+					<ButtonText>Solution Extension 4</ButtonText>
+				</Strings>
+			</Button>
+			<Button guid="guidCommandsPackageCmdSet" id="idCommand0204" priority="0x0100" type="Button">
+				<Parent guid="guidCommandsPackageCmdSet" id="MyMenuGroup" />
+				<Strings>
+					<ButtonText>Solution Extension 5</ButtonText>
+				</Strings>
+			</Button>
+			<Button guid="guidCommandsPackageCmdSet" id="idCommand0205" priority="0x0100" type="Button">
+				<Parent guid="guidCommandsPackageCmdSet" id="MyMenuGroup" />
+				<Strings>
+					<ButtonText>Solution Extension 6</ButtonText>
+				</Strings>
+			</Button>
+			<Button guid="guidCommandsPackageCmdSet" id="idCommand0206" priority="0x0100" type="Button">
+				<Parent guid="guidCommandsPackageCmdSet" id="MyMenuGroup" />
+				<Strings>
+					<ButtonText>Solution Extension 7</ButtonText>
+				</Strings>
+			</Button>
+			<Button guid="guidCommandsPackageCmdSet" id="idCommand0207" priority="0x0100" type="Button">
+				<Parent guid="guidCommandsPackageCmdSet" id="MyMenuGroup" />
+				<Strings>
+					<ButtonText>Solution Extension 8</ButtonText>
+				</Strings>
+			</Button>
+			<Button guid="guidCommandsPackageCmdSet" id="idCommand0208" priority="0x0100" type="Button">
+				<Parent guid="guidCommandsPackageCmdSet" id="MyMenuGroup" />
+				<Strings>
+					<ButtonText>Solution Extension 9</ButtonText>
+				</Strings>
+			</Button>
+			<Button guid="guidCommandsPackageCmdSet" id="idCommand0209" priority="0x0100" type="Button">
+				<Parent guid="guidCommandsPackageCmdSet" id="MyMenuGroup" />
+				<Strings>
+					<ButtonText>Solution Extension 10</ButtonText>
 				</Strings>
 			</Button>
 		</Buttons>
@@ -31,6 +83,15 @@
 			<IDSymbol name="MyMenuGroup" value="0x1020" />
 			<IDSymbol name="idCommand0100" value="0x0100" />
 			<IDSymbol name="idCommand0200" value="0x0200" />
+			<IDSymbol name="idCommand0201" value="0x0201" />
+			<IDSymbol name="idCommand0202" value="0x0202" />
+			<IDSymbol name="idCommand0203" value="0x0203" />
+			<IDSymbol name="idCommand0204" value="0x0204" />
+			<IDSymbol name="idCommand0205" value="0x0205" />
+			<IDSymbol name="idCommand0206" value="0x0206" />
+			<IDSymbol name="idCommand0207" value="0x0207" />
+			<IDSymbol name="idCommand0208" value="0x0208" />
+			<IDSymbol name="idCommand0209" value="0x0209" />
 		</GuidSymbol>
 	</Symbols>
 </CommandTable>
