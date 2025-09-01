@@ -12,11 +12,14 @@ namespace SolutionExtensions
         /// </summary>
         public static async Task<TC> InitializeAsync<TC>(AsyncPackage package) where TC : CommandBase, new()
         {
-            // Switch to the main thread - the call to AddCommand in CommandAddConfig's constructor requires
-            // the UI thread.
+            var cmd = new TC();
+            return await InitializeAsync(package, cmd);
+        }
+
+        public static async Task<TC> InitializeAsync<TC>(AsyncPackage package, TC cmd) where TC : CommandBase
+        {
             await package.SwitchToUiThreadAsync();
             var commandService = await package.GetMenuCommandServiceAsync();
-            var cmd = new TC();
             cmd.package = package;
             var menuCommandID = new CommandID(cmd.CommandSet, cmd.CommandId);
             var menuItem = new MenuCommand(cmd.Execute, menuCommandID);

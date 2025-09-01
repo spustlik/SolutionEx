@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.IO;
+using System.IO.Packaging;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
@@ -60,7 +61,7 @@ namespace SolutionExtensions
             Model = new ExtensionsModel();
             // err: AddToOutputPane("Started",true);
             dte.Events.SolutionEvents.Opened += this.OnSolutionOpened;
-            await this.InitCommandAsync<CommandAddConfig>();
+            await CommandBase.InitializeAsync<CommandAddConfig>(this);
             this.RegisterToolWindows();
         }
 

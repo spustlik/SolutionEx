@@ -32,12 +32,7 @@ namespace SolutionExtensions.ToolWindows
         #endregion
 
         #region HasValidationMessage property
-        private bool _hasValidationMessage;
-        public bool HasValidationMessage
-        {
-            get => _hasValidationMessage;
-            set => Set(ref _hasValidationMessage, value);
-        }
+        public bool HasValidationMessage => !string.IsNullOrEmpty(ValidationMessage);
         #endregion
 
         #region SelectedItem property
@@ -75,7 +70,7 @@ namespace SolutionExtensions.ToolWindows
             }
             if (propertyName == nameof(ValidationMessage))
             {
-                HasValidationMessage = !string.IsNullOrEmpty(ValidationMessage);
+                DoPropertyChanged(nameof(HasValidationMessage));
             }
         }
 

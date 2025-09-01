@@ -90,11 +90,6 @@ namespace SolutionExtensions
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
         }
 
-
-        public static Task<TC> InitCommandAsync<TC>(this AsyncPackage package) where TC : CommandBase, new()
-        {
-            return CommandBase.InitializeAsync<TC>(package);
-        }
         public static async Task<OleMenuCommandService> GetMenuCommandServiceAsync(this AsyncPackage package)
         {
             var svc = await package.GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
