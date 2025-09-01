@@ -4,9 +4,9 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Windows;
 using Task = System.Threading.Tasks.Task;
 
 namespace SolutionExtensions
@@ -74,11 +74,6 @@ namespace SolutionExtensions
             else
                 AddToOutputPane("No Solution Items project found");
         }
-        string GetCfgFileName()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            return Path.ChangeExtension(dte.Solution.FileName, "slnexcfg");
-        }
         void AddToOutputPane(string msg, bool clear = false)
         {
             dte.AddToOutputPane(msg, this.GetType().Name, clear);
@@ -86,6 +81,9 @@ namespace SolutionExtensions
                 dte.AddToOutputPane("$---started at {Datetime.Now}---", this.GetType().Name);
         }
 
-
+        public void TestMethod()
+        {
+            System.Windows.MessageBox.Show("Test method called from extension package");
+        }
     }
 }

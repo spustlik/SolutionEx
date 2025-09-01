@@ -23,20 +23,13 @@
                 <ResourceDictionary Source="{x:Static toolkit:ToolkitResourceKeys.ThemeResourcesUri}"/>
             </ResourceDictionary.MergedDictionaries>
 
-            <!--
-            Now you can create your own styles that are based on the toolkit's styles.
-            -->
-            <Style TargetType="TextBox" BasedOn="{StaticResource {x:Static toolkit:ToolkitResourceKeys.TextBoxStyleKey}}">
+            <!--<Style TargetType="TextBox" BasedOn="{StaticResource {x:Static toolkit:ToolkitResourceKeys.TextBoxStyleKey}}">
                 <Setter Property="BorderBrush" Value="Red" />
-            </Style>
+            </Style>-->
 
-            <!--
-            The toolkit only defines a few customized styles. Most styles come from the default Visual Studio
-            styles. These can be referenced using the keys from `Microsoft.VisualStudio.Shell.VsResourceKeys`.
-            -->
-            <Style TargetType="Button" BasedOn="{StaticResource {x:Static shell:VsResourceKeys.ThemedDialogButtonStyleKey}}">
+            <!--<Style TargetType="Button" BasedOn="{StaticResource {x:Static shell:VsResourceKeys.ThemedDialogButtonStyleKey}}">
                 <Setter Property="Foreground" Value="Green" />
-            </Style>
+            </Style>-->
             <BooleanToVisibilityConverter x:Key="boolToVisi"/>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -49,10 +42,10 @@
         <!-- toolbar -->
         <StackPanel Margin="3" Orientation="Horizontal">
             <StackPanel.Resources>
-                <Style TargetType="Button" BasedOn="{x:Null}">
-                    <!--<Setter Property="HorizontalAlignment" Value="Left"/>-->
+                <Style TargetType="Button" BasedOn="{StaticResource {x:Static shell:VsResourceKeys.ButtonStyleKey}}">
                     <Setter Property="Padding" Value="10,0"/>
                     <Setter Property="Margin" Value="0,0,5,0"/>
+                    <Setter Property="MinWidth" Value="0"/>
                 </Style>
             </StackPanel.Resources>
             <Button Click="AddItem_Click">+ Add</Button>
@@ -62,64 +55,73 @@
             <Button Click="Save_Click">(Save)</Button>
         </StackPanel>
         <!-- list of textensions -->
-        <ListBox Grid.Row="1" ItemsSource="{Binding Model.Extensions}" SelectedItem="{Binding SelectedItem}">
+        <ListBox Grid.Row="1" ItemsSource="{Binding Model.Extensions}" SelectedItem="{Binding SelectedItem}"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="{x:Type model:ExtensionItem}">
-                    <Grid>
+                    <Grid HorizontalAlignment="Stretch">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <Label Content="{Binding Title}" FontWeight="Bold"/>
-                        <StackPanel Grid.Row="1" Orientation="Horizontal">
-                            <StackPanel.Resources>
-                                <!--<Style TargetType="TextBlock">
-                                    <Setter Property="FontSize" Value="10"/>
-                                </Style>-->
-                            </StackPanel.Resources>
-                                <TextBlock Text="{Binding ClassName}" Width="150"/>
-                            <TextBlock Text="{Binding DllPath}"/>
-                        </StackPanel>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Content="{Binding Title}" FontWeight="Bold" Grid.ColumnSpan="99"/>
+                        <TextBlock Text="{Binding ClassName}" Width="150" FontSize="10" Margin="10,0,0,0" Grid.Row="1"/>
+                        <TextBlock Text="{Binding DllPath}" FontSize="10" HorizontalAlignment="Right" Grid.Row="1" Grid.Column="1" TextWrapping="NoWrap"/>
                     </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
         <!-- editor -->
-        <StackPanel Grid.Row="2" Margin="10">
+        <StackPanel Grid.Row="2" Visibility="{Binding IsSelected,Converter={StaticResource boolToVisi}}">
             <StackPanel.Resources>
-                <!--<Style TargetType="Label">
-                    <Setter Property="Margin" Value="0,3,0,0"/>
+                <Style TargetType="Label" BasedOn="{StaticResource {x:Static shell:VsResourceKeys.ThemedDialogLabelStyleKey}}">
+                    <Setter Property="Margin" Value="0,5,0,0"/>
                     <Setter Property="FontWeight" Value="Bold"/>
-                    <Setter Property="Padding" Value="0,0"/> 
+                    <Setter Property="Padding" Value="0,0"/>
                 </Style>
-                <Style TargetType="TextBox">
+
+                <!--<Style TargetType="TextBox" BasedOn="{StaticResource {x:Static toolkit:ToolkitResourceKeys.TextBoxStyleKey}}">-->
+                <Style TargetType="TextBox" BasedOn="{StaticResource {x:Static shell:VsResourceKeys.TextBoxStyleKey}}">
                     <Setter Property="Margin" Value="0"/>
-                </Style>-->
+                    <Setter Property="MinHeight" Value="23"/>
+                    <!-- copy from button -->
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                </Style>
             </StackPanel.Resources>
-            <!--<Border>
-                <TextBlock>Selected item</TextBlock>
-            </Border>-->
-            <TextBlock Foreground="Red" Visibility="{Binding ValidationMessage,Converter={StaticResource boolToVisi}}"><Run>⚠</Run><Run Text="{Binding ValidationMessage}"></Run></TextBlock>
-            <Label Content="Title"/>
-            <TextBox Text="{Binding SelectedItem.Title, UpdateSourceTrigger=PropertyChanged}"/>
-            <Label Content="Class Name"/>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <!--<TextBox Text="{Binding SelectedItem.ClassName, UpdateSourceTrigger=PropertyChanged}" Margin="0"/>-->
-                <ComboBox Grid.Column="0" IsEditable="True" DropDownOpened="PickClass_Opened" SelectedValue="{Binding SelectedItem.ClassName}"></ComboBox>
-            </Grid>
-            <Label Content="DLL Path"/>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBox Text="{Binding SelectedItem.DllPath, UpdateSourceTrigger=PropertyChanged}"/>
-                <Button Grid.Column="1" Padding="5,0" Width="20" Click="BrowseDll_Click">...</Button>
-            </Grid>
+            <Border Margin="3">
+                <TextBlock FontWeight="Bold">Selected item</TextBlock>
+            </Border>
+            <StackPanel Margin="10">
+                <TextBlock Foreground="Red" Padding="2" Visibility="{Binding HasValidationMessage,Converter={StaticResource boolToVisi}}"><Run>⚠</Run><Run Text="{Binding ValidationMessage}"></Run></TextBlock>
+                <Label Content="Title"/>
+                <TextBox Text="{Binding SelectedItem.Title, UpdateSourceTrigger=PropertyChanged}"/>
+                <Label Content="Key Shortcut"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Text="{Binding SelectedItem.ShortCutKey, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBox Grid.Column="1" Text="&lt;Press key here&gt;" KeyDown="Shortcut_KeyDown" PreviewKeyDown="Shortcut_KeyDown"/>
+                </Grid>
+                <Label Content="Class Name"/>
+                <ComboBox IsEditable="True" IsTextSearchEnabled="True" DropDownOpened="PickClass_Opened" Text="{Binding SelectedItem.ClassName}" />
+
+                <Label Content="DLL Path"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Text="{Binding SelectedItem.DllPath, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Button Grid.Column="1" Padding="5,0" Width="30" Click="BrowseDll_Click" MinWidth="0">...</Button>
+                </Grid>
+
+            </StackPanel>
         </StackPanel>
     </Grid>
 </UserControl>

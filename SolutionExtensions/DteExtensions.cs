@@ -108,10 +108,12 @@ namespace SolutionExtensions
             //var command = GetCommandByName(dte2, "SolutionExtensions.MyCommand");
             // Assign shortcut if not already present
             var bindings = ((object[])command.Bindings).Cast<string>().ToList();
-            var sc = "Global::" + shortCut;
-            if (!bindings.Contains(sc))
+            //what about "Text Editor::Ctrl+E, Ctrl+E" ?
+            if (!shortCut.Contains("::"))
+                shortCut = "Global::" + shortCut;
+            if (!bindings.Contains(shortCut))
             {
-                bindings.Add(sc);
+                bindings.Add(shortCut);
                 command.Bindings = bindings.ToArray();
             }
         }

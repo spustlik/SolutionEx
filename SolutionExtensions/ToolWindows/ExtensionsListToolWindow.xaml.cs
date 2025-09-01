@@ -1,16 +1,13 @@
-﻿using EnvDTE;
-using Microsoft.VisualStudio.Shell;
+﻿using Microsoft.VisualStudio.Shell;
 using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace SolutionExtensions.ToolWindows
 {
@@ -31,6 +28,15 @@ namespace SolutionExtensions.ToolWindows
         {
             get => _validationMessage;
             set => Set(ref _validationMessage, value);
+        }
+        #endregion
+
+        #region HasValidationMessage property
+        private bool _hasValidationMessage;
+        public bool HasValidationMessage
+        {
+            get => _hasValidationMessage;
+            set => Set(ref _hasValidationMessage, value);
         }
         #endregion
 
@@ -67,6 +73,10 @@ namespace SolutionExtensions.ToolWindows
             {
                 DoPropertyChanged(nameof(IsSelected));
             }
+            if (propertyName == nameof(ValidationMessage))
+            {
+                HasValidationMessage = !string.IsNullOrEmpty(ValidationMessage);
+            }
         }
 
         //public ObservableCollection<string> ClassList { get; } = new ObservableCollection<string>();
@@ -79,7 +89,17 @@ namespace SolutionExtensions.ToolWindows
         {
             InitializeComponent();
             this.DataContext = new VM();
+            ViewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
+
+        private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(VM.SelectedItem))
+            {
+                this.Validate();
+            }
+        }
+
         public VM ViewModel => this.DataContext as VM;
         //assigned when created ToolWindowPane 
         ToolWindowPane ToolWindowPane => this.Tag as ToolWindowPane;
@@ -126,6 +146,7 @@ namespace SolutionExtensions.ToolWindows
         private void Load_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             ExtensionManager.LoadFile(ViewModel.Model, false);
+            ExtensionManager.SyncToDte(ViewModel.Model);
         }
 
         private void Save_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -141,12 +162,9 @@ namespace SolutionExtensions.ToolWindows
                 if (!BrowseDll())
                     return;
             }
-            var saveCurrent = item.ClassName;
             var cb = sender as ComboBox;
             var classes = ExtensionManager.FindExtensionClassesInDll(item.DllPath);
             cb.ItemsSource = classes;
-            cb.SelectedValue = saveCurrent;
-            //item.ClassName = saveCurrent;
         }
 
 
@@ -169,14 +187,57 @@ namespace SolutionExtensions.ToolWindows
             item.DllPath = dlg.FileName;
             if (string.IsNullOrEmpty(item.ClassName))
                 item.ClassName = ExtensionManager.FindExtensionClassesInDll(item.DllPath).FirstOrDefault();
-            ViewModel.ValidationMessage = null;
-            if (!ExtensionManager.IsDllPathInSolutionScope(item))
-            {
-                ViewModel.ValidationMessage = $"Warning: Dll path is not in Solution (sub)folder";
-            }
+            Validate();
             ExtensionManager.EnsureTitle(item);
             return true;
         }
 
+        private void Validate()
+        {
+            string msg = null;
+            var item = this.ViewModel.SelectedItem;
+            if (item != null)
+            {
+                if (String.IsNullOrWhiteSpace(item.DllPath))
+                {
+                    msg = $"DLL path is empty";
+                }
+                else if (!ExtensionManager.IsDllPathInSolutionScope(item))
+                {
+                    msg = $"Warning: DLL path is not in Solution (sub)folder";
+                }
+            }
+            ViewModel.ValidationMessage = msg;
+        }
+
+        private void Label_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void Shortcut_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            e.Handled = true;
+            if (this.ViewModel.SelectedItem == null)
+                return;
+            if (e.KeyboardDevice.Modifiers == ModifierKeys.None)
+                return;
+            var key = e.Key == Key.System ? e.SystemKey : e.Key;
+
+            if (key == Key.System || IsModifierKey(key))
+                return;
+            var g = e.KeyboardDevice.Modifiers == ModifierKeys.None ?
+                new KeyGesture(key, ModifierKeys.Control) : //none not supported
+                new KeyGesture(key, e.KeyboardDevice.Modifiers);
+            this.ViewModel.SelectedItem.ShortCutKey = g.GetDisplayStringForCulture(System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        private bool IsModifierKey(Key key)
+        {
+            return new[] {
+                Key.LeftAlt, Key.RightAlt, Key.LeftCtrl, Key.RightCtrl, Key.LeftShift, Key.RightShift,
+                Key.CapsLock, Key.NumLock, Key.LWin, Key.RWin,
+                }.Contains(key);
+        }
     }
 }

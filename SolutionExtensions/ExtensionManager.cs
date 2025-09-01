@@ -1,6 +1,7 @@
 ﻿using EnvDTE;
 using Microsoft.VisualStudio.Shell;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -17,10 +18,29 @@ namespace SolutionExtensions
             this.package = package;
         }
 
-        private string GetCfgFilePath(DTE dte)
+        public void SyncToDte(ExtensionsModel model)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            return Path.ChangeExtension(dte.Solution.FullName, "slnexcfg");
+            var dte = this.package.GetService<DTE, DTE>();
+            if (dte.Solution == null)
+                return;
+
+            //run command is using index of item, so it must be synced
+            //same shortcut, probably title - but it needs MenuItem
+            Log(dte, $"Commands count={dte.Commands.Count}");
+            foreach (Command cmd in dte.Commands)
+            {
+                //cmd.LocalizedName
+                //cmd.Collection //parent collection
+                var b = cmd.Bindings as object[]; //array of strings in format like "VC Dialog Editor::F9"
+                Log(dte, $"ID={cmd.ID},GUID={cmd.Guid},{cmd.Name},BIND={b.Length}:{string.Join("|", b)}");
+            }
+            //System.Diagnostics.Debugger.Break();
+        }
+
+        private void Log(DTE dte, string msg)
+        {
+            dte.AddToOutputPane(msg, typeof(SolutionExtensionsPackage).Name);
         }
 
         public void LoadFile(ExtensionsModel target, bool skipIfNoSolution)
@@ -44,42 +64,6 @@ namespace SolutionExtensions
             if (!File.Exists(cfgFilePath))
                 return;
             LoadFromFile(target, cfgFilePath);
-        }
-
-        private void LoadFromFile(ExtensionsModel target, string cfgFilePath)
-        {
-            using (var fs = new FileStream(cfgFilePath, FileMode.Open, FileAccess.Read))
-            {
-                using (var sr = new StreamReader(fs))
-                {
-                    target.Extensions.Clear();
-                    while (!sr.EndOfStream)
-                    {
-                        var line = sr.ReadLine().Trim();
-                        if (line.StartsWith("#") || string.IsNullOrWhiteSpace(line))
-                            continue;
-                        var item = LoadItem(line);
-                        if (item != null)
-                            target.Extensions.Add(item);
-                    }
-                }
-            }
-        }
-
-        private ExtensionItem LoadItem(string line)
-        {
-            var parts = line.Split('|');
-            if (parts.Length != 4)
-                return null;
-            var item = new ExtensionItem()
-            {
-                Title = parts[0],
-                ShortCutKey = parts[1],
-                ClassName = parts[2],
-                DllPath = parts[3]
-            };
-            EnsureTitle(item);
-            return item;
         }
 
         public void EnsureTitle(ExtensionItem item)
@@ -151,6 +135,48 @@ namespace SolutionExtensions
         {
             var assembly = LoadVersionedAssembly(dllPath);
             return assembly.GetTypes().Where(t => IsExtensionClass(t)).Select(t => t.FullName).ToArray();
+        }
+
+        private string GetCfgFilePath(DTE dte)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            return Path.ChangeExtension(dte.Solution.FullName, "slnexcfg");
+        }
+
+        private void LoadFromFile(ExtensionsModel target, string cfgFilePath)
+        {
+            using (var fs = new FileStream(cfgFilePath, FileMode.Open, FileAccess.Read))
+            {
+                using (var sr = new StreamReader(fs))
+                {
+                    target.Extensions.Clear();
+                    while (!sr.EndOfStream)
+                    {
+                        var line = sr.ReadLine().Trim();
+                        if (line.StartsWith("#") || string.IsNullOrWhiteSpace(line))
+                            continue;
+                        var item = LoadItem(line);
+                        if (item != null)
+                            target.Extensions.Add(item);
+                    }
+                }
+            }
+        }
+
+        private ExtensionItem LoadItem(string line)
+        {
+            var parts = line.Split('|');
+            if (parts.Length != 4)
+                return null;
+            var item = new ExtensionItem()
+            {
+                Title = parts[0],
+                ShortCutKey = parts[1],
+                ClassName = parts[2],
+                DllPath = parts[3]
+            };
+            EnsureTitle(item);
+            return item;
         }
 
         private bool IsExtensionClass(Type t)
@@ -229,5 +255,14 @@ namespace SolutionExtensions
             var dllPath = Path.GetDirectoryName(item.DllPath);
             return dllPath.StartsWith(solPath, StringComparison.OrdinalIgnoreCase);
         }
+
+        //    public string GetExtensionId(ExtensionItem item)
+        //    {
+        //        return ($"{item.DllPath},{item.ClassName}").ToLowerInvariant();
+        //    }
+        //    public ExtensionItem FindExtensionById(ExtensionsModel model, string extensionId)
+        //    {
+        //        return model.Extensions.FirstOrDefault(x => GetExtensionId(x) == extensionId);
+        //    }
     }
 }
