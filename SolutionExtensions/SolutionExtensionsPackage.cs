@@ -75,7 +75,7 @@ namespace SolutionExtensions
             else
                 AddToOutputPane("No Solution Items project found");
         }
-        void AddToOutputPane(string msg, bool clear = false)
+        public void AddToOutputPane(string msg, bool clear = false)
         {
             dte.AddToOutputPane(msg, this.GetType().Name, clear);
             if (clear)

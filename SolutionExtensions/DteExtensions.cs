@@ -3,6 +3,7 @@ using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
@@ -133,5 +134,13 @@ namespace SolutionExtensions
             return pane as T;
         }
 
+        public static IEnumerable<string> GetFiles(this ProjectItem item)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            for (var i = 1; i <= item.FileCount; i++)
+            {
+                yield return item.FileNames[(short)i];
+            }
+        }
     }
 }

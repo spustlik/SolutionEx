@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows.Markup.Localizer;
 using System.Xml.Serialization;
 
 namespace SolutionExtensions
@@ -187,5 +189,27 @@ namespace SolutionExtensions
             DoPropertyChanged(nameof(HasErrors));
             DoPropertyChanged(nameof(IsValid));
         }
+    }
+
+    public static class SimpleDataObjectExtensions
+    {
+        public static void OnCollectionItemChanged<T>(ObservableCollection<T> collection)
+        {
+            void Collection_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+            {
+                switch (e.Action)
+                {
+                    case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
+                        break;
+                    case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
+                    case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
+                    case System.Collections.Specialized.NotifyCollectionChangedAction.Replace:
+                    case System.Collections.Specialized.NotifyCollectionChangedAction.Move:
+                        break;
+                }                        
+            }
+            collection.CollectionChanged += Collection_CollectionChanged;
+        }
+
     }
 }

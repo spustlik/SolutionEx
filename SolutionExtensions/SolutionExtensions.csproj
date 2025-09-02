@@ -68,9 +68,9 @@
     <Compile Include="Commands\DataExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="commandsgen.t4">
+    <None Include="commands.t4">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>commandsgen.vsct</LastGenOutput>
+      <LastGenOutput>commands.vsct</LastGenOutput>
     </None>
     <None Include="Key.snk" />
     <None Include="source.extension.vsixmanifest">
@@ -104,16 +104,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="commandsok.vsct" />
-    <None Include="commands-compare.vsct" />
-    <Content Include="commandsgen.vsct">
+    <VSCTCompile Include="commands.vsct">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>commandsgen.t4</DependentUpon>
-    </Content>
-    <Content Include="Resources\CommandAddConfig.png" />
-    <VSCTCompile Include="commands.vsct">
+      <DependentUpon>commands.t4</DependentUpon>
       <ResourceName>Menus.ctmenu</ResourceName>
     </VSCTCompile>
+    <Content Include="Resources\CommandAddConfig.png" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="ToolWindows\ExtensionsListToolWindow.xaml">

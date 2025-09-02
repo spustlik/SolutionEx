@@ -1,10 +1,13 @@
-﻿using Microsoft.VisualStudio.Shell;
+﻿using EnvDTE;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.Win32;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -150,7 +153,7 @@ namespace SolutionExtensions.ToolWindows
         private void PickClass_Opened(object sender, EventArgs e)
         {
             var item = this.ViewModel.SelectedItem;
-            if (!File.Exists(item.DllPath))
+            if (!File.Exists(ExtensionManager.GetRealPath(item.DllPath)))
             {
                 if (!BrowseDll())
                     return;
@@ -177,30 +180,37 @@ namespace SolutionExtensions.ToolWindows
             dlg.FileName = this.ViewModel.SelectedItem.DllPath;
             if (dlg.ShowDialog() != true)
                 return false;
-            item.DllPath = dlg.FileName;
+            ExtensionManager.SetDllPath(item, dlg.FileName);
             if (string.IsNullOrEmpty(item.ClassName))
                 item.ClassName = ExtensionManager.FindExtensionClassesInDll(item.DllPath).FirstOrDefault();
             Validate();
+
             ExtensionManager.EnsureTitle(item);
             return true;
         }
 
         private void Validate()
         {
-            string msg = null;
             var item = this.ViewModel.SelectedItem;
-            if (item != null)
+            if (item == null)
             {
-                if (String.IsNullOrWhiteSpace(item.DllPath))
-                {
-                    msg = $"DLL path is empty";
-                }
-                else if (!ExtensionManager.IsDllPathInSolutionScope(item))
-                {
-                    msg = $"Warning: DLL path is not in Solution (sub)folder";
-                }
+                ViewModel.ValidationMessage = null;
+                return;
             }
-            ViewModel.ValidationMessage = msg;
+            ViewModel.ValidationMessage = GetValidation(item);
+        }
+
+        private string GetValidation(ExtensionItem item)
+        {
+            if (String.IsNullOrWhiteSpace(item.DllPath))
+                return $"DLL path is empty";
+            if (!ExtensionManager.IsDllPathInSolutionScope(item))
+                return $"Warning: DLL path is not in Solution (sub)folder";
+            if (!ExtensionManager.IsDllExists(item))
+                return $"DLL file does not exist, maybe you must compile it?";
+            if (!ExtensionManager.IsClassValid(item))
+                return $"Class '{item.ClassName}' not found in DLL";
+            return null;
         }
 
         private void Label_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -231,6 +241,56 @@ namespace SolutionExtensions.ToolWindows
                 Key.LeftAlt, Key.RightAlt, Key.LeftCtrl, Key.RightCtrl, Key.LeftShift, Key.RightShift,
                 Key.CapsLock, Key.NumLock, Key.LWin, Key.RWin,
                 }.Contains(key);
+        }
+
+        private void AddProj_Click(object sender, RoutedEventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var dte = Package.GetService<DTE, DTE>();
+            if (dte.Solution == null)
+                return;
+            foreach (Project proj in dte.Solution)
+            {
+                Package.AddToOutputPane($"Project: {proj.Name} - {proj.Kind} - {proj.FullName}");
+                foreach (Property prop in proj.Properties)
+                {
+                    try
+                    {
+                        Package.AddToOutputPane($"  Property: {prop.Name} = {prop.Value}");
+                    }
+                    catch (Exception ex) {
+                        Package.AddToOutputPane($"  Property: {prop.Name} err {ex.Message}");
+                    }
+                }
+                foreach (ProjectItem item in proj.ProjectItems)
+                {
+                    var files = String.Join(";", item.GetFiles());
+                    Package.AddToOutputPane($"    {item.Name}, files:{files}, kind:{item.Kind}, code model:{item.FileCodeModel}");
+                }
+            }
+        }
+
+        private void CheckAll_Click(object sender, RoutedEventArgs e)
+        {
+            var sb = new StringBuilder();
+            foreach (var item in ViewModel.Model.Extensions)
+            {
+                var msg = GetValidation(item);
+                if (msg != null)
+                    sb.AppendLine($"Extension #{ViewModel.Model.Extensions.IndexOf(item) + 1} '{item.Title}': {msg}");
+            }
+            if (sb.Length == 0)
+                MessageBox.Show("All extensions look valid");
+            else
+                MessageBox.Show(sb.ToString(), "Validation results", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+
+        private void ButtonMore_Click(object sender, RoutedEventArgs e)
+        {
+            var ctx = (sender as Button).ContextMenu;
+            ctx.PlacementTarget = sender as Button;
+            ctx.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+            ctx.IsOpen = true;
         }
     }
 }

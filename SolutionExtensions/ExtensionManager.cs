@@ -5,15 +5,16 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace SolutionExtensions
 {
     public class ExtensionManager
     {
-        private AsyncPackage package;
+        private SolutionExtensionsPackage package;
 
-        public ExtensionManager(AsyncPackage package)
+        public ExtensionManager(SolutionExtensionsPackage package)
         {
             this.package = package;
         }
@@ -111,11 +112,47 @@ namespace SolutionExtensions
             }
         }
 
+        public void SetDllPath(ExtensionItem item, string fileName)
+        {
+            if (!fileName.Contains('%') && !fileName.Contains("$("))
+            {
+                var solPath = Path.GetDirectoryName(GetSolutionFileName());
+                if (fileName.StartsWith(solPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    var relPath = fileName.Substring(solPath.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                    fileName = Path.Combine("$(SolutionDir)", relPath);
+                }
+            }
+            item.DllPath = fileName;
+        }
+
+
+        public string GetRealPath(string dllPath)
+        {
+            string getVariable(string name)
+            {
+                switch (name.Trim().ToUpperInvariant())
+                {
+                    case "SOLUTIONDIR": return Path.GetDirectoryName(GetSolutionFileName());
+                    default: return null;
+                }
+            }
+            var r = Environment.ExpandEnvironmentVariables(dllPath);
+            var rex = new Regex(@"\$\((?<var>[^\)]*)\)", RegexOptions.Compiled);
+            r = rex.Replace(r, (m) =>
+            {
+                var var = m.Groups["var"].Value;
+                if (!string.IsNullOrEmpty(var))
+                    return getVariable(var);
+                return m.Value;
+            });
+            return r;
+        }
         public void RunExtension(ExtensionItem extension)
         {
             //try to find dll if only project name ->/bin/debug or /bin/release
             //try to rebuild if not found
-            var assembly = LoadVersionedAssembly(extension.DllPath);
+            var assembly = LoadVersionedAssembly(GetRealPath(extension.DllPath));
             var type = assembly.GetType(extension.ClassName);
             if (type == null)
                 throw new InvalidOperationException($"Class {extension.ClassName} not found in assembly {assembly.FullName}");
@@ -133,14 +170,13 @@ namespace SolutionExtensions
 
         public string[] FindExtensionClassesInDll(string dllPath)
         {
-            var assembly = LoadVersionedAssembly(dllPath);
+            var assembly = LoadVersionedAssembly(GetRealPath(dllPath));
             return assembly.GetTypes().Where(t => IsExtensionClass(t)).Select(t => t.FullName).ToArray();
         }
 
         private string GetCfgFilePath(DTE dte)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            return Path.ChangeExtension(dte.Solution.FullName, "slnexcfg");
+            return Path.ChangeExtension(GetSolutionFileName(), ".extensions.cfg");
         }
 
         private void LoadFromFile(ExtensionsModel target, string cfgFilePath)
@@ -177,6 +213,12 @@ namespace SolutionExtensions
             };
             EnsureTitle(item);
             return item;
+        }
+
+        public bool IsClassValid(ExtensionItem item)
+        {
+            var cls = FindExtensionClassesInDll(item.DllPath);
+            return cls.FirstOrDefault(c => c == item.ClassName) != null;
         }
 
         private bool IsExtensionClass(Type t)
@@ -247,22 +289,25 @@ namespace SolutionExtensions
 
         public bool IsDllPathInSolutionScope(ExtensionItem item)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            var dte = this.package.GetService<DTE, DTE>();
-            if (dte.Solution == null)
-                return false;
-            var solPath = Path.GetDirectoryName(dte.Solution.FullName);
-            var dllPath = Path.GetDirectoryName(item.DllPath);
+            var solPath = Path.GetDirectoryName(GetSolutionFileName());
+            var realDllPath = GetRealPath(item.DllPath);
+            var dllPath = Path.GetDirectoryName(realDllPath);
             return dllPath.StartsWith(solPath, StringComparison.OrdinalIgnoreCase);
         }
 
-        //    public string GetExtensionId(ExtensionItem item)
-        //    {
-        //        return ($"{item.DllPath},{item.ClassName}").ToLowerInvariant();
-        //    }
-        //    public ExtensionItem FindExtensionById(ExtensionsModel model, string extensionId)
-        //    {
-        //        return model.Extensions.FirstOrDefault(x => GetExtensionId(x) == extensionId);
-        //    }
+        private string GetSolutionFileName()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var dte = this.package.GetService<DTE, DTE>();
+            if (dte.Solution == null || String.IsNullOrEmpty(dte.Solution.FullName))
+                return null;
+            return dte.Solution.FullName;
+        }
+
+        public bool IsDllExists(ExtensionItem item)
+        {
+            var realDllPath = GetRealPath(item.DllPath);
+            return File.Exists(realDllPath);
+        }
     }
 }

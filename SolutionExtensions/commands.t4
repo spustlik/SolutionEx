@@ -10,10 +10,13 @@
 <#@ assembly name="System.Xml.Linq"#>
 <#@ import namespace="System.Xml.Linq" #>
 <#
+	//WARNING: result file must have Compile property set to VSCTCompile
+	//AND: set <ResourceName>Menus.ctmenu</ResourceName> to result vstc file manually in csproj
+
 	var commands = new List<Command>();
 	commands.Add(new Command(){Id=0x0100,Title="Solution extensions",Visible=true});
 	for(var i=0;i<10;i++){
-		commands.Add(new Command(){Id=0x0200+i,Title="Solution Extension " + (i+1)});
+		commands.Add(new Command(){Id=0x110+i,Title="Solution Extension " + (i+1)});
 	}
 	//commands.Add(new Command(){Id=0x0101,Title="Extension 1"});
 #>
@@ -76,7 +79,7 @@
 	class Command {
 		public int Id;
 		public string Title;
-		public string IdSymbol { get { return "idCommand" + Id.ToString("X4"); } }
+		public string IdSymbol { get { return "id" + Id.ToString("X3")+"cmd"; } } //warn about max len
 		public bool Visible = false;
 	}
 #>

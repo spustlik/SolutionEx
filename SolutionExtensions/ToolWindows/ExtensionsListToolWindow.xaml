@@ -12,7 +12,7 @@
              d:Background="White"
              Loaded="Control_Loaded"
              d:DataContext="{d:DesignInstance Type=local:VM}"
-             d:DesignHeight="396.91" d:DesignWidth="229.916">
+             d:DesignHeight="455.41" d:DesignWidth="399.916">
     <UserControl.Resources>
         <ResourceDictionary>
             <!-- 
@@ -51,8 +51,18 @@
             <Button Click="AddItem_Click">+ Add</Button>
             <Button Click="Delete_Click" IsEnabled="{Binding IsSelected}">🗙 Delete</Button>
             <Button Click="Run_Click" IsEnabled="{Binding IsSelected}">▶ Run</Button>
-            <Button Click="Load_Click">(Load)</Button>
-            <Button Click="Save_Click">(Save)</Button>
+            <Button Click="ButtonMore_Click">
+                <Button.Content>More▾</Button.Content>
+                <Button.ContextMenu>
+                    <ContextMenu Style="{StaticResource {x:Static shell:VsResourceKeys.ContextMenuStyleKey}}">
+                        <MenuItem Header="Add extension project to solution" Click="AddProj_Click"/>
+                        <MenuItem Header="Check all" Click="CheckAll_Click"/>
+                        <Separator/>
+                        <MenuItem Header="Load" Click="Load_Click"/>
+                        <MenuItem Header="Save" Click="Save_Click"/>
+                    </ContextMenu>
+                </Button.ContextMenu>
+            </Button>
         </StackPanel>
         <!-- list of textensions -->
         <ListBox Grid.Row="1" ItemsSource="{Binding Model.Extensions}" SelectedItem="{Binding SelectedItem}"
@@ -111,7 +121,9 @@
                 <Label Content="Class Name"/>
                 <ComboBox IsEditable="True" IsTextSearchEnabled="True" DropDownOpened="PickClass_Opened" Text="{Binding SelectedItem.ClassName}" />
 
-                <Label Content="DLL Path"/>
+                <Label>
+                    <TextBlock ToolTip="You can use $(SolutionDir) or any environment variable like %APP_MY_PATH%.">DLL Path 🛈</TextBlock>
+                </Label>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
