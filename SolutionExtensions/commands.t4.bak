@@ -6,50 +6,17 @@
 <#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Text.RegularExpressions" #>
-<#@ assembly name="System.Core"#>
-<#@ import namespace="System.Linq" #>
 <#@ assembly name="System.Xml"#>
 <#@ assembly name="System.Xml.Linq"#>
 <#@ import namespace="System.Xml.Linq" #>
 <#
-	//TextTemplatingFilePreprocessor vs TextTemplatingFileGenerator
-
 	//WARNING: result file must have Compile property set to VSCTCompile
-	//AND: set <ResourceName>Menus.ctmenu</ResourceName> to result vstc file manually in csproj
-	GetDTE();    
-
+	//AND: set <ResourceName>Menus.ctmenu</ResourceName> to result vstc file manually in csproj	
 	var package="guidSEPkg";
 	var commands = new List<Command>();
 	commands.Add(new Command(){Id=0x0100,Title="Show...",Visible=true,Name="SolutionEx.show"});
-	for(var i=0;i<50;i++){
-		commands.Add(new Command(){Id=0x200+i,Title="Solution Extension " + (i+1), Name="SolutionEx.Extension"+(i+1)});
-	}
-	var ns = System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("NamespaceHint");
-#>
-namespace <#=ns#>
-{
-	public static class CommandIds
-	{
-<#
-	foreach(var cmd in commands)
-	{
-		var name = cmd.Name.Split('.').Last();//Replace(".","_");
-#>
-		public static int Command_<#=name#> = 0x<#=cmd.Id.ToString("X4")#>;
-<#
-	}
-#>
-	}
-}
-<#
-	
-	WriteOutputToFile(".cs");
-	var generating = dte.Solution.FindProjectItem(Path.ChangeExtension(Host.TemplateFile, ".vsct"));
-	if (generating != null)
-	{
-		SetPropertyValue(generating, "ItemType", "VSCTCompile");
-		//not working:( add new property?
-		//SetPropertyValue(generating, "ResourceName", "Menus.ctmenu");
+	for(var i=0;i<100;i++){
+		commands.Add(new Command(){Id=0x200+i,Title="Solution Extension " + (i+1), Name="Solution.Extension"+(i+1)});
 	}
 #>
 <?xml version="1.0" encoding="utf-8"?>
@@ -83,9 +50,9 @@ namespace <#=ns#>
 <#
 		if(!c.Visible)
 		{
-		//<CommandFlag>DynamicVisibility</CommandFlag>
 #>
-				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 <#
 		}
 #>
@@ -134,39 +101,7 @@ namespace <#=ns#>
 		public string Title;
 		public string Name;
 		public string Parent;
-		public string IdSymbol { get { return "id" + Id.ToString("X3")+"cmd"; } } 
+		public string IdSymbol { get { return "id" + Id.ToString("X3")+"cmd"; } } //warn about max len
 		public bool Visible = false;
 	}
-	
-	public EnvDTE.ProjectItem templateProjectItem;
-	public EnvDTE.DTE dte;
-	void GetDTE()
-	{
-		var hostServiceProvider = (IServiceProvider)Host;
-        if (hostServiceProvider == null)
-			throw new ArgumentNullException("Could not obtain IServiceProvider");
-		dte = (EnvDTE.DTE)hostServiceProvider.GetService(typeof(EnvDTE.DTE));
-        if (dte == null)
-			throw new ArgumentNullException("Could not obtain DTE from host");
-        templateProjectItem = dte.Solution.FindProjectItem(Host.TemplateFile);
-	}
-    private static void SetPropertyValue(EnvDTE.ProjectItem projectItem, string propertyName, object value, bool add = false)
-    {
-        EnvDTE.Property property = projectItem.Properties.Item(propertyName);
-        if (property == null)
-        {
-            throw new Exception(string.Format("Property {0} is not supported for {1}", propertyName, projectItem.Name));
-        }
-        property.Value = value;
-    }
-	void WriteOutputToFile(string ext)
-	{
-		var src = Path.ChangeExtension(Host.TemplateFile, ext);
-		var srcItem = dte.Solution.FindProjectItem(src);
-		File.WriteAllText(src, GenerationEnvironment.ToString());
-		GenerationEnvironment.Clear();
-		if (srcItem == null)
-			srcItem = templateProjectItem.ProjectItems.AddFromFile(src);
-
-	}	
 #>

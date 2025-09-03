@@ -3,11 +3,14 @@ using EnvDTE;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Packaging;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
+using System.Windows.Documents;
 using Task = System.Threading.Tasks.Task;
 
 namespace SolutionExtensions
@@ -61,25 +64,68 @@ namespace SolutionExtensions
             Model = new ExtensionsModel();
             // err: AddToOutputPane("Started",true);
             dte.Events.SolutionEvents.Opened += this.OnSolutionOpened;
-            await CommandBase.InitializeAsync<CommandAddConfig>(this);
+
             this.RegisterToolWindows();
+            await CommandBase.InitializeAsync<CommandShow>(this);
+            var tasks = new List<Task>();
+            for (int i = 0; i <= CommandIds.Command_Extension50 - CommandIds.Command_Extension1; i++)
+            {
+                tasks.Add(CommandBase.InitializeAsync(this, new RunExtensionCommand(CommandIds.Command_Extension1 + i, i)));
+            }
+            await Task.WhenAll(tasks);
+            SyncWithDte();
+        }
+
+        private void SyncWithDte()
+        {
+            if (ExtensionManager.LoadFile(Model, true))
+            {
+                ExtensionManager.SyncToDte(Model);
+            }
         }
 
         void OnSolutionOpened()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             AddToOutputPane($"Solution opened: {dte.Solution.FullName}", true);
-            var si = dte.Solution.FindSolutionItemsProject();
-            if (si != null)
-                AddToOutputPane($"Found Solution Items project: {si.Name}");
-            else
-                AddToOutputPane("No Solution Items project found");
+            SyncWithDte();
         }
         public void AddToOutputPane(string msg, bool clear = false)
         {
             dte.AddToOutputPane(msg, this.GetType().Name, clear);
             if (clear)
                 dte.AddToOutputPane("$---started at {Datetime.Now}---", this.GetType().Name);
+        }
+
+        public async Task ShowStatusBarErrorAsync(string message)
+        {
+            await JoinableTaskFactory.SwitchToMainThreadAsync(DisposalToken);
+            IVsStatusbar statusBar = await GetServiceAsync(typeof(SVsStatusbar)) as IVsStatusbar;
+            if (statusBar != null)
+            {
+                // Set the status bar text
+                //statusBar.SetText(message);
+                statusBar.SetColorText(message, 0xFF0000, 0);
+                // Optionally, you can flash the status bar to draw attention
+                statusBar.FreezeOutput(0); // Unfreeze if previously frozen
+                statusBar.FreezeOutput(1); // Freeze to highlight the message
+                await Task.Delay(2000);    // Keep it frozen for 2 seconds
+                statusBar.FreezeOutput(0); // Unfreeze again
+            }
+        }
+        public void AddConfigToSolutionItem()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if (dte.Solution == null)
+                return;
+            var cfgFilePath = ExtensionManager.GetCfgFilePath(dte);
+            if (!File.Exists(cfgFilePath))
+            {
+                _ = ShowStatusBarErrorAsync($"Config not yet saved. Add some extensions");
+                return;
+            }
+            var si = dte.Solution.FindSolutionItemsProject(addIfNotExists: true);
+            var fi = si.FindProjectItem(cfgFilePath, addIfNotExists: true);
         }
 
         public void TestMethod()

@@ -1,24 +1,38 @@
 ﻿using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Threading;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Windows;
 
 namespace SolutionExtensions
 {
-    public sealed class RunExtensionCommand : CommandBase
+    public sealed class RunExtensionCommand : CommandBaseAsync
     {
         public int ExtensionIndex { get; }
         public RunExtensionCommand(int commandId, int extensionIndex) : base(commandId)
         {
             ExtensionIndex = extensionIndex;
         }
-        protected override void Execute(object sender, EventArgs e)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
+        protected async override Task ExecuteAsync(object sender, EventArgs e)
+        {            
             var package = this.package as SolutionExtensionsPackage;
             var item = package.Model.Extensions.ElementAtOrDefault(ExtensionIndex);
             if (item == null)
+            {
+                package.AddToOutputPane($"Extension with index ${ExtensionIndex} not found");
                 return;
-            package.ExtensionManager.RunExtension(item);
+            }
+            package.AddToOutputPane($"Running extension ${ExtensionIndex}:{item.DllPath},{item.ClassName},{item.Title}");
+            try
+            {
+                package.ExtensionManager.RunExtension(item);
+            }
+            catch (Exception ex)
+            {
+                package.AddToOutputPane("Error:" + ex.Message);
+                await package.ShowStatusBarErrorAsync($"Error running extension ${item.Title}, see Ooutput window for details");
+            }
         }
     }
 }

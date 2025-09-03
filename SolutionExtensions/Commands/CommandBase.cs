@@ -1,6 +1,8 @@
 ﻿using Microsoft.VisualStudio.Shell;
+using SolutionExtensions.ToolWindows;
 using System;
 using System.ComponentModel.Design;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SolutionExtensions

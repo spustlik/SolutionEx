@@ -193,7 +193,7 @@ namespace SolutionExtensions
 
     public static class SimpleDataObjectExtensions
     {
-        public static void OnCollectionItemChanged<T>(ObservableCollection<T> collection)
+        public static void OnCollectionItemChanged<T>(this ObservableCollection<T> collection)
         {
             void Collection_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
             {

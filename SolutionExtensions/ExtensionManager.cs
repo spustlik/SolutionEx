@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -26,8 +27,13 @@ namespace SolutionExtensions
             if (dte.Solution == null)
                 return;
 
-            //run command is using index of item, so it must be synced
+            //runcommand is using index of item, so it must be synced
             //same shortcut, probably title - but it needs MenuItem
+            //var dumpRoot = n
+            //var doc = dte.Documents.Add(EnvDTE.Constants.vsDocumentKindText);
+            //(doc.Selection as EnvDTE.TextSelection).Insert(s);
+            //sync title,shortcut to commandX
+
             Log(dte, $"Commands count={dte.Commands.Count}");
             foreach (Command cmd in dte.Commands)
             {
@@ -44,27 +50,25 @@ namespace SolutionExtensions
             dte.AddToOutputPane(msg, typeof(SolutionExtensionsPackage).Name);
         }
 
-        public void LoadFile(ExtensionsModel target, bool skipIfNoSolution)
+        /// <summary>
+        /// loads cfg file
+        /// </summary>
+        /// <returns>true if any extension loaded</returns>
+        public bool LoadFile(ExtensionsModel target, bool skipIfNoSolution)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var dte = this.package.GetService<DTE, DTE>();
             if (dte.Solution == null)
             {
                 if (skipIfNoSolution)
-                    return;
+                    return false;
                 throw new InvalidOperationException("No solution loaded");
             }
-            var si = dte.Solution.FindSolutionItemsProject();
             var cfgFilePath = GetCfgFilePath(dte);
-            if (si != null)
-            {
-                var fi = si.FindProjectItem(cfgFilePath);
-                if (fi != null)
-                    cfgFilePath = fi.FileNames[1];
-            }
             if (!File.Exists(cfgFilePath))
-                return;
+                return false;
             LoadFromFile(target, cfgFilePath);
+            return target.Extensions.Count > 0; ;
         }
 
         public void EnsureTitle(ExtensionItem item)
@@ -78,7 +82,7 @@ namespace SolutionExtensions
             }
         }
 
-        public void SaveFile(ExtensionsModel source, bool modifySolution)
+        public void SaveFile(ExtensionsModel source)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var dte = this.package.GetService<DTE, DTE>();
@@ -86,15 +90,6 @@ namespace SolutionExtensions
                 throw new InvalidOperationException("No solution loaded");
             var cfgFilePath = GetCfgFilePath(dte);
             SaveToFile(source, cfgFilePath);
-            if (modifySolution)
-            {
-                var si = dte.Solution.FindSolutionItemsProject();
-                if (si == null)
-                    si = dte.Solution.AddSolutionFolder();
-                var fi = si.FindProjectItem(cfgFilePath);
-                if (fi == null)
-                    fi = si.ProjectItems.AddFromFile(cfgFilePath);
-            }
         }
         public void SaveToFile(ExtensionsModel source, string cfgFilePath)
         {
@@ -174,7 +169,7 @@ namespace SolutionExtensions
             return assembly.GetTypes().Where(t => IsExtensionClass(t)).Select(t => t.FullName).ToArray();
         }
 
-        private string GetCfgFilePath(DTE dte)
+        public string GetCfgFilePath(DTE dte)
         {
             return Path.ChangeExtension(GetSolutionFileName(), ".extensions.cfg");
         }
@@ -237,9 +232,10 @@ namespace SolutionExtensions
             var dllFn = Path.GetFileNameWithoutExtension(dllPath);
             var dllExt = Path.GetExtension(dllPath);
             var verFn = $"{dllFn}-{ver}{dllExt}";
-            var versionsFolder = Path.Combine(Path.GetTempPath(), this.GetType().Namespace);
-            var verPath = Path.Combine(versionsFolder, verFn);
-            if (!File.Exists(verPath))
+
+            var versionsFolder = Path.GetDirectoryName(dllPath);// do not use another dir, to allow load referenced assemblies //Path.Combine(Path.GetTempPath(), this.GetType().Namespace);
+            var verFullName = Path.Combine(versionsFolder, verFn);
+            if (!File.Exists(verFullName))
             {
                 if (!Directory.Exists(versionsFolder))
                     Directory.CreateDirectory(versionsFolder);
@@ -247,10 +243,10 @@ namespace SolutionExtensions
                 using (var ai = Mono.Cecil.AssemblyDefinition.ReadAssembly(dllPath))
                 {
                     ai.Name.Name = $"{ai.Name.Name}_{ver}";
-                    ai.Write(verPath);
+                    ai.Write(verFullName);
                 }
             }
-            var a = Assembly.LoadFrom(verPath);
+            var a = Assembly.LoadFrom(verFullName);
             //Console.WriteLine($"loaded assembly {a.GetName().Name}, version {a.GetName().Version} from {Path.GetFileName(unique)}");
             return a;
             //File.Copy(dllPath, verPath);

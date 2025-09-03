@@ -52,7 +52,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Commands\CommandAddConfig.cs" />
+    <Compile Include="commands.cs">
+      <DependentUpon>commands.t4</DependentUpon>
+    </Compile>
+    <Compile Include="Commands\CommandBaseAsync.cs" />
+    <Compile Include="Commands\CommandShow.cs" />
     <Compile Include="Commands\CommandBase.cs" />
     <Compile Include="Commands\RunExtensionCommand.cs" />
     <Compile Include="DteExtensions.cs" />
@@ -103,7 +107,7 @@
     <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.14.2101" NoWarn="NU1604" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="commandsok.vsct" />
+    <None Include="commands-template.vsct" />
     <VSCTCompile Include="commands.vsct">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

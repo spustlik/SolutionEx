@@ -15,7 +15,7 @@ namespace SolutionExtensions
     {
         private const string SOLUTION_ITEMS_FOLDER = "Solution Items";
 
-        public static Project FindSolutionItemsProject(this Solution solution)
+        public static Project FindSolutionItemsProject(this Solution solution, bool addIfNotExists = false)
         {
             //return dte.GetProject(SOLUTION_ITEMS_FOLDER, createIfNotExists);
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -24,25 +24,31 @@ namespace SolutionExtensions
                 if (proj.Kind == EnvDTE80.ProjectKinds.vsProjectKindSolutionFolder)
                     return proj;
             }
+            if (addIfNotExists)
+            {
+                return AddSolutionFolder(solution, SOLUTION_ITEMS_FOLDER);
+            }
             return null;
         }
-        public static Project AddSolutionFolder(this Solution solution, string folderName = null)
+        public static Project AddSolutionFolder(this Solution solution, string folderName)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            if (folderName == null)
-                folderName = SOLUTION_ITEMS_FOLDER;
             var s2 = solution as Solution2;
             var folder = s2.AddSolutionFolder(SOLUTION_ITEMS_FOLDER);
             return folder;
         }
 
-        public static ProjectItem FindProjectItem(this Project project, string filePath)
+        public static ProjectItem FindProjectItem(this Project project, string filePath, bool addIfNotExists = false)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             foreach (ProjectItem item in project.ProjectItems)
             {
                 if (string.Equals(item.Name, Path.GetFileName(filePath), StringComparison.OrdinalIgnoreCase))
                     return item;
+            }
+            if (addIfNotExists)
+            {
+                return project.ProjectItems.AddFromFile(filePath);
             }
             return null;
         }

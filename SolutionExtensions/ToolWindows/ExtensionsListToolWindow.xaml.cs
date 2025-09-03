@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -64,6 +65,10 @@ namespace SolutionExtensions.ToolWindows
         }
         #endregion
 
+        public VM()
+        {
+            //this.Model.Extensions.OnCollectionItemChanged()
+        }
         protected override void DoPropertyChanged(string propertyName = null)
         {
             base.DoPropertyChanged(propertyName);
@@ -141,13 +146,16 @@ namespace SolutionExtensions.ToolWindows
         }
         private void Load_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            ExtensionManager.LoadFile(ViewModel.Model, false);
+            ExtensionManager.LoadFile(ViewModel.Model, false);            
+        }
+        private void SyncToDte_Click(object sender, RoutedEventArgs e)
+        {
             ExtensionManager.SyncToDte(ViewModel.Model);
         }
 
         private void Save_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            ExtensionManager.SaveFile(ViewModel.Model, true);
+            ExtensionManager.SaveFile(ViewModel.Model);
         }
 
         private void PickClass_Opened(object sender, EventArgs e)
@@ -213,11 +221,6 @@ namespace SolutionExtensions.ToolWindows
             return null;
         }
 
-        private void Label_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-
-        }
-
         private void Shortcut_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             e.Handled = true;
@@ -249,6 +252,7 @@ namespace SolutionExtensions.ToolWindows
             var dte = Package.GetService<DTE, DTE>();
             if (dte.Solution == null)
                 return;
+            //dte.Documents.Add()
             foreach (Project proj in dte.Solution)
             {
                 Package.AddToOutputPane($"Project: {proj.Name} - {proj.Kind} - {proj.FullName}");
@@ -291,6 +295,11 @@ namespace SolutionExtensions.ToolWindows
             ctx.PlacementTarget = sender as Button;
             ctx.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
             ctx.IsOpen = true;
+        }
+
+        private void AddConfig_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

@@ -2,96 +2,493 @@
 <CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
 	<Extern href="stdidcmd.h"/>
 	<Extern href="vsshlids.h"/>
-	<Commands package="guidCommandsPackage">
+	<Commands package="guidSEPkg">
 		<Groups>
-			<Group guid="guidCommandsPackageCmdSet" id="MyMenuGroup" priority="0x0600">
-				<Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS"/>
+			<Group guid="guidSEPkgCmdSet" id="MyMenuGroup" priority="0x0600">
+				<Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_EXTENSIONS"/>
+			</Group>
+			<Group guid="guidSEPkgCmdSet" id="MySubMenuGroup" priority="0x0000">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenu"/>
 			</Group>
 		</Groups>
-		<Buttons>
-			<Button guid="guidCommandsPackageCmdSet" id="id100cmd" priority="0x0100" type="Button">
-				<Parent guid="guidCommandsPackageCmdSet" id="MyMenuGroup" />
+		<Menus>
+			<Menu guid="guidSEPkgCmdSet" id="MySubMenu" priority="0x0100" type="Menu">
+				<Parent guid="guidSEPkgCmdSet" id="MyMenuGroup"/>
 				<Strings>
 					<ButtonText>Solution extensions</ButtonText>
 				</Strings>
+			</Menu>
+		</Menus>
+		<Buttons>
+			<Button guid="guidSEPkgCmdSet" id="id100cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<Strings>
+					<ButtonText>Show...</ButtonText>
+					<CommandName>SolutionEx.show</CommandName>
+				</Strings>
 			</Button>
-			<Button guid="guidCommandsPackageCmdSet" id="id110cmd" priority="0x0100" type="Button">
-				<Parent guid="guidCommandsPackageCmdSet" id="MyMenuGroup" />
+			<Button guid="guidSEPkgCmdSet" id="id200cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
 				<Strings>
 					<ButtonText>Solution Extension 1</ButtonText>
+					<CommandName>SolutionEx.Extension1</CommandName>
 				</Strings>
 			</Button>
-			<Button guid="guidCommandsPackageCmdSet" id="id111cmd" priority="0x0100" type="Button">
-				<Parent guid="guidCommandsPackageCmdSet" id="MyMenuGroup" />
+			<Button guid="guidSEPkgCmdSet" id="id201cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
 				<Strings>
 					<ButtonText>Solution Extension 2</ButtonText>
+					<CommandName>SolutionEx.Extension2</CommandName>
 				</Strings>
 			</Button>
-			<Button guid="guidCommandsPackageCmdSet" id="id112cmd" priority="0x0100" type="Button">
-				<Parent guid="guidCommandsPackageCmdSet" id="MyMenuGroup" />
+			<Button guid="guidSEPkgCmdSet" id="id202cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
 				<Strings>
 					<ButtonText>Solution Extension 3</ButtonText>
+					<CommandName>SolutionEx.Extension3</CommandName>
 				</Strings>
 			</Button>
-			<Button guid="guidCommandsPackageCmdSet" id="id113cmd" priority="0x0100" type="Button">
-				<Parent guid="guidCommandsPackageCmdSet" id="MyMenuGroup" />
+			<Button guid="guidSEPkgCmdSet" id="id203cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
 				<Strings>
 					<ButtonText>Solution Extension 4</ButtonText>
+					<CommandName>SolutionEx.Extension4</CommandName>
 				</Strings>
 			</Button>
-			<Button guid="guidCommandsPackageCmdSet" id="id114cmd" priority="0x0100" type="Button">
-				<Parent guid="guidCommandsPackageCmdSet" id="MyMenuGroup" />
+			<Button guid="guidSEPkgCmdSet" id="id204cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
 				<Strings>
 					<ButtonText>Solution Extension 5</ButtonText>
+					<CommandName>SolutionEx.Extension5</CommandName>
 				</Strings>
 			</Button>
-			<Button guid="guidCommandsPackageCmdSet" id="id115cmd" priority="0x0100" type="Button">
-				<Parent guid="guidCommandsPackageCmdSet" id="MyMenuGroup" />
+			<Button guid="guidSEPkgCmdSet" id="id205cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
 				<Strings>
 					<ButtonText>Solution Extension 6</ButtonText>
+					<CommandName>SolutionEx.Extension6</CommandName>
 				</Strings>
 			</Button>
-			<Button guid="guidCommandsPackageCmdSet" id="id116cmd" priority="0x0100" type="Button">
-				<Parent guid="guidCommandsPackageCmdSet" id="MyMenuGroup" />
+			<Button guid="guidSEPkgCmdSet" id="id206cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
 				<Strings>
 					<ButtonText>Solution Extension 7</ButtonText>
+					<CommandName>SolutionEx.Extension7</CommandName>
 				</Strings>
 			</Button>
-			<Button guid="guidCommandsPackageCmdSet" id="id117cmd" priority="0x0100" type="Button">
-				<Parent guid="guidCommandsPackageCmdSet" id="MyMenuGroup" />
+			<Button guid="guidSEPkgCmdSet" id="id207cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
 				<Strings>
 					<ButtonText>Solution Extension 8</ButtonText>
+					<CommandName>SolutionEx.Extension8</CommandName>
 				</Strings>
 			</Button>
-			<Button guid="guidCommandsPackageCmdSet" id="id118cmd" priority="0x0100" type="Button">
-				<Parent guid="guidCommandsPackageCmdSet" id="MyMenuGroup" />
+			<Button guid="guidSEPkgCmdSet" id="id208cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
 				<Strings>
 					<ButtonText>Solution Extension 9</ButtonText>
+					<CommandName>SolutionEx.Extension9</CommandName>
 				</Strings>
 			</Button>
-			<Button guid="guidCommandsPackageCmdSet" id="id119cmd" priority="0x0100" type="Button">
-				<Parent guid="guidCommandsPackageCmdSet" id="MyMenuGroup" />
+			<Button guid="guidSEPkgCmdSet" id="id209cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
 				<Strings>
 					<ButtonText>Solution Extension 10</ButtonText>
+					<CommandName>SolutionEx.Extension10</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id20Acmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 11</ButtonText>
+					<CommandName>SolutionEx.Extension11</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id20Bcmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 12</ButtonText>
+					<CommandName>SolutionEx.Extension12</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id20Ccmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 13</ButtonText>
+					<CommandName>SolutionEx.Extension13</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id20Dcmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 14</ButtonText>
+					<CommandName>SolutionEx.Extension14</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id20Ecmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 15</ButtonText>
+					<CommandName>SolutionEx.Extension15</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id20Fcmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 16</ButtonText>
+					<CommandName>SolutionEx.Extension16</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id210cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 17</ButtonText>
+					<CommandName>SolutionEx.Extension17</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id211cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 18</ButtonText>
+					<CommandName>SolutionEx.Extension18</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id212cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 19</ButtonText>
+					<CommandName>SolutionEx.Extension19</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id213cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 20</ButtonText>
+					<CommandName>SolutionEx.Extension20</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id214cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 21</ButtonText>
+					<CommandName>SolutionEx.Extension21</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id215cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 22</ButtonText>
+					<CommandName>SolutionEx.Extension22</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id216cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 23</ButtonText>
+					<CommandName>SolutionEx.Extension23</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id217cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 24</ButtonText>
+					<CommandName>SolutionEx.Extension24</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id218cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 25</ButtonText>
+					<CommandName>SolutionEx.Extension25</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id219cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 26</ButtonText>
+					<CommandName>SolutionEx.Extension26</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id21Acmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 27</ButtonText>
+					<CommandName>SolutionEx.Extension27</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id21Bcmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 28</ButtonText>
+					<CommandName>SolutionEx.Extension28</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id21Ccmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 29</ButtonText>
+					<CommandName>SolutionEx.Extension29</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id21Dcmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 30</ButtonText>
+					<CommandName>SolutionEx.Extension30</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id21Ecmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 31</ButtonText>
+					<CommandName>SolutionEx.Extension31</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id21Fcmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 32</ButtonText>
+					<CommandName>SolutionEx.Extension32</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id220cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 33</ButtonText>
+					<CommandName>SolutionEx.Extension33</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id221cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 34</ButtonText>
+					<CommandName>SolutionEx.Extension34</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id222cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 35</ButtonText>
+					<CommandName>SolutionEx.Extension35</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id223cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 36</ButtonText>
+					<CommandName>SolutionEx.Extension36</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id224cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 37</ButtonText>
+					<CommandName>SolutionEx.Extension37</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id225cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 38</ButtonText>
+					<CommandName>SolutionEx.Extension38</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id226cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 39</ButtonText>
+					<CommandName>SolutionEx.Extension39</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id227cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 40</ButtonText>
+					<CommandName>SolutionEx.Extension40</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id228cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 41</ButtonText>
+					<CommandName>SolutionEx.Extension41</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id229cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 42</ButtonText>
+					<CommandName>SolutionEx.Extension42</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id22Acmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 43</ButtonText>
+					<CommandName>SolutionEx.Extension43</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id22Bcmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 44</ButtonText>
+					<CommandName>SolutionEx.Extension44</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id22Ccmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 45</ButtonText>
+					<CommandName>SolutionEx.Extension45</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id22Dcmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 46</ButtonText>
+					<CommandName>SolutionEx.Extension46</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id22Ecmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 47</ButtonText>
+					<CommandName>SolutionEx.Extension47</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id22Fcmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 48</ButtonText>
+					<CommandName>SolutionEx.Extension48</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id230cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 49</ButtonText>
+					<CommandName>SolutionEx.Extension49</CommandName>
+				</Strings>
+			</Button>
+			<Button guid="guidSEPkgCmdSet" id="id231cmd" priority="0x0100" type="Button">
+				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<Strings>
+					<ButtonText>Solution Extension 50</ButtonText>
+					<CommandName>SolutionEx.Extension50</CommandName>
 				</Strings>
 			</Button>
 		</Buttons>
 	</Commands>
 	<Symbols>
-		<GuidSymbol name="guidCommandsPackage" value="{ac39d443-46d7-4bf6-9691-552e1d504216}" />
-		<GuidSymbol name="guidCommandsPackageCmdSet" value="{7a30b1a0-c6bb-41ee-a9b4-f15017e2fee5}">
+		<GuidSymbol name="guidSHLMainMenu" value="{d309f791-903f-11d0-9efc-00a0c911004f}">
+			<IDSymbol name="IDM_VS_MENU_EXTENSIONS" value="0x0091" />
+		</GuidSymbol>
+		<GuidSymbol name="guidSEPkg" value="{ac39d443-46d7-4bf6-9691-552e1d504216}" />
+		<GuidSymbol name="guidSEPkgCmdSet" value="{7a30b1a0-c6bb-41ee-a9b4-f15017e2fee5}">
 			<IDSymbol name="MyMenuGroup" value="0x1020" />
+			<IDSymbol name="MySubMenuGroup" value="0x1021" />
+			<IDSymbol name="MySubMenu" value="0x2000" />
 			<IDSymbol name="id100cmd" value="0x0100" />
-			<IDSymbol name="id110cmd" value="0x0110" />
-			<IDSymbol name="id111cmd" value="0x0111" />
-			<IDSymbol name="id112cmd" value="0x0112" />
-			<IDSymbol name="id113cmd" value="0x0113" />
-			<IDSymbol name="id114cmd" value="0x0114" />
-			<IDSymbol name="id115cmd" value="0x0115" />
-			<IDSymbol name="id116cmd" value="0x0116" />
-			<IDSymbol name="id117cmd" value="0x0117" />
-			<IDSymbol name="id118cmd" value="0x0118" />
-			<IDSymbol name="id119cmd" value="0x0119" />
+			<IDSymbol name="id200cmd" value="0x0200" />
+			<IDSymbol name="id201cmd" value="0x0201" />
+			<IDSymbol name="id202cmd" value="0x0202" />
+			<IDSymbol name="id203cmd" value="0x0203" />
+			<IDSymbol name="id204cmd" value="0x0204" />
+			<IDSymbol name="id205cmd" value="0x0205" />
+			<IDSymbol name="id206cmd" value="0x0206" />
+			<IDSymbol name="id207cmd" value="0x0207" />
+			<IDSymbol name="id208cmd" value="0x0208" />
+			<IDSymbol name="id209cmd" value="0x0209" />
+			<IDSymbol name="id20Acmd" value="0x020A" />
+			<IDSymbol name="id20Bcmd" value="0x020B" />
+			<IDSymbol name="id20Ccmd" value="0x020C" />
+			<IDSymbol name="id20Dcmd" value="0x020D" />
+			<IDSymbol name="id20Ecmd" value="0x020E" />
+			<IDSymbol name="id20Fcmd" value="0x020F" />
+			<IDSymbol name="id210cmd" value="0x0210" />
+			<IDSymbol name="id211cmd" value="0x0211" />
+			<IDSymbol name="id212cmd" value="0x0212" />
+			<IDSymbol name="id213cmd" value="0x0213" />
+			<IDSymbol name="id214cmd" value="0x0214" />
+			<IDSymbol name="id215cmd" value="0x0215" />
+			<IDSymbol name="id216cmd" value="0x0216" />
+			<IDSymbol name="id217cmd" value="0x0217" />
+			<IDSymbol name="id218cmd" value="0x0218" />
+			<IDSymbol name="id219cmd" value="0x0219" />
+			<IDSymbol name="id21Acmd" value="0x021A" />
+			<IDSymbol name="id21Bcmd" value="0x021B" />
+			<IDSymbol name="id21Ccmd" value="0x021C" />
+			<IDSymbol name="id21Dcmd" value="0x021D" />
+			<IDSymbol name="id21Ecmd" value="0x021E" />
+			<IDSymbol name="id21Fcmd" value="0x021F" />
+			<IDSymbol name="id220cmd" value="0x0220" />
+			<IDSymbol name="id221cmd" value="0x0221" />
+			<IDSymbol name="id222cmd" value="0x0222" />
+			<IDSymbol name="id223cmd" value="0x0223" />
+			<IDSymbol name="id224cmd" value="0x0224" />
+			<IDSymbol name="id225cmd" value="0x0225" />
+			<IDSymbol name="id226cmd" value="0x0226" />
+			<IDSymbol name="id227cmd" value="0x0227" />
+			<IDSymbol name="id228cmd" value="0x0228" />
+			<IDSymbol name="id229cmd" value="0x0229" />
+			<IDSymbol name="id22Acmd" value="0x022A" />
+			<IDSymbol name="id22Bcmd" value="0x022B" />
+			<IDSymbol name="id22Ccmd" value="0x022C" />
+			<IDSymbol name="id22Dcmd" value="0x022D" />
+			<IDSymbol name="id22Ecmd" value="0x022E" />
+			<IDSymbol name="id22Fcmd" value="0x022F" />
+			<IDSymbol name="id230cmd" value="0x0230" />
+			<IDSymbol name="id231cmd" value="0x0231" />
 		</GuidSymbol>
 	</Symbols>
 </CommandTable>
