@@ -57,13 +57,15 @@
                 <Button.Content>More▾</Button.Content>
                 <Button.ContextMenu>
                     <ContextMenu Style="{StaticResource {x:Static shell:VsResourceKeys.ContextMenuStyleKey}}">
+                        <MenuItem Header="📋 Copy extension" Click="Copy_Click"/>
                         <MenuItem Header="Add new extension project to solution" Click="AddProj_Click"/>
                         <MenuItem Header="Add config as solution item" Click="AddConfig_Click"/>
                         <MenuItem Header="Check all" Click="CheckAll_Click"/>
                         <Separator/>
-                        <MenuItem Header="Load" Click="Load_Click"/>
+                        <MenuItem Header="Reload" Click="Load_Click"/>
                         <MenuItem Header="Sync to DTE" Click="SyncToDte_Click"/>
                         <MenuItem Header="Save" Click="Save_Click"/>
+                        <MenuItem Header="🐛Debug" Click="Debug_Click"/>
                     </ContextMenu>
                 </Button.ContextMenu>
             </Button>

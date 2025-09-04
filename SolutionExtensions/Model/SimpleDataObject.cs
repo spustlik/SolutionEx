@@ -199,7 +199,7 @@ namespace SolutionExtensions
         public static void OnCollectionItemChanged<T>(this ObservableCollection<T> collection,
             string propertyPrefix, Action<object, PropertyChangedEventArgs> itemPropertyChanged)
         {
-            if (!propertyPrefix.EndsWith("."))
+            if (propertyPrefix !=null && !propertyPrefix.EndsWith("."))
                 propertyPrefix += ".";
             void CollectionItem_Changed(object sender, PropertyChangedEventArgs e)
             {

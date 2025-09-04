@@ -84,14 +84,13 @@ namespace <#=ns#>
 #>
 			<Button guid="<#=package#>CmdSet" id="<#=c.IdSymbol#>" priority="0x0100" type="Button">
 				<Parent guid="<#=package#>CmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DynamicVisibility</CommandFlag>
+				<CommandFlag>TextChanges</CommandFlag>
 <#
 		if(!c.Visible)
 		{
-		//<CommandFlag>DynamicVisibility</CommandFlag>
 #>
 				<CommandFlag>DefaultInvisible</CommandFlag>
-				<CommandFlag>TextChanges</CommandFlag>
-
 <#
 		}
 #>

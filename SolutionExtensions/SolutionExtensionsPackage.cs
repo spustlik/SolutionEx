@@ -73,28 +73,55 @@ namespace SolutionExtensions
                 tasks.Add(CommandBase.InitializeAsync(this, new RunExtensionCommand(CommandIds.Command_Extension1 + i, i)));
             }
             await Task.WhenAll(tasks);
-            SyncWithDte();
+            SyncWithDte(throwErrors: false);
+            dte.Events.DTEEvents.OnStartupComplete += DTEEvents_OnStartupComplete;
         }
 
-        private void SyncWithDte()
+        private void DTEEvents_OnStartupComplete()
         {
-            if (ExtensionManager.LoadFile(Model, true))
+            AddToOutputPane($"---Started at {DateTime.Now}", clear: true);
+        }
+
+        private void SyncWithDte(bool throwErrors = true)
+        {
+            try
             {
-                ExtensionManager.SyncToDte(Model);
+                if (ExtensionManager.LoadFile(Model, true))
+                {
+                    ExtensionManager.SyncToDte(Model);
+                }
+            }
+            catch (Exception)
+            {
+                if (throwErrors)
+                    throw;
             }
         }
 
         void OnSolutionOpened()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            AddToOutputPane($"Solution opened: {dte.Solution.FullName}", true);
-            SyncWithDte();
+            Log($"Solution opened: {dte.Solution.FullName}");
+            try
+            {
+                SyncWithDte();
+            }
+            catch (Exception ex)
+            {
+                AddToOutputPane($"Error syncing to dte:" + ex);
+            }
         }
+
+        public void Log(string msg)
+        {
+            if (!System.Diagnostics.Debugger.IsAttached)
+                return;
+            AddToOutputPane(msg);
+        }
+
         public void AddToOutputPane(string msg, bool clear = false)
         {
             dte.AddToOutputPane(msg, this.GetType().Namespace, clear);
-            if (clear)
-                dte.AddToOutputPane("$---started at {Datetime.Now}---", this.GetType().Name);
         }
 
         public async Task ShowStatusBarErrorAsync(string message)

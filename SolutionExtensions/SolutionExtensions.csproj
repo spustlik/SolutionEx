@@ -61,11 +61,14 @@
     <Compile Include="Commands\RunExtensionCommand.cs" />
     <Compile Include="Converters\EmptyConverter.cs" />
     <Compile Include="DteExtensions.cs" />
+    <Compile Include="Extensions\Dumper.cs" />
+    <Compile Include="Extensions\DumpExtensionMore.cs" />
     <Compile Include="Extensions\DumpExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Model\SimpleDataObject.cs" />
     <Compile Include="SolutionExtensionsPackage.cs" />
     <Compile Include="ExtensionManager.cs" />
+    <Compile Include="StringTemplates.cs" />
     <Compile Include="ToolWindows\ExtensionsListToolWindow.xaml.cs">
       <DependentUpon>ExtensionsListToolWindow.xaml</DependentUpon>
     </Compile>

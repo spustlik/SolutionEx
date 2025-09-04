@@ -1,19 +1,22 @@
 ﻿using EnvDTE;
-using EnvDTE80;
+using EnvDTE100;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
+using Process = System.Diagnostics.Process;
 
 namespace SolutionExtensions.ToolWindows
 {
@@ -72,20 +75,43 @@ namespace SolutionExtensions.ToolWindows
             {
                 this.Validate();
             }
-            if (e.PropertyName == EXLIST + nameof(ExtensionItem.ClassName))
+        }
+        private void ViewModelExtensions_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            Package.Log($"ViewModelExtensions_PropertyChanged: {e.PropertyName}");
+            if (e.PropertyName == nameof(ExtensionItem.ClassName))
             {
                 var item = sender as ExtensionItem;
-                if (String.IsNullOrEmpty(item.Title))
-                {
-                    var mi = ExtensionManager.FindExtensionMethod(item, throwIfNotFound: false);
-                    if (mi.method != null)
-                    {
-                        item.Title = mi.method.GetCustomAttribute<DescriptionAttribute>()?.Description;
-                        if (item.Title == null)
-                            item.Title = mi.type.GetCustomAttribute<DescriptionAttribute>()?.Description;
-                    }
-                }
+                ExtensionManager.SetItemTitleFromMethod(item);
             }
+            ThrottleUpdateModel();
+        }
+
+        private void ViewModelExtensions_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            Package.Log($"ViewModelExtensions_CollectionChanged: {e.Action}");
+            ThrottleUpdateModel();
+        }
+
+        private DispatcherTimer _updateTimer;
+        private void ThrottleUpdateModel()
+        {
+            if (_updateTimer == null)
+            {
+                _updateTimer = new DispatcherTimer(DispatcherPriority.Input);
+                _updateTimer.Tick += UpdateTimer_Tick;
+            }
+            _updateTimer.Stop();
+            _updateTimer.Interval = TimeSpan.FromSeconds(0.3);
+            _updateTimer.Start();
+        }
+
+        private void UpdateTimer_Tick(object sender, EventArgs e)
+        {
+            _updateTimer.Stop();
+            Package.Log("Saving");
+            ExtensionManager.SaveFile(ViewModel.Model);
+            SyncToDTE();
         }
 
         public VM ViewModel => this.DataContext as VM;
@@ -97,7 +123,8 @@ namespace SolutionExtensions.ToolWindows
         {
             Package = ToolWindowPane.Package as SolutionExtensionsPackage;
             ViewModel.Model = Package.Model;
-            ViewModel.Model.Extensions.OnCollectionItemChanged(EXLIST, ViewModel_PropertyChanged);
+            ViewModel.Model.Extensions.OnCollectionItemChanged(null, ViewModelExtensions_PropertyChanged);
+            ViewModel.Model.Extensions.CollectionChanged += ViewModelExtensions_CollectionChanged;
             try
             {
                 ExtensionManager.LoadFile(ViewModel.Model, true);
@@ -119,16 +146,20 @@ namespace SolutionExtensions.ToolWindows
                 return;
             this.ViewModel.Model.Extensions.Remove(this.ViewModel.SelectedItem);
         }
-            
+
         private void Run_Click(object sender, System.Windows.RoutedEventArgs e)
         {
+            var item = ViewModel.SelectedItem;
             try
             {
-                ExtensionManager.RunExtension(this.ViewModel.SelectedItem);
+                ExtensionManager.RunExtension(item);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message + "\n" + ex.StackTrace, "Error running extension", MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                var err = $"Error running extension '{item.Title}'";
+                Package.AddToOutputPane($"{err}:\nfrom:{item.DllPath}\n" + ex);
+                _ = Package.ShowStatusBarErrorAsync(ex.Message);
+                MessageBox.Show(ex.Message + "\nSee output pane for details", err, MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
             }
         }
         private void Load_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -137,7 +168,21 @@ namespace SolutionExtensions.ToolWindows
         }
         private void SyncToDte_Click(object sender, RoutedEventArgs e)
         {
-            ExtensionManager.SyncToDte(ViewModel.Model);
+            SyncToDTE();
+        }
+
+        private void SyncToDTE()
+        {
+            try
+            {
+                Package.Log($"Syncing to DTE");
+                ExtensionManager.SyncToDte(ViewModel.Model);
+            }
+            catch (Exception ex)
+            {
+                Package.AddToOutputPane($"Error syncing to DTE:" + ex);
+                _ = Package.ShowStatusBarErrorAsync(ex.Message);
+            }
         }
 
         private void Save_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -200,7 +245,8 @@ namespace SolutionExtensions.ToolWindows
             if (String.IsNullOrWhiteSpace(item.DllPath))
                 return $"DLL path is empty";
             if (!ExtensionManager.IsDllPathInSolutionScope(item))
-                return $"Warning: DLL path is not in Solution (sub)folder";
+                if (!ExtensionManager.IsDllPathSelf(item))
+                    return $"Warning: DLL path is not in Solution (sub)folder";
             if (!ExtensionManager.IsDllExists(item))
                 return $"DLL file does not exist, maybe you must compile it?";
             if (!ExtensionManager.IsClassValid(item))
@@ -239,9 +285,29 @@ namespace SolutionExtensions.ToolWindows
             var dte = Package.GetService<DTE, DTE>();
             if (dte.Solution == null)
                 return;
-            MessageBox.Show("Not implemented");
-            //try
+            var nuget = "Microsoft.VisualStudio.Interop";
+            if (MessageBox.Show($"Not yet implemented\n" +
+                $"Follow these steps:\n" +
+                $"- Add new class library project in .net 4.8 to your solution\n" +
+                $"- Add nuget package '{nuget}' to it\n" +
+                $"- Add your new class\n" +
+                $"- Add method called 'Run(DTE dte, IServiceProvider package)" +
+                $"\n" +
+                $"Do you want to add class source to clipboard? ",
+                "Add new extension project", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                return;
+            var s = StringTemplates.GetExtensionCsharp(
+                Path.GetFileNameWithoutExtension(dte.Solution.FileName),
+                "MyExtension1",
+                nuget);
+            Clipboard.SetText(s);
+            /*
+            var projectName = Path.GetFileNameWithoutExtension(dte.Solution.FileName) + ".Extensions";
+            var projectFile = Path.Combine(Path.GetDirectoryName(dte.Solution.FullName), projectName)+".csproj";
             //dte.Solution.ProjectItemsTemplatePath(ProjectKinds.)
+            var project = dte.Solution.AddFromTemplate("...some template of class lib", projectFile, projectName);
+            project.ProjectItems.AddFromFile("MyExtension1.cs create templated file in temp");
+            */
         }
 
         private void CheckAll_Click(object sender, RoutedEventArgs e)
@@ -270,6 +336,51 @@ namespace SolutionExtensions.ToolWindows
         private void AddConfig_Click(object sender, RoutedEventArgs e)
         {
             this.Package.AddConfigToSolutionItem();
+        }
+
+
+        private void Debug_Click(object sender, RoutedEventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            MessageBox.Show("Not implemented, sorry.\nThis is so hard...", "Not implemented", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+            return;
+            //to debug extension, it is needed to run it in separate process, because devenv cannot attach to itself
+            // than maybe via remoting and marshalling can be extension executed,
+            // debugger can attach to this process and stop
+            //possible there will be problem with symbols, because dll is copied to another path and assembly name
+            //TODO:
+            var runner = Process.Start(new ProcessStartInfo() { FileName = "...my runner..." });
+            var dte = Package.GetService<DTE, DTE>();
+            var dbg = dte.Debugger as Debugger5;
+            foreach (EnvDTE.Process p in dbg.LocalProcesses)
+            {
+                if (p.ProcessID == runner.Id)
+                {
+                    p.Attach();
+                    break;
+                }
+            }
+            if (dbg.CurrentProcess == null)
+            {
+                MessageBox.Show("Cannot attach to runner process", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+        }
+
+        private void Copy_Click(object sender, RoutedEventArgs e)
+        {
+            if (ViewModel.SelectedItem == null)
+                return;
+            var src = ViewModel.SelectedItem;
+            var item = new ExtensionItem()
+            {
+                Title = $"{src.Title} (copy)",
+                ClassName = src.ClassName,
+                DllPath = src.DllPath,
+                //ShortCutKey=src.ShortCutKey
+            };
+            ViewModel.Model.Extensions.Add(item);
+            ViewModel.SelectedItem = item;
         }
     }
 }

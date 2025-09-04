@@ -33,6 +33,7 @@ namespace SolutionExtensions
 
         private void MenuComand_BeforeQueryStatus(object sender, EventArgs e)
         {
+            //??? needs <CommandFlag>TextChanges</CommandFlag>
             var cmd = sender as OleMenuCommand;
             if (cmd == null)
                 return;

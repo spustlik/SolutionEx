@@ -1,9 +1,13 @@
 ﻿using EnvDTE;
 using Microsoft.VisualStudio.Shell;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -21,30 +25,66 @@ namespace SolutionExtensions
         public void SyncToDte(ExtensionsModel model)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            var dte = this.package.GetService<DTE, DTE>();
+            var dte = package.GetService<DTE, DTE>();
             if (dte.Solution == null)
                 return;
+            var cmdSvc = (package as IServiceProvider).GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
 
             //runcommand is using index of item, so it must be synced
-            //same shortcut, probably title - but it needs MenuItem
-            //var dumpRoot = n
-            //var doc = dte.Documents.Add(EnvDTE.Constants.vsDocumentKindText);
-            //(doc.Selection as EnvDTE.TextSelection).Insert(s);
             //sync title,shortcut to commandX
 
             //Shortcut is on command
-            var guid = CommandIds.CommandSetGuid.ToString();
-            for (int i = 0; i < model.Extensions.Count; i++)
+            var extCommands = GetExtCommands(dte);
+            for (int i = 0; i < extCommands.Count; i++)
             {
-                var item = model.Extensions[i];
-                var cmd = dte.Commands.Cast<Command>()
-                    .FirstOrDefault(c => c.Guid == guid && c.ID == CommandIds.Command_Extension1 + i);
-                if (cmd == null)
-                    continue;
-                //TODO:sync
-                //cmd.Name = "";
-                //cmd.Bindings
+                var cmd = extCommands[i];
+                var oleCmd = cmd as OleMenuCommand ?? cmdSvc?.FindCommand(cmd.GetCommandID()) as OleMenuCommand;
+                SyncItem(model, cmd, oleCmd);
             }
+        }
+
+        private void SyncItem(ExtensionsModel model, Command cmd, OleMenuCommand oleCmd)
+        {
+            var item = FindItemByCmd(model, cmd);
+            if (item != null)
+            {
+                cmd.AddShortCutToCommand(item.ShortCutKey);
+                if (oleCmd != null)
+                {
+                    oleCmd.Text = item.Title;
+                    oleCmd.Visible = true;
+                }
+            }
+            else
+            {
+                if (oleCmd != null)
+                {
+                    oleCmd.Visible = false;
+                }
+            }
+        }
+
+        private ExtensionItem FindItemByCmd(ExtensionsModel model, Command cmd)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var i = cmd.ID - CommandIds.Command_Extension1;
+            if (i < 0 || i >= model.Extensions.Count)
+                return null;
+            return model.Extensions[i];
+        }
+
+        private List<Command> GetExtCommands(DTE dte)
+        {
+            var guid = CommandIds.CommandSetGuid.ToString("B").ToUpper();
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var result = new List<Command>();
+            foreach (Command cmd in dte.Commands)
+            {
+                if (cmd.ID < CommandIds.Command_Extension1 || String.Compare(cmd.Guid, guid, ignoreCase: true) != 0)
+                    continue;
+                result.Add(cmd);
+            }
+            return result;
         }
 
         private void Log(DTE dte, string msg)
@@ -128,23 +168,18 @@ namespace SolutionExtensions
         {
             string getVariable(string name)
             {
-                switch (name.Trim().ToUpperInvariant())
+                switch (name)
                 {
                     case "SOLUTIONDIR": return Path.GetDirectoryName(GetSolutionFileName());
                     case "SELF": return SelfAssembly.Location;
                     default: return null;
                 }
             }
-            var r = Environment.ExpandEnvironmentVariables(dllPath);
-            var rex = new Regex(@"\$\((?<var>[^\)]*)\)", RegexOptions.Compiled);
-            r = rex.Replace(r, (m) =>
-            {
-                var var = m.Groups["var"].Value;
-                if (!string.IsNullOrEmpty(var))
-                    return getVariable(var);
-                return m.Value;
-            });
-            return r;
+            return StringTemplates.ExpandString(dllPath, getVariable, envVariables: true);
+        }
+        public bool IsDllPathSelf(ExtensionItem item)
+        {
+            return item.DllPath == "$(SELF)";
         }
 
         //TODO:should return assembly of some extension
@@ -163,7 +198,14 @@ namespace SolutionExtensions
             if (parameters.Length > 1)
                 parameters[1] = this.package; //can be used as IServiceProvider, etc.
             var instance = method.IsStatic ? null : Activator.CreateInstance(type);
-            method.Invoke(instance, parameters);
+            try
+            {
+                method.Invoke(instance, parameters);
+            }
+            catch (TargetInvocationException tex)
+            {
+                throw tex.InnerException;
+            }
         }
 
         public (MethodInfo method, Type type) FindExtensionMethod(ExtensionItem extension, bool throwIfNotFound = false)
@@ -184,6 +226,18 @@ namespace SolutionExtensions
                 return (method: null, type);
             }
             return (method, type);
+        }
+        public void SetItemTitleFromMethod(ExtensionItem item)
+        {
+            if (!String.IsNullOrEmpty(item.Title))
+                return;
+            var (method, type) = FindExtensionMethod(item, throwIfNotFound: false);
+            if (method == null)
+                return;
+            var description =
+                method.GetCustomAttribute<DescriptionAttribute>()?.Description ??
+                type.GetCustomAttribute<DescriptionAttribute>()?.Description;
+            item.Title = description;
         }
 
         public string[] FindExtensionClassesInDll(string dllPath)
@@ -316,7 +370,6 @@ namespace SolutionExtensions
             var dllPath = Path.GetDirectoryName(realDllPath);
             return dllPath.StartsWith(solPath, StringComparison.OrdinalIgnoreCase);
         }
-
         private string GetSolutionFileName()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -331,5 +384,6 @@ namespace SolutionExtensions
             var realDllPath = GetRealPath(item.DllPath);
             return File.Exists(realDllPath);
         }
+
     }
 }

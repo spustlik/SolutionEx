@@ -19,7 +19,7 @@ namespace SolutionExtensions
         protected override async Task ExecuteAsync(object sender, EventArgs e)
         {
             var p = this.package as SolutionExtensionsPackage;
-            p.AddToOutputPane("Show");
+            p.Log("Show command executed");
             await p.ShowToolWindowAsync(typeof(ExtensionsListToolWindowPane), 0, true, CancellationToken.None);
         }
     }

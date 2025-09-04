@@ -22,6 +22,8 @@
 		<Buttons>
 			<Button guid="guidSEPkgCmdSet" id="id100cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
+				<CommandFlag>DynamicVisibility</CommandFlag>
+				<CommandFlag>TextChanges</CommandFlag>
 				<Strings>
 					<ButtonText>Show...</ButtonText>
 					<CommandName>SolutionEx.show</CommandName>
@@ -29,9 +31,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id200cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 1</ButtonText>
 					<CommandName>SolutionEx.Extension1</CommandName>
@@ -39,9 +41,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id201cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 2</ButtonText>
 					<CommandName>SolutionEx.Extension2</CommandName>
@@ -49,9 +51,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id202cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 3</ButtonText>
 					<CommandName>SolutionEx.Extension3</CommandName>
@@ -59,9 +61,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id203cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 4</ButtonText>
 					<CommandName>SolutionEx.Extension4</CommandName>
@@ -69,9 +71,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id204cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 5</ButtonText>
 					<CommandName>SolutionEx.Extension5</CommandName>
@@ -79,9 +81,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id205cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 6</ButtonText>
 					<CommandName>SolutionEx.Extension6</CommandName>
@@ -89,9 +91,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id206cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 7</ButtonText>
 					<CommandName>SolutionEx.Extension7</CommandName>
@@ -99,9 +101,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id207cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 8</ButtonText>
 					<CommandName>SolutionEx.Extension8</CommandName>
@@ -109,9 +111,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id208cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 9</ButtonText>
 					<CommandName>SolutionEx.Extension9</CommandName>
@@ -119,9 +121,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id209cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 10</ButtonText>
 					<CommandName>SolutionEx.Extension10</CommandName>
@@ -129,9 +131,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id20Acmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 11</ButtonText>
 					<CommandName>SolutionEx.Extension11</CommandName>
@@ -139,9 +141,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id20Bcmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 12</ButtonText>
 					<CommandName>SolutionEx.Extension12</CommandName>
@@ -149,9 +151,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id20Ccmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 13</ButtonText>
 					<CommandName>SolutionEx.Extension13</CommandName>
@@ -159,9 +161,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id20Dcmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 14</ButtonText>
 					<CommandName>SolutionEx.Extension14</CommandName>
@@ -169,9 +171,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id20Ecmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 15</ButtonText>
 					<CommandName>SolutionEx.Extension15</CommandName>
@@ -179,9 +181,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id20Fcmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 16</ButtonText>
 					<CommandName>SolutionEx.Extension16</CommandName>
@@ -189,9 +191,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id210cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 17</ButtonText>
 					<CommandName>SolutionEx.Extension17</CommandName>
@@ -199,9 +201,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id211cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 18</ButtonText>
 					<CommandName>SolutionEx.Extension18</CommandName>
@@ -209,9 +211,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id212cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 19</ButtonText>
 					<CommandName>SolutionEx.Extension19</CommandName>
@@ -219,9 +221,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id213cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 20</ButtonText>
 					<CommandName>SolutionEx.Extension20</CommandName>
@@ -229,9 +231,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id214cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 21</ButtonText>
 					<CommandName>SolutionEx.Extension21</CommandName>
@@ -239,9 +241,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id215cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 22</ButtonText>
 					<CommandName>SolutionEx.Extension22</CommandName>
@@ -249,9 +251,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id216cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 23</ButtonText>
 					<CommandName>SolutionEx.Extension23</CommandName>
@@ -259,9 +261,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id217cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 24</ButtonText>
 					<CommandName>SolutionEx.Extension24</CommandName>
@@ -269,9 +271,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id218cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 25</ButtonText>
 					<CommandName>SolutionEx.Extension25</CommandName>
@@ -279,9 +281,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id219cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 26</ButtonText>
 					<CommandName>SolutionEx.Extension26</CommandName>
@@ -289,9 +291,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id21Acmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 27</ButtonText>
 					<CommandName>SolutionEx.Extension27</CommandName>
@@ -299,9 +301,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id21Bcmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 28</ButtonText>
 					<CommandName>SolutionEx.Extension28</CommandName>
@@ -309,9 +311,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id21Ccmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 29</ButtonText>
 					<CommandName>SolutionEx.Extension29</CommandName>
@@ -319,9 +321,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id21Dcmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 30</ButtonText>
 					<CommandName>SolutionEx.Extension30</CommandName>
@@ -329,9 +331,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id21Ecmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 31</ButtonText>
 					<CommandName>SolutionEx.Extension31</CommandName>
@@ -339,9 +341,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id21Fcmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 32</ButtonText>
 					<CommandName>SolutionEx.Extension32</CommandName>
@@ -349,9 +351,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id220cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 33</ButtonText>
 					<CommandName>SolutionEx.Extension33</CommandName>
@@ -359,9 +361,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id221cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 34</ButtonText>
 					<CommandName>SolutionEx.Extension34</CommandName>
@@ -369,9 +371,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id222cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 35</ButtonText>
 					<CommandName>SolutionEx.Extension35</CommandName>
@@ -379,9 +381,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id223cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 36</ButtonText>
 					<CommandName>SolutionEx.Extension36</CommandName>
@@ -389,9 +391,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id224cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 37</ButtonText>
 					<CommandName>SolutionEx.Extension37</CommandName>
@@ -399,9 +401,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id225cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 38</ButtonText>
 					<CommandName>SolutionEx.Extension38</CommandName>
@@ -409,9 +411,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id226cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 39</ButtonText>
 					<CommandName>SolutionEx.Extension39</CommandName>
@@ -419,9 +421,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id227cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 40</ButtonText>
 					<CommandName>SolutionEx.Extension40</CommandName>
@@ -429,9 +431,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id228cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 41</ButtonText>
 					<CommandName>SolutionEx.Extension41</CommandName>
@@ -439,9 +441,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id229cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 42</ButtonText>
 					<CommandName>SolutionEx.Extension42</CommandName>
@@ -449,9 +451,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id22Acmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 43</ButtonText>
 					<CommandName>SolutionEx.Extension43</CommandName>
@@ -459,9 +461,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id22Bcmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 44</ButtonText>
 					<CommandName>SolutionEx.Extension44</CommandName>
@@ -469,9 +471,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id22Ccmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 45</ButtonText>
 					<CommandName>SolutionEx.Extension45</CommandName>
@@ -479,9 +481,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id22Dcmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 46</ButtonText>
 					<CommandName>SolutionEx.Extension46</CommandName>
@@ -489,9 +491,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id22Ecmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 47</ButtonText>
 					<CommandName>SolutionEx.Extension47</CommandName>
@@ -499,9 +501,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id22Fcmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 48</ButtonText>
 					<CommandName>SolutionEx.Extension48</CommandName>
@@ -509,9 +511,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id230cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 49</ButtonText>
 					<CommandName>SolutionEx.Extension49</CommandName>
@@ -519,9 +521,9 @@
 			</Button>
 			<Button guid="guidSEPkgCmdSet" id="id231cmd" priority="0x0100" type="Button">
 				<Parent guid="guidSEPkgCmdSet" id="MySubMenuGroup" />
-				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>DynamicVisibility</CommandFlag>
 				<CommandFlag>TextChanges</CommandFlag>
-
+				<CommandFlag>DefaultInvisible</CommandFlag>
 				<Strings>
 					<ButtonText>Solution Extension 50</ButtonText>
 					<CommandName>SolutionEx.Extension50</CommandName>

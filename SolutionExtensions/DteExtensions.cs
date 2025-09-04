@@ -63,9 +63,9 @@ namespace SolutionExtensions
         public static Project AddProjectMiscItems(this Solution solution)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            var sol2 = solution as Solution2;            
+            var sol2 = solution as Solution2;
             var template = solution.ProjectItemsTemplatePath(EnvDTE.Constants.vsProjectKindMisc);
-            var proj = solution.AddFromTemplate(template, null,MISC_FILES_NAME);
+            var proj = solution.AddFromTemplate(template, null, MISC_FILES_NAME);
             return proj;
         }
         /*
@@ -112,6 +112,11 @@ namespace SolutionExtensions
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
         }
 
+        public static CommandID GetCommandID(this Command cmd)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            return new CommandID(new Guid(cmd.Guid), cmd.ID);
+        }
         public static async Task<OleMenuCommandService> GetMenuCommandServiceAsync(this AsyncPackage package)
         {
             var svc = await package.GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
@@ -119,19 +124,30 @@ namespace SolutionExtensions
             return svc;
         }
 
-        public static void AddShortCutToCommand(this Command command, string shortCut)
+        public static void AddShortCutToCommand(this Command command, string shortCut, bool clear = true)
         {
+            if (String.IsNullOrEmpty(shortCut))
+                return;
             ThreadHelper.ThrowIfNotOnUIThread();
             //var command = GetCommandByName(dte2, "SolutionExtensions.MyCommand");
             // Assign shortcut if not already present
             var bindings = ((object[])command.Bindings).Cast<string>().ToList();
+            if (clear) 
+                bindings.Clear();
             //what about "Text Editor::Ctrl+E, Ctrl+E" ?
             if (!shortCut.Contains("::"))
                 shortCut = "Global::" + shortCut;
             if (!bindings.Contains(shortCut))
             {
                 bindings.Add(shortCut);
-                command.Bindings = bindings.ToArray();
+                try
+                {
+                    command.Bindings = bindings.Cast<object>().ToArray();
+                }
+                catch (Exception ex)
+                {
+                    //silent error, because of bad format etc...
+                }
             }
         }
 
@@ -162,6 +178,35 @@ namespace SolutionExtensions
             {
                 yield return item.FileNames[(short)i];
             }
+        }
+
+        static void addFile(DTE dte, string fn)
+        {
+            //not working, nees template or file to create new project item
+            ThreadHelper.ThrowIfNotOnUIThread();
+            //ok:var template1 = dte.Solution.ProjectItemsTemplatePath("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}");
+            //err:var template = dte.Solution.ProjectItemsTemplatePath("{66A2671D-8FB5-11D2-AA7E-00C04F688DDE}");// EnvDTE.Constants.vsProjectKindMisc);
+            try
+            {
+                var proj = dte.Solution.FindProjectMiscItems() ?? dte.Solution.AddProjectMiscItems();
+                var pi = proj.FindProjectItem(fn);
+                if (pi != null)
+                    pi = proj.ProjectItems.AddFromFile(fn);
+                dte.Documents.Open(fn);
+                //var doc = dte.Documents.Add(null);// arg invalid
+                //var doc = dte.Documents.Add(EnvDTE.Constants.vsDocumentKindText);//arg invalid
+                //var doc = dte.Documents.Add(EnvDTE.Constants.vsDocumentKindText.Trim('{', '}'));//arg invalid
+                var doc = dte.Documents.Add(fn);
+                doc.Activate();
+                //(doc.Selection as EnvDTE.TextSelection).Insert(dumpRoot.ToString());
+            }
+            catch (Exception ex)
+            {
+                dte.AddToOutputPane($"Error:" + ex, typeof(SolutionExtensionsPackage).Namespace);
+            }
+
+            //dte.Solution.AddFromFile(fn);//needs path to template
+
         }
     }
 }

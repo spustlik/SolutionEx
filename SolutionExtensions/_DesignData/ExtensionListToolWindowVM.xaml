@@ -4,8 +4,8 @@
     xmlns:model="clr-namespace:SolutionExtensions"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     ValidationMessage="Validation message"
-    
     >
+    <!--- NOT WORKING: posible it is not possible to load assembly in design time because of referenced assemblies-->
     <local:VM.Model>
         <model:ExtensionsModel>
             <!--<model:ExtensionsModel.Extensions>

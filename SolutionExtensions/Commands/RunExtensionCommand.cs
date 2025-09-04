@@ -23,7 +23,7 @@ namespace SolutionExtensions
                 package.AddToOutputPane($"Extension with index ${ExtensionIndex} not found");
                 return;
             }
-            package.AddToOutputPane($"Running extension ${ExtensionIndex}:{item.DllPath},{item.ClassName},{item.Title}");
+            package.Log($"Running extension ${ExtensionIndex}:{item.DllPath},{item.ClassName},{item.Title}");
             try
             {
                 package.ExtensionManager.RunExtension(item);
