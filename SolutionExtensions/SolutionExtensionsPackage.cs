@@ -92,7 +92,7 @@ namespace SolutionExtensions
         }
         public void AddToOutputPane(string msg, bool clear = false)
         {
-            dte.AddToOutputPane(msg, this.GetType().Name, clear);
+            dte.AddToOutputPane(msg, this.GetType().Namespace, clear);
             if (clear)
                 dte.AddToOutputPane("$---started at {Datetime.Now}---", this.GetType().Name);
         }
@@ -124,8 +124,8 @@ namespace SolutionExtensions
                 _ = ShowStatusBarErrorAsync($"Config not yet saved. Add some extensions");
                 return;
             }
-            var si = dte.Solution.FindSolutionItemsProject(addIfNotExists: true);
-            var fi = si.FindProjectItem(cfgFilePath, addIfNotExists: true);
+            var si = dte.Solution.FindSolutionFolder(addIfNotExists: true);
+            var fi = si.FindProjectItem(cfgFilePath) ?? si.ProjectItems.AddFromFile(cfgFilePath);
         }
 
         public void TestMethod()

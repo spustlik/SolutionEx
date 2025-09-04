@@ -1,4 +1,5 @@
 ﻿using EnvDTE;
+using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.Win32;
 using System;
@@ -6,6 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,10 +37,6 @@ namespace SolutionExtensions.ToolWindows
         }
         #endregion
 
-        #region HasValidationMessage property
-        public bool HasValidationMessage => !string.IsNullOrEmpty(ValidationMessage);
-        #endregion
-
         #region SelectedItem property
         private ExtensionItem _selectedItem;
         public ExtensionItem SelectedItem
@@ -46,14 +44,6 @@ namespace SolutionExtensions.ToolWindows
             get => _selectedItem;
             set => Set(ref _selectedItem, value);
         }
-        #endregion
-
-        #region IsSelected        
-        public bool IsSelected
-        {
-            get => SelectedItem != null;
-        }
-
         #endregion
 
         #region Model property
@@ -65,23 +55,6 @@ namespace SolutionExtensions.ToolWindows
         }
         #endregion
 
-        public VM()
-        {
-            //this.Model.Extensions.OnCollectionItemChanged()
-        }
-        protected override void DoPropertyChanged(string propertyName = null)
-        {
-            base.DoPropertyChanged(propertyName);
-            if (propertyName == nameof(SelectedItem))
-            {
-                DoPropertyChanged(nameof(IsSelected));
-            }
-            if (propertyName == nameof(ValidationMessage))
-            {
-                DoPropertyChanged(nameof(HasValidationMessage));
-            }
-        }
-
     }
 
     public partial class ExtensionsListToolWindow : UserControl
@@ -92,12 +65,26 @@ namespace SolutionExtensions.ToolWindows
             this.DataContext = new VM();
             ViewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
-
+        static string EXLIST = nameof(VM.Model) + "." + nameof(VM.Model.Extensions) + ".";
         private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(VM.SelectedItem))
             {
                 this.Validate();
+            }
+            if (e.PropertyName == EXLIST + nameof(ExtensionItem.ClassName))
+            {
+                var item = sender as ExtensionItem;
+                if (String.IsNullOrEmpty(item.Title))
+                {
+                    var mi = ExtensionManager.FindExtensionMethod(item, throwIfNotFound: false);
+                    if (mi.method != null)
+                    {
+                        item.Title = mi.method.GetCustomAttribute<DescriptionAttribute>()?.Description;
+                        if (item.Title == null)
+                            item.Title = mi.type.GetCustomAttribute<DescriptionAttribute>()?.Description;
+                    }
+                }
             }
         }
 
@@ -110,7 +97,7 @@ namespace SolutionExtensions.ToolWindows
         {
             Package = ToolWindowPane.Package as SolutionExtensionsPackage;
             ViewModel.Model = Package.Model;
-            //subscribe to VM?
+            ViewModel.Model.Extensions.OnCollectionItemChanged(EXLIST, ViewModel_PropertyChanged);
             try
             {
                 ExtensionManager.LoadFile(ViewModel.Model, true);
@@ -132,7 +119,7 @@ namespace SolutionExtensions.ToolWindows
                 return;
             this.ViewModel.Model.Extensions.Remove(this.ViewModel.SelectedItem);
         }
-
+            
         private void Run_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             try
@@ -146,7 +133,7 @@ namespace SolutionExtensions.ToolWindows
         }
         private void Load_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            ExtensionManager.LoadFile(ViewModel.Model, false);            
+            ExtensionManager.LoadFile(ViewModel.Model, false);
         }
         private void SyncToDte_Click(object sender, RoutedEventArgs e)
         {
@@ -252,26 +239,9 @@ namespace SolutionExtensions.ToolWindows
             var dte = Package.GetService<DTE, DTE>();
             if (dte.Solution == null)
                 return;
-            //dte.Documents.Add()
-            foreach (Project proj in dte.Solution)
-            {
-                Package.AddToOutputPane($"Project: {proj.Name} - {proj.Kind} - {proj.FullName}");
-                foreach (Property prop in proj.Properties)
-                {
-                    try
-                    {
-                        Package.AddToOutputPane($"  Property: {prop.Name} = {prop.Value}");
-                    }
-                    catch (Exception ex) {
-                        Package.AddToOutputPane($"  Property: {prop.Name} err {ex.Message}");
-                    }
-                }
-                foreach (ProjectItem item in proj.ProjectItems)
-                {
-                    var files = String.Join(";", item.GetFiles());
-                    Package.AddToOutputPane($"    {item.Name}, files:{files}, kind:{item.Kind}, code model:{item.FileCodeModel}");
-                }
-            }
+            MessageBox.Show("Not implemented");
+            //try
+            //dte.Solution.ProjectItemsTemplatePath(ProjectKinds.)
         }
 
         private void CheckAll_Click(object sender, RoutedEventArgs e)
@@ -299,7 +269,7 @@ namespace SolutionExtensions.ToolWindows
 
         private void AddConfig_Click(object sender, RoutedEventArgs e)
         {
-
+            this.Package.AddConfigToSolutionItem();
         }
     }
 }

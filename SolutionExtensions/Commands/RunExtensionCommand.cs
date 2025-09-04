@@ -10,7 +10,7 @@ namespace SolutionExtensions
     public sealed class RunExtensionCommand : CommandBaseAsync
     {
         public int ExtensionIndex { get; }
-        public RunExtensionCommand(int commandId, int extensionIndex) : base(commandId)
+        public RunExtensionCommand(int commandId, int extensionIndex) : base(commandId, CommandIds.CommandSetGuid)
         {
             ExtensionIndex = extensionIndex;
         }

@@ -13,32 +13,33 @@ namespace SolutionExtensions
 {
     public static class DteExtensions
     {
-        private const string SOLUTION_ITEMS_FOLDER = "Solution Items";
+        private const string SOLUTION_ITEMS_FOLDER_NAME = "Solution Items";
+        private const string MISC_FILES_NAME = "Miscellaneous Files";
 
-        public static Project FindSolutionItemsProject(this Solution solution, bool addIfNotExists = false)
+        public static Project FindSolutionFolder(this Solution solution, bool addIfNotExists = false)
         {
-            //return dte.GetProject(SOLUTION_ITEMS_FOLDER, createIfNotExists);
             ThreadHelper.ThrowIfNotOnUIThread();
             foreach (Project proj in solution.Projects)
             {
-                if (proj.Kind == EnvDTE80.ProjectKinds.vsProjectKindSolutionFolder)
+                if (proj.UniqueName == EnvDTE.Constants.vsSolutionItemsProjectUniqueName)
+                    return proj;
+                if (proj.Kind == EnvDTE.Constants.vsProjectKindSolutionItems)
                     return proj;
             }
             if (addIfNotExists)
-            {
-                return AddSolutionFolder(solution, SOLUTION_ITEMS_FOLDER);
-            }
+                return AddSolutionFolder(solution, SOLUTION_ITEMS_FOLDER_NAME);
             return null;
         }
         public static Project AddSolutionFolder(this Solution solution, string folderName)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var s2 = solution as Solution2;
-            var folder = s2.AddSolutionFolder(SOLUTION_ITEMS_FOLDER);
+            var folder = s2.AddSolutionFolder(SOLUTION_ITEMS_FOLDER_NAME);
+            //folder.Kind= EnvDTE80.ProjectKinds.vsProjectKindSolutionFolder
             return folder;
         }
 
-        public static ProjectItem FindProjectItem(this Project project, string filePath, bool addIfNotExists = false)
+        public static ProjectItem FindProjectItem(this Project project, string filePath)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             foreach (ProjectItem item in project.ProjectItems)
@@ -46,13 +47,27 @@ namespace SolutionExtensions
                 if (string.Equals(item.Name, Path.GetFileName(filePath), StringComparison.OrdinalIgnoreCase))
                     return item;
             }
-            if (addIfNotExists)
+            return null;
+        }
+        public static Project FindProjectMiscItems(this Solution solution)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            foreach (Project item in solution.Projects)
             {
-                return project.ProjectItems.AddFromFile(filePath);
+                if (item.Kind == EnvDTE.Constants.vsProjectKindMisc || item.UniqueName == EnvDTE.Constants.vsMiscFilesProjectUniqueName)
+                    return item;
             }
             return null;
         }
 
+        public static Project AddProjectMiscItems(this Solution solution)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var sol2 = solution as Solution2;            
+            var template = solution.ProjectItemsTemplatePath(EnvDTE.Constants.vsProjectKindMisc);
+            var proj = solution.AddFromTemplate(template, null,MISC_FILES_NAME);
+            return proj;
+        }
         /*
                 if (File.Exists(filePath))
                     return project.ProjectItems.AddFromFile(filePath);

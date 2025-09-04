@@ -1,20 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Windows.Markup.Localizer;
 using System.Xml.Serialization;
 
 namespace SolutionExtensions
 {
-    public abstract class SimpleDataObject : INotifyPropertyChanged
+    public abstract class SimpleDataObject : INotifyPropertyChanged, INotifyPropertyChanging
     {
-        protected virtual void DoPropertyChanged([CallerMemberName]string propertyName = null)
+        protected virtual void DoPropertyChanged([CallerMemberName] string propertyName = null)
         {
             IsChanged = true;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        protected virtual void DoPropertyChanging(string propertyName, object currentValue, object newValue)
+        {
+            PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
         }
 
         internal void CallPropertyChanged(string propertyName)
@@ -29,11 +33,9 @@ namespace SolutionExtensions
 
         protected virtual bool Set<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
+            DoPropertyChanging(propertyName, field, value);
             if (EqualityComparer<T>.Default.Equals(field, value))
-            {
                 return false;
-            }
-            //T origValue = field;
             field = value;
             DoPropertyChanged(propertyName);
             return true;
@@ -43,6 +45,7 @@ namespace SolutionExtensions
         public bool IsChanged { get; protected set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangingEventHandler PropertyChanging;
     }
 
     public class SimpleValidableDataObject : SimpleDataObject, IDataErrorInfo, INotifyDataErrorInfo
@@ -193,20 +196,30 @@ namespace SolutionExtensions
 
     public static class SimpleDataObjectExtensions
     {
-        public static void OnCollectionItemChanged<T>(this ObservableCollection<T> collection)
+        public static void OnCollectionItemChanged<T>(this ObservableCollection<T> collection,
+            string propertyPrefix, Action<object, PropertyChangedEventArgs> itemPropertyChanged)
         {
+            if (!propertyPrefix.EndsWith("."))
+                propertyPrefix += ".";
+            void CollectionItem_Changed(object sender, PropertyChangedEventArgs e)
+            {
+                itemPropertyChanged(sender, new PropertyChangedEventArgs(propertyPrefix + e.PropertyName));
+            }
             void Collection_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
             {
-                switch (e.Action)
+                if (e.Action == NotifyCollectionChangedAction.Move)
+                    return; //not interesting
+                //Reset,Add,Remove,Replace:
+                if (e.OldItems != null)
                 {
-                    case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
-                        break;
-                    case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
-                    case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
-                    case System.Collections.Specialized.NotifyCollectionChangedAction.Replace:
-                    case System.Collections.Specialized.NotifyCollectionChangedAction.Move:
-                        break;
-                }                        
+                    foreach (var pc in e.OldItems.OfType<INotifyPropertyChanged>())
+                        pc.PropertyChanged -= CollectionItem_Changed;
+                }
+                if (e.NewItems != null)
+                {
+                    foreach (var pc in e.NewItems.OfType<INotifyPropertyChanged>())
+                        pc.PropertyChanged += CollectionItem_Changed;
+                }
             }
             collection.CollectionChanged += Collection_CollectionChanged;
         }

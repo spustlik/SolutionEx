@@ -24,20 +24,31 @@ namespace SolutionExtensions
             var commandService = await package.GetMenuCommandServiceAsync();
             cmd.package = package;
             var menuCommandID = new CommandID(cmd.CommandSet, cmd.CommandId);
-            var menuItem = new MenuCommand(cmd.Execute, menuCommandID);
-            commandService.AddCommand(menuItem);
+            var menuComand = new OleMenuCommand(cmd.Execute, menuCommandID);
+            commandService.AddCommand(menuComand);
+            cmd.MenuComand = menuComand;
+            menuComand.BeforeQueryStatus += cmd.MenuComand_BeforeQueryStatus;
             return cmd;
         }
 
-        // in commands.vsct
-        public Guid CommandSet = new Guid("7a30b1a0-c6bb-41ee-a9b4-f15017e2fee5");
-        protected AsyncPackage package { get; private set; }
-        protected IAsyncServiceProvider ServiceProvider => package;
-        public readonly int CommandId;
+        private void MenuComand_BeforeQueryStatus(object sender, EventArgs e)
+        {
+            var cmd = sender as OleMenuCommand;
+            if (cmd == null)
+                return;
+            OnMenuComand_BeforeQueryStatus(cmd);
+        }
 
-        protected CommandBase(int commandId)
+        protected AsyncPackage package { get; set; }
+        protected IAsyncServiceProvider ServiceProvider => package;
+
+        public Guid CommandSet { get; }
+        public int CommandId { get; }
+        public OleMenuCommand MenuComand { get; private set; }
+        protected CommandBase(int commandId, Guid commandSet)
         {
             this.CommandId = commandId;
+            this.CommandSet = commandSet;
         }
         /// <summary>
         /// This function is the callback used to execute the command when the menu item is clicked.
@@ -47,5 +58,9 @@ namespace SolutionExtensions
         /// <param name="sender">Event sender.</param>
         /// <param name="e">Event args.</param>
         protected abstract void Execute(object sender, EventArgs e);
+        protected virtual void OnMenuComand_BeforeQueryStatus(OleMenuCommand cmd)
+        {
+        }
+
     }
 }

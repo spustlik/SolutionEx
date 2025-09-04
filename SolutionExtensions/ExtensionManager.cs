@@ -1,11 +1,9 @@
 ﻿using EnvDTE;
 using Microsoft.VisualStudio.Shell;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -34,15 +32,19 @@ namespace SolutionExtensions
             //(doc.Selection as EnvDTE.TextSelection).Insert(s);
             //sync title,shortcut to commandX
 
-            Log(dte, $"Commands count={dte.Commands.Count}");
-            foreach (Command cmd in dte.Commands)
+            //Shortcut is on command
+            var guid = CommandIds.CommandSetGuid.ToString();
+            for (int i = 0; i < model.Extensions.Count; i++)
             {
-                //cmd.LocalizedName
-                //cmd.Collection //parent collection
-                var b = cmd.Bindings as object[]; //array of strings in format like "VC Dialog Editor::F9"
-                Log(dte, $"ID={cmd.ID},GUID={cmd.Guid},{cmd.Name},BIND={b.Length}:{string.Join("|", b)}");
+                var item = model.Extensions[i];
+                var cmd = dte.Commands.Cast<Command>()
+                    .FirstOrDefault(c => c.Guid == guid && c.ID == CommandIds.Command_Extension1 + i);
+                if (cmd == null)
+                    continue;
+                //TODO:sync
+                //cmd.Name = "";
+                //cmd.Bindings
             }
-            //System.Diagnostics.Debugger.Break();
         }
 
         private void Log(DTE dte, string msg)
@@ -129,6 +131,7 @@ namespace SolutionExtensions
                 switch (name.Trim().ToUpperInvariant())
                 {
                     case "SOLUTIONDIR": return Path.GetDirectoryName(GetSolutionFileName());
+                    case "SELF": return SelfAssembly.Location;
                     default: return null;
                 }
             }
@@ -143,24 +146,44 @@ namespace SolutionExtensions
             });
             return r;
         }
+
+        //TODO:should return assembly of some extension
+        private Lazy<Assembly> _selfAssembly = new Lazy<Assembly>(() => typeof(ExtensionManager).Assembly);
+        public Assembly SelfAssembly => _selfAssembly.Value;
+
         public void RunExtension(ExtensionItem extension)
         {
-            //try to find dll if only project name ->/bin/debug or /bin/release
-            //try to rebuild if not found
-            var assembly = LoadVersionedAssembly(GetRealPath(extension.DllPath));
-            var type = assembly.GetType(extension.ClassName);
-            if (type == null)
-                throw new InvalidOperationException($"Class {extension.ClassName} not found in assembly {assembly.FullName}");
-            var runMethod = type.GetMethods().FirstOrDefault(m => IsRunMethod(m));
-            if (runMethod == null)
-                throw new InvalidOperationException($"Class {extension.ClassName} does not have a valid Run method");
-            var obj = Activator.CreateInstance(type);
+            //TODO:try to find dll if only project name ->/bin/debug or /bin/release
+            //TODO:try to rebuild if not found
+            //warning: method/extension can be in this assembly
+            var (method, type) = FindExtensionMethod(extension, throwIfNotFound: true);
             var dte = this.package.GetService<DTE, DTE>();
-            var parameters = new object[runMethod.GetParameters().Length];
+            var parameters = new object[method.GetParameters().Length];
             parameters[0] = dte;
             if (parameters.Length > 1)
                 parameters[1] = this.package; //can be used as IServiceProvider, etc.
-            runMethod.Invoke(obj, parameters);
+            var instance = method.IsStatic ? null : Activator.CreateInstance(type);
+            method.Invoke(instance, parameters);
+        }
+
+        public (MethodInfo method, Type type) FindExtensionMethod(ExtensionItem extension, bool throwIfNotFound = false)
+        {
+            var assembly = LoadVersionedAssembly(GetRealPath(extension.DllPath));
+            var type = String.IsNullOrEmpty(extension.ClassName) ? null : assembly.GetType(extension.ClassName);
+            if (type == null)
+            {
+                if (throwIfNotFound)
+                    throw new InvalidOperationException($"Class {extension.ClassName} not found in assembly {assembly.FullName}");
+                return (method: null, type: null);
+            }
+            var method = type.GetMethods().FirstOrDefault(m => IsRunMethod(m));
+            if (method == null)
+            {
+                if (throwIfNotFound)
+                    throw new InvalidOperationException($"Class {extension.ClassName} does not have a valid Run method");
+                return (method: null, type);
+            }
+            return (method, type);
         }
 
         public string[] FindExtensionClassesInDll(string dllPath)
@@ -218,7 +241,8 @@ namespace SolutionExtensions
 
         private bool IsExtensionClass(Type t)
         {
-            return t.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).Any(m => IsRunMethod(m));
+            //can be static
+            return t.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly).Any(m => IsRunMethod(m));
         }
 
         private bool IsRunMethod(MethodInfo m)
@@ -228,6 +252,8 @@ namespace SolutionExtensions
 
         private Assembly LoadVersionedAssembly(string dllPath)
         {
+            if (dllPath == SelfAssembly.Location)
+                return SelfAssembly;
             var ver = File.GetLastWriteTime(dllPath).ToString("yyyyMMdd-HH-mm-ss-fff");
             var dllFn = Path.GetFileNameWithoutExtension(dllPath);
             var dllExt = Path.GetExtension(dllPath);

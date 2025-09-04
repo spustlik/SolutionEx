@@ -6,7 +6,7 @@ namespace SolutionExtensions
 {
     public abstract class CommandBaseAsync : CommandBase
     {
-        protected CommandBaseAsync(int commandId) : base(commandId)
+        protected CommandBaseAsync(int commandId, Guid commandSet) : base(commandId, commandSet)
         {
         }
 

@@ -7,11 +7,12 @@
              xmlns:model="clr-namespace:SolutionExtensions"
              xmlns:toolkit="clr-namespace:Community.VisualStudio.Toolkit;assembly=Community.VisualStudio.Toolkit"              
              xmlns:shell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"             
+             xmlns:cmt="uri:comments"
              toolkit:Themes.UseVsTheme="True"
-             mc:Ignorable="d" 
+             mc:Ignorable="d cmt" 
              d:Background="White"
              Loaded="Control_Loaded"
-             d:DataContext="{d:DesignInstance Type=local:VM}"
+             d:DataContext="{d:DesignData /_DesignData/ExtensionListToolWindowVM.xaml}"
              d:DesignHeight="455.41" d:DesignWidth="399.916">
     <UserControl.Resources>
         <ResourceDictionary>
@@ -31,9 +32,10 @@
                 <Setter Property="Foreground" Value="Green" />
             </Style>-->
             <BooleanToVisibilityConverter x:Key="boolToVisi"/>
+            <model:EmptyConverter x:Key="notEmptyToVisi" Inner="{StaticResource boolToVisi}" Negate="True"/>
         </ResourceDictionary>
     </UserControl.Resources>
-    <Grid>
+    <Grid >
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -80,7 +82,16 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Label Content="{Binding Title}" FontWeight="Bold" Grid.ColumnSpan="99"/>
+                        <StackPanel Grid.ColumnSpan="99" x:Name="parent" Orientation="Horizontal">
+                            <Label Content="{Binding Title}" FontWeight="Bold"/>
+                            <Border CornerRadius="5" BorderThickness="1" BorderBrush="{Binding Foreground,ElementName=text}"
+                                    VerticalAlignment="Center" Padding="5,0"
+                                    Visibility="{Binding ShortCutKey,Converter={StaticResource notEmptyToVisi}}">
+                                <TextBlock Text="{Binding ShortCutKey}" FontFamily="Consolas" x:Name="text"/>
+                            </Border>
+                            
+                        </StackPanel>
+                        
                         <TextBlock Text="{Binding ClassName}" Width="150" FontSize="10" Margin="10,0,0,0" Grid.Row="1"/>
                         <TextBlock Text="{Binding DllPath}" FontSize="10" HorizontalAlignment="Right" Grid.Row="1" Grid.Column="1" TextWrapping="NoWrap"/>
                     </Grid>
@@ -88,7 +99,7 @@
             </ListBox.ItemTemplate>
         </ListBox>
         <!-- editor -->
-        <StackPanel Grid.Row="2" Visibility="{Binding IsSelected,Converter={StaticResource boolToVisi}}">
+        <StackPanel Grid.Row="2" Visibility="{Binding SelectedItem,Converter={StaticResource notEmptyToVisi}}">
             <StackPanel.Resources>
                 <Style TargetType="Label" BasedOn="{StaticResource {x:Static shell:VsResourceKeys.ThemedDialogLabelStyleKey}}">
                     <Setter Property="Margin" Value="0,5,0,0"/>
@@ -108,7 +119,7 @@
                 <TextBlock FontWeight="Bold">Selected item</TextBlock>
             </Border>
             <StackPanel Margin="10">
-                <TextBlock Foreground="Red" Padding="2" Visibility="{Binding HasValidationMessage,Converter={StaticResource boolToVisi}}"><Run>⚠</Run><Run Text="{Binding ValidationMessage}"></Run></TextBlock>
+                <TextBlock Foreground="Red" Padding="2" Visibility="{Binding ValidationMessage,Converter={StaticResource notEmptyToVisi}}"><Run>⚠</Run><Run Text="{Binding ValidationMessage}"></Run></TextBlock>
                 <Label Content="Title"/>
                 <TextBox Text="{Binding SelectedItem.Title, UpdateSourceTrigger=PropertyChanged}"/>
                 <Label Content="Key Shortcut"/>
@@ -124,7 +135,7 @@
                 <ComboBox IsEditable="True" IsTextSearchEnabled="True" DropDownOpened="PickClass_Opened" Text="{Binding SelectedItem.ClassName}" />
 
                 <Label>
-                    <TextBlock ToolTip="You can use $(SolutionDir) or any environment variable like %APP_MY_PATH%.">DLL Path 🛈</TextBlock>
+                    <TextBlock ToolTip="You can use $(SolutionDir),$(Self) or any environment variable like %APP_MY_PATH%.">DLL Path 🛈</TextBlock>
                 </Label>
                 <Grid>
                     <Grid.ColumnDefinitions>

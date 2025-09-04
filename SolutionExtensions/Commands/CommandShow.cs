@@ -12,7 +12,7 @@ namespace SolutionExtensions
 {
     public sealed class CommandShow : CommandBaseAsync
     {
-        public CommandShow() : base(CommandIds.Command_show)
+        public CommandShow() : base(CommandIds.Command_show, CommandIds.CommandSetGuid)
         {
         }
 

@@ -1,7 +1,10 @@
+using System;
+
 namespace SolutionExtensions
 {
 	public static class CommandIds
 	{
+		public static Guid CommandSetGuid = new Guid("{7a30b1a0-c6bb-41ee-a9b4-f15017e2fee5}");
 		public static int Command_show = 0x0100;
 		public static int Command_Extension1 = 0x0200;
 		public static int Command_Extension2 = 0x0201;

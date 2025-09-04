@@ -18,7 +18,8 @@
 	//AND: set <ResourceName>Menus.ctmenu</ResourceName> to result vstc file manually in csproj
 	GetDTE();    
 
-	var package="guidSEPkg";
+	var package = "guidSEPkg";
+	var cmdSetGuid = "{7a30b1a0-c6bb-41ee-a9b4-f15017e2fee5}";
 	var commands = new List<Command>();
 	commands.Add(new Command(){Id=0x0100,Title="Show...",Visible=true,Name="SolutionEx.show"});
 	for(var i=0;i<50;i++){
@@ -26,10 +27,13 @@
 	}
 	var ns = System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("NamespaceHint");
 #>
+using System;
+
 namespace <#=ns#>
 {
 	public static class CommandIds
 	{
+		public static Guid CommandSetGuid = new Guid("<#=cmdSetGuid#>");
 <#
 	foreach(var cmd in commands)
 	{
@@ -85,7 +89,9 @@ namespace <#=ns#>
 		{
 		//<CommandFlag>DynamicVisibility</CommandFlag>
 #>
-				<CommandFlag>DefaultInvisible</CommandFlag>				
+				<CommandFlag>DefaultInvisible</CommandFlag>
+				<CommandFlag>TextChanges</CommandFlag>
+
 <#
 		}
 #>
@@ -111,7 +117,7 @@ namespace <#=ns#>
 			<IDSymbol name="IDM_VS_MENU_EXTENSIONS" value="0x0091" />
 		</GuidSymbol>
 		<GuidSymbol name="<#=package#>" value="{ac39d443-46d7-4bf6-9691-552e1d504216}" />
-		<GuidSymbol name="<#=package#>CmdSet" value="{7a30b1a0-c6bb-41ee-a9b4-f15017e2fee5}">
+		<GuidSymbol name="<#=package#>CmdSet" value="<#=cmdSetGuid#>">
 			<IDSymbol name="MyMenuGroup" value="0x1020" />
 			<IDSymbol name="MySubMenuGroup" value="0x1021" />
 			<IDSymbol name="MySubMenu" value="0x2000" />
