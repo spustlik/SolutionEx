@@ -346,7 +346,9 @@ namespace SolutionExtensions.ToolWindows
             return;
             //to debug extension, it is needed to run it in separate process, because devenv cannot attach to itself
             // than maybe via remoting and marshalling can be extension executed,
-            // debugger can attach to this process and stop
+            // remoting: this must have server
+            // maybe sometinh as ComRunningObject
+            // debugger can attach to this process anz stop
             //possible there will be problem with symbols, because dll is copied to another path and assembly name
             //TODO:
             var runner = Process.Start(new ProcessStartInfo() { FileName = "...my runner..." });
