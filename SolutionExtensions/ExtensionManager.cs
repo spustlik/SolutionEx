@@ -127,6 +127,8 @@ namespace SolutionExtensions
                     sw.WriteLine("# format: [Title]|[ShortCutKey]|[ClassName]|DllPath");
                     foreach (var ext in source.Extensions)
                     {
+                        if (ext.Title == null && ext.DllPath == null && ext.ClassName == null)
+                            continue;
                         sw.WriteLine($"{ext.Title}|{ext.ShortCutKey}|{ext.ClassName}|{ext.DllPath}");
                     }
                 }

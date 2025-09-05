@@ -7,21 +7,24 @@ namespace SolutionExtensions.Launcher
     {
         public static Process RunExtension(string dllPath, string className, string dteMonikerName, string packageId)
         {
-            var psi = new ProcessStartInfo(typeof(Program).Assembly.Location);
+            var si = new ProcessStartInfo(typeof(Program).Assembly.Location);
             var args = new List<string>()
             {
                 dllPath,
-                className, 
-                dteMonikerName, 
+                className,
+                dteMonikerName,
                 packageId
             };
             args.Add("/waitfordebugger");
             args.Add("/break");
-            psi.Arguments = string.Join(" ", args);
-            //psi.CreateNoWindow = true;
-            //psi.RedirectStandardOutput = true;            
-            var p = Process.Start(psi);
-            //p.OutputDataReceived
+            args.Add("/waitforenter");
+            si.Arguments = string.Join(" ", args);
+            si.UseShellExecute = false;
+            si.ErrorDialog = true;
+            //si.CreateNoWindow = true;
+            //si.RedirectStandardOutput = true;
+            si.RedirectStandardOutput = true;
+            var p = Process.Start(si);
             return p;
         }
     }

@@ -5,9 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Xml.Linq;
 
 namespace SolutionExtensions.Launcher
-{    
+{
     public class Program
     {
         static void Main(string[] args)
@@ -20,7 +21,20 @@ namespace SolutionExtensions.Launcher
             }
             try
             {
-                Run(args);
+                var cmdLine = ParseArgs(args);
+                switch (cmdLine.Action)
+                {
+                    case ActionEnum.Run: Run(cmdLine); break;
+                    case ActionEnum.DumpMonikers: DumpMonikers(cmdLine); break;
+                    default:
+                        Console.WriteLine($"Unknown arguments");
+                        break;
+                }
+                if (cmdLine.WaitForEnter)
+                {
+                    Console.WriteLine($"Press <ENTER>");
+                    Console.ReadLine();
+                }
             }
             catch (ApplicationException aex)
             {
@@ -33,37 +47,28 @@ namespace SolutionExtensions.Launcher
             }
         }
 
-        private static void Run(string[] args)
+        private static void DumpMonikers(Arguments cmd)
         {
-            //args:
-            //dll path
-            //class name
-            //moniker name
-            //package id to find it in dte
-            var dllPath = args[0];
-            var className = args[1];
-            var monikerName = args[2];
-            var packageId = args[3];
-            args = args.Skip(4).ToArray();
-            var switches = args
-                .Where(x => x.StartsWith("/"))
-                .Select(x => x.TrimStart('/').Trim())
-                .Select(x => x.Split(new[] { ':' }, 2))
-                .ToDictionary(parts => parts[0].Trim().ToUpperInvariant(), parts => parts.Skip(1));
-            var waitForDebugger = switches.ContainsKey("WAITFORDEBUGGER");
-            //more params like debug:yes/no, copydll:y/n
-            var breakDebugger = switches.ContainsKey("BREAK");
+            var rot = RunningComObjects.GetROT();
+            var names = RunningComObjects.EnumerateRunning(rot).Select(m => m.GetMonikerDisplayName()).OrderBy(x => x).ToArray();
+            foreach (var m in names)
+            {
+                Log(m);
+            }
+        }
 
-            Log($"Arguments: dllPath={dllPath},className={className},moniker={monikerName},package={packageId}");
-            if (!File.Exists(dllPath))
-                throw new ApplicationException($"File doesnt exists: {dllPath}");
-            var assembly = Assembly.Load(dllPath);
-            var (method, type) = ExtensionObject.FindExtensionMethod(assembly, className, true);
+        private static void Run(Arguments cmd)
+        {
+            Log($"Arguments: dllPath={cmd.DllPath},className={cmd.ClassName},moniker={cmd.MonikerName},package={cmd.PackageId}");
+            if (!File.Exists(cmd.DllPath))
+                throw new ApplicationException($"File doesnt exists: {cmd.DllPath}");
+            var assembly = Assembly.LoadFrom(cmd.DllPath);
+            var (method, type) = ExtensionObject.FindExtensionMethod(assembly, cmd.ClassName, true);
             var par = method.GetParameters().Select(p => p.Name + ": " + GetTypeStr(p.ParameterType)).ToArray();
             Log($"{type.FullName}.{method.Name}({String.Join(", ", par)}) found");
 
             //wait for debugger attach
-            if (waitForDebugger)
+            if (cmd.WaitForDebugger)
             {
                 var timeOut = DateTime.Now.AddMinutes(1);
                 Log($"Waiting for debugger to attach");
@@ -75,8 +80,8 @@ namespace SolutionExtensions.Launcher
                 }
             }
             //instantiate dte from moniker
-            Log($"Getting running dte from ${monikerName}");
-            var dteCom = RunningComObjects.GetRunningComObject(monikerName);
+            Log($"Getting running dte from ${cmd.MonikerName}");
+            var dteCom = RunningComObjects.GetRunningComObject(cmd.MonikerName);
             if (dteCom == null)
                 throw new ApplicationException($"DTE COM is not running");
             var dte = dteCom as EnvDTE.DTE;
@@ -87,9 +92,54 @@ namespace SolutionExtensions.Launcher
             //run extension
             Log("Running extension");
             // TODO: somehow instruct debugger to break in method
-            if (breakDebugger)
+            if (cmd.BreakDebugger)
                 Debugger.Break();
             ExtensionObject.RunExtension(type, method, dte, package);
+        }
+
+        enum ActionEnum
+        {
+            Help,
+            Run,
+            DumpMonikers
+        }
+        class Arguments
+        {
+            public ActionEnum Action = ActionEnum.Help;
+            public string DllPath;
+            public string ClassName;
+            public string MonikerName;
+            public string PackageId;
+            public bool WaitForDebugger;
+            public bool BreakDebugger;
+            public bool WaitForEnter;
+        }
+        private static Arguments ParseArgs(string[] args)
+        {
+            var switches = args
+                .Where(x => x.StartsWith("/"))
+                .Select(x => x.TrimStart('/').Trim())
+                .Select(x => x.Split(new[] { ':' }, 2))
+                .ToDictionary(parts => parts[0].Trim().ToUpperInvariant(), parts => parts.Skip(1));
+            var strings = args.Where(x => !x.StartsWith("/")).ToArray();
+
+            var r = new Arguments();
+            r.WaitForDebugger = switches.ContainsKey("WAITFORDEBUGGER");
+            r.BreakDebugger = switches.ContainsKey("BREAK");
+            r.WaitForEnter = switches.ContainsKey("WAITFORENTER");
+            if (switches.ContainsKey("DUMPMONIKERS"))
+            {
+                r.Action = ActionEnum.DumpMonikers;
+            }
+            if (strings.Length == 4)
+            {
+                r.DllPath = strings[0];
+                r.ClassName = strings[1];
+                r.MonikerName = strings[2];
+                r.PackageId = strings[3];
+                r.Action = ActionEnum.Run;
+            }
+            return r;
         }
 
         private static string GetTypeStr(Type t)

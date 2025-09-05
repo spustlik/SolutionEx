@@ -3,9 +3,6 @@ using EnvDTE100;
 using Microsoft.VisualStudio.Shell;
 using SolutionExtensions.Launcher;
 using System;
-using System.Diagnostics;
-using System.Windows;
-using System.Windows.Forms.Design.Behavior;
 
 namespace SolutionExtensions.ToolWindows
 {
@@ -20,10 +17,18 @@ namespace SolutionExtensions.ToolWindows
             var monikerName = GetMonikerName(dte);
             var packageId = GetPackageId(dte, package);
             var launcher = LauncherProcess.RunExtension(dllPath, item.ClassName, monikerName, packageId);
+            launcher.WaitForExit(100);
+            if (launcher.HasExited)
+            {
+                var output = launcher.StandardOutput.ReadToEnd();
+                throw new Exception($"Launcher exited with {launcher.ExitCode}\n{output}");
+            }
+            
             var dbg = dte.Debugger as Debugger5;
-            var p = AttachDebuggerToProcess(dbg, launcher);
+            var p = FindDTEProcess(dbg, launcher);
             if (p == null || dbg.CurrentProcess == null)
-                throw new Exception($"Cannot attach to runner process");
+                throw new Exception($"Cannot find runner process");
+            p.Attach();
             //dbg.SetNextStatement();
             //dbg.CurrentStackFrame
             //dbg.StepOver();
@@ -40,28 +45,33 @@ namespace SolutionExtensions.ToolWindows
             //dbg.Break();
         }
 
-        private static EnvDTE.Process AttachDebuggerToProcess(Debugger5 dbg, System.Diagnostics.Process launcher)
+        private static EnvDTE.Process FindDTEProcess(Debugger5 dbg, System.Diagnostics.Process launcher)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             foreach (EnvDTE.Process p in dbg.LocalProcesses)
             {
                 if (p.ProcessID == launcher.Id)
-                {
-                    p.Attach();
                     return p;
-                }
             }
             return null;
         }
 
         private static string GetPackageId(DTE dte, SolutionExtensionsPackage package)
         {
-            throw new NotImplementedException();
+            return package.GetType().GUID.ToString("B");
         }
 
-        private static string GetMonikerName(DTE dte)
+        private static string GetMonikerName(DTE dte, System.Diagnostics.Process process = null)
         {
-            throw new NotImplementedException();
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if (process == null) process = System.Diagnostics.Process.GetCurrentProcess();
+            //VisualStudio.DTE.17.0:25176
+            //var comType = dte.GetType();//System.__ComObject
+            //string progId1 = comType.InvokeMember("ProgID", System.Reflection.BindingFlags.GetProperty, null, dte, null) as string;
+            //string clsid = comType.GUID.ToString();//0000
+            //string progId2 = dte.GetType().ToString(); // returns "System.__ComObject"
+            //string progId3 = System.Runtime.InteropServices.Marshal.GenerateProgIdForType(dte.GetType()); // throws error
+            return $"VisualStudio.DTE.{dte.Version}:{process.Id}";
         }
     }
 }

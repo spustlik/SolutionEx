@@ -151,6 +151,8 @@ namespace SolutionExtensions.ToolWindows
         private void Run_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             var item = ViewModel.SelectedItem;
+            if (item == null)
+                return;
             try
             {
                 ExtensionManager.RunExtension(item);
@@ -158,6 +160,23 @@ namespace SolutionExtensions.ToolWindows
             catch (Exception ex)
             {
                 var err = $"Error running extension '{item.Title}'";
+                Package.AddToOutputPane($"{err}:\nfrom:{item.DllPath}\n" + ex);
+                _ = Package.ShowStatusBarErrorAsync(ex.Message);
+                MessageBox.Show(ex.Message + "\nSee output pane for details", err, MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+        }
+        private void Debug_Click(object sender, RoutedEventArgs e)
+        {
+            var item = ViewModel.SelectedItem;
+            if (item == null)
+                return;
+            try
+            {
+                DebuggerLauncher.RunExtension(item, Package, ExtensionManager);
+            }
+            catch (Exception ex)
+            {
+                var err = $"Error running extension '{item.Title}' in DEBUG";
                 Package.AddToOutputPane($"{err}:\nfrom:{item.DllPath}\n" + ex);
                 _ = Package.ShowStatusBarErrorAsync(ex.Message);
                 MessageBox.Show(ex.Message + "\nSee output pane for details", err, MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
@@ -340,13 +359,7 @@ namespace SolutionExtensions.ToolWindows
         }
 
 
-        private void Debug_Click(object sender, RoutedEventArgs e)
-        {
-            var item = ViewModel.SelectedItem;
-            if (item == null)
-                return;
-            DebuggerLauncher.RunExtension(item, Package, ExtensionManager);
-        }
+
 
         private void Copy_Click(object sender, RoutedEventArgs e)
         {

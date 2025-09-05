@@ -10,3 +10,6 @@
 * rebuild extension dll if not found
             
 
+#### Notes
+* SolutionExtensions project 
+  * has installed nuget packages from launcher, because it is missing there

@@ -1,6 +1,7 @@
 ﻿using EnvDTE;
 using EnvDTE100;
 using Microsoft.VisualStudio.Shell;
+using SolutionExtensions.Runner;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -65,6 +66,9 @@ namespace SolutionExtensions.Extensions
             //dte.SourceControl            
             //dte.CommandBars
             //dte.Macros
+            //dte.Properties
+            
+            //DumpProperties(parent, dte.Properties as object as Properties);
             DumpSolution(parent);
             DumpDocuments(parent);
             DumpGlobals(parent, dte.Globals);

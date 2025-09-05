@@ -6,7 +6,7 @@ using System.Runtime.InteropServices.ComTypes;
 
 namespace SolutionExtensions.Runner
 {
-    // Helper to register in ROT (Running object table)
+    // Helper for use of ROT (Running object table)
     public static class RunningComObjects
     {
         /*

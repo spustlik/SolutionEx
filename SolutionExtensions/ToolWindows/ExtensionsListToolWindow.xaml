@@ -45,12 +45,8 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.ColumnSpan="99" x:Name="parent" Orientation="Horizontal">
-                        <Label FontWeight="Bold">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding Title}"/>
-                                <TextBlock Text="(no name)" Visibility="{Binding Title, Converter={StaticResource emptyToVisi}}"/>
-                            </StackPanel>
-                        </Label>
+                        <Label FontWeight="Bold" Content="{Binding Title}"/>
+                        <Label Content="(no name)" Visibility="{Binding Title, Converter={StaticResource emptyToVisi}}"/>
                         <Border CornerRadius="5" BorderThickness="1" BorderBrush="{Binding Foreground,ElementName=text}"
                                     VerticalAlignment="Center" Padding="5,0"
                                     Visibility="{Binding ShortCutKey,Converter={StaticResource notEmptyToVisi}}">
