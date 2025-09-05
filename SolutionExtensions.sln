@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "libs", "libs", "{02EA681E-C
 		libs\Mono.Cecil.dll = libs\Mono.Cecil.dll
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SolutionExtensions.Launcher", "SolutionExtensions.Launcher\SolutionExtensions.Launcher.csproj", "{1695CADD-4033-4CDE-93ED-90C3AEE597FB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,6 +62,18 @@ Global
 		{5E2E4923-E520-43EC-95B6-0EBCD8FC8A20}.Release|arm64.Build.0 = Release|Any CPU
 		{5E2E4923-E520-43EC-95B6-0EBCD8FC8A20}.Release|x86.ActiveCfg = Release|Any CPU
 		{5E2E4923-E520-43EC-95B6-0EBCD8FC8A20}.Release|x86.Build.0 = Release|Any CPU
+		{1695CADD-4033-4CDE-93ED-90C3AEE597FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1695CADD-4033-4CDE-93ED-90C3AEE597FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1695CADD-4033-4CDE-93ED-90C3AEE597FB}.Debug|arm64.ActiveCfg = Debug|Any CPU
+		{1695CADD-4033-4CDE-93ED-90C3AEE597FB}.Debug|arm64.Build.0 = Debug|Any CPU
+		{1695CADD-4033-4CDE-93ED-90C3AEE597FB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1695CADD-4033-4CDE-93ED-90C3AEE597FB}.Debug|x86.Build.0 = Debug|Any CPU
+		{1695CADD-4033-4CDE-93ED-90C3AEE597FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1695CADD-4033-4CDE-93ED-90C3AEE597FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1695CADD-4033-4CDE-93ED-90C3AEE597FB}.Release|arm64.ActiveCfg = Release|Any CPU
+		{1695CADD-4033-4CDE-93ED-90C3AEE597FB}.Release|arm64.Build.0 = Release|Any CPU
+		{1695CADD-4033-4CDE-93ED-90C3AEE597FB}.Release|x86.ActiveCfg = Release|Any CPU
+		{1695CADD-4033-4CDE-93ED-90C3AEE597FB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
