@@ -1,11 +1,9 @@
-﻿using SolutionExtensions.Runner;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using System.Xml.Linq;
 
 namespace SolutionExtensions.Launcher
 {
@@ -13,7 +11,7 @@ namespace SolutionExtensions.Launcher
     {
         static void Main(string[] args)
         {
-            Log($"Extension launcher");
+            Log($"Extension launcher, processID={Process.GetCurrentProcess().Id}");
             if (args.Length < 4)
             {
                 Console.WriteLine($"Needs 4 arguments");
@@ -91,10 +89,9 @@ namespace SolutionExtensions.Launcher
             var package = dte as IServiceProvider;
             //run extension
             Log("Running extension");
-            // TODO: somehow instruct debugger to break in method
-            if (cmd.BreakDebugger)
-                Debugger.Break();
-            ExtensionObject.RunExtension(type, method, dte, package);
+            //to simplify code which will break
+            var runner = new ExtensionRunner(type, method, cmd.BreakDebugger);
+            runner.Run(dte, package);
         }
 
         enum ActionEnum

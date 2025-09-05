@@ -1,21 +1,18 @@
 ﻿using EnvDTE;
 using EnvDTE100;
+using EnvDTE80;
+using EnvDTE90a;
 using Microsoft.VisualStudio.Shell;
-using SolutionExtensions.Runner;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.Design;
-using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 
 namespace SolutionExtensions.Extensions
 {
-
-#pragma warning disable VSTHRD010 // Invoke single-threaded types on Main thread
     public class Dumper
     {
         public XElement Dump(EnvDTE.DTE dte, AsyncPackage package, bool more)
@@ -67,7 +64,7 @@ namespace SolutionExtensions.Extensions
             //dte.CommandBars
             //dte.Macros
             //dte.Properties
-            
+
             //DumpProperties(parent, dte.Properties as object as Properties);
             DumpSolution(parent);
             DumpDocuments(parent);
@@ -87,14 +84,41 @@ namespace SolutionExtensions.Extensions
                 return;
             var e = new XElement("Debugger", Attr(new { dbg.CurrentMode }));
             parent.Add(e);
+            foreach (Breakpoint3 b in dbg.Breakpoints)
+            {
+                e.Add(new XElement("Breakpoint", Attr(new
+                {
+                    b.Name,
+                    b.Message,
+                    b.Language,                    
+
+                    b.File,
+                    b.FileLine,
+
+                    b.FunctionName,
+                    b.FunctionLineOffset,
+                    b.FunctionColumnOffset,
+
+                    b.LocationType,
+                    b.Type
+                })));
+            }
             foreach (Process p in dbg.LocalProcesses)
             {
                 var pe = new XElement("Process", Attr(new { p.Name, p.ProcessID }));
                 e.Add(pe);
                 foreach (Program pr in p.Programs)
                 {
-                    var pre = new XElement("Program", Attr(new { pr.Name, pr.IsBeingDebugged, Threads = pr.Threads.Count }));
-                    pe.Add(pre);
+                    pe.Add(new XElement("Program", Attr(new { pr.Name, pr.IsBeingDebugged, Threads = pr.Threads.Count })));
+                }
+            }
+            foreach (Transport t in dbg.Transports)
+            {
+                var te = new XElement("Transport", Attr(new { t.ID, t.Name }));
+                e.Add(te);
+                foreach (Engine en in t.Engines)
+                {
+                    te.Add(new XElement("Engine", Attr(new { en.ID, en.Name, en.AttachResult })));
                 }
             }
         }
@@ -337,9 +361,9 @@ namespace SolutionExtensions.Extensions
             DumpProperties<string>(parent, properties.Keys, k => k, k => properties[k]);
         }
         private void DumpProperties<T>(
-            XElement parent, 
-            IEnumerable list, 
-            Func<T, string> nameGeter, 
+            XElement parent,
+            IEnumerable list,
+            Func<T, string> nameGeter,
             Func<T, object> valueGetter)
             where T : class
         {

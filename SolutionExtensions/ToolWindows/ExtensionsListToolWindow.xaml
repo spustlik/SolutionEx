@@ -43,8 +43,9 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel Grid.ColumnSpan="99" x:Name="parent" Orientation="Horizontal">
+                    <StackPanel Grid.ColumnSpan="2" x:Name="parent" Orientation="Horizontal">
                         <Label FontWeight="Bold" Content="{Binding Title}"/>
                         <Label Content="(no name)" Visibility="{Binding Title, Converter={StaticResource emptyToVisi}}"/>
                         <Border CornerRadius="5" BorderThickness="1" BorderBrush="{Binding Foreground,ElementName=text}"
@@ -55,6 +56,7 @@
                     </StackPanel>
                     <TextBlock Text="{Binding ClassName}" Width="150" FontSize="10" Margin="10,0,0,0" Grid.Row="1"/>
                     <TextBlock Text="{Binding DllPath}" FontSize="10" HorizontalAlignment="Right" Grid.Row="1" Grid.Column="1" TextWrapping="NoWrap"/>
+                    
                 </Grid>
             </DataTemplate>
         </ResourceDictionary>
@@ -97,7 +99,13 @@
         <!-- list of textensions -->
         <ListBox Grid.Row="1" ItemsSource="{Binding Model.Extensions}" SelectedItem="{Binding SelectedItem}"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                 ItemTemplate="{StaticResource extensionListTemplate}">
+                 ItemTemplate="{StaticResource extensionListTemplate}"
+                 >
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                </Style>
+            </ListBox.ItemContainerStyle>
         </ListBox>
         <!-- editor -->
         <StackPanel Grid.Row="2" Visibility="{Binding SelectedItem,Converter={StaticResource notEmptyToVisi}}">

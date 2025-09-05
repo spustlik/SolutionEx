@@ -1,5 +1,6 @@
 ﻿using EnvDTE;
 using EnvDTE100;
+using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.Win32;
@@ -170,6 +171,11 @@ namespace SolutionExtensions.ToolWindows
             var item = ViewModel.SelectedItem;
             if (item == null)
                 return;
+            if (!DebuggerLauncher.ValidateBreakpoint(item, Package, ExtensionManager))
+            {
+                if (MessageBox.Show($"No breakpoint found.\nThere should be breakpoint in your extension to stop debugger there.\nDo you want to continue?", "Breakpoint missing", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                    return;
+            }
             try
             {
                 DebuggerLauncher.RunExtension(item, Package, ExtensionManager);
@@ -222,7 +228,6 @@ namespace SolutionExtensions.ToolWindows
             var classes = ExtensionManager.FindExtensionClassesInDll(item.DllPath);
             cb.ItemsSource = classes;
         }
-
 
         private void BrowseDll_Click(object sender, RoutedEventArgs e)
         {
@@ -357,9 +362,6 @@ namespace SolutionExtensions.ToolWindows
         {
             this.Package.AddConfigToSolutionItem();
         }
-
-
-
 
         private void Copy_Click(object sender, RoutedEventArgs e)
         {

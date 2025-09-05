@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 
-namespace SolutionExtensions.Runner
+namespace SolutionExtensions
 {
     // Helper for use of ROT (Running object table)
     public static class RunningComObjects

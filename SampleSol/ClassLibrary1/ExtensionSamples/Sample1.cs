@@ -14,10 +14,13 @@ namespace ExtensionSamples
         /// <param name="package">Reference to executing package, you can change it to AsyncPackage,IAsyncServiceProvider</param>
         public void Run(DTE dte, IServiceProvider package)
         {
-            MessageBox.Show("Running!, now trying to call debugger");
-            //not working properly - System.Diagnostics.Debugger.Break();
-            dynamic p = package;
-            p.TestMethod();
+            MessageBox.Show("Running!");
+            System.Diagnostics.Debugger.Break();
+            if (package != null)
+            {
+                dynamic p = package;
+                p.TestMethod();
+            }
         }
     }
 }
