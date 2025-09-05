@@ -136,7 +136,7 @@ namespace SolutionExtensions.ToolWindows
         }
         private void AddItem_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            this.ViewModel.Model.Extensions.Add(new ExtensionItem() { Title = "New extension" });
+            this.ViewModel.Model.Extensions.Add(new ExtensionItem());
             this.ViewModel.SelectedItem = this.ViewModel.Model.Extensions.Last();
         }
 

@@ -145,7 +145,7 @@ namespace SolutionExtensions
             ThreadHelper.ThrowIfNotOnUIThread();
             if (dte.Solution == null)
                 return;
-            var cfgFilePath = ExtensionManager.GetCfgFilePath(dte);
+            var cfgFilePath = ExtensionManager.GetCfgFilePath();
             if (!File.Exists(cfgFilePath))
             {
                 _ = ShowStatusBarErrorAsync($"Config not yet saved. Add some extensions");

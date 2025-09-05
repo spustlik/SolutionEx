@@ -87,11 +87,6 @@ namespace SolutionExtensions
             return result;
         }
 
-        private void Log(DTE dte, string msg)
-        {
-            dte.AddToOutputPane(msg, typeof(SolutionExtensionsPackage).Name);
-        }
-
         /// <summary>
         /// loads cfg file
         /// </summary>
@@ -106,22 +101,11 @@ namespace SolutionExtensions
                     return false;
                 throw new InvalidOperationException("No solution loaded");
             }
-            var cfgFilePath = GetCfgFilePath(dte);
+            var cfgFilePath = GetCfgFilePath();
             if (!File.Exists(cfgFilePath))
                 return false;
             LoadFromFile(target, cfgFilePath);
             return target.Extensions.Count > 0; ;
-        }
-
-        public void EnsureTitle(ExtensionItem item)
-        {
-            if (string.IsNullOrEmpty(item.Title))
-            {
-                if (string.IsNullOrEmpty(item.ClassName))
-                    item.Title = "(no title)";
-                else
-                    item.Title = item.ClassName.Split('.').Last();
-            }
         }
 
         public void SaveFile(ExtensionsModel source)
@@ -130,7 +114,7 @@ namespace SolutionExtensions
             var dte = this.package.GetService<DTE, DTE>();
             if (dte.Solution == null)
                 throw new InvalidOperationException("No solution loaded");
-            var cfgFilePath = GetCfgFilePath(dte);
+            var cfgFilePath = GetCfgFilePath();
             SaveToFile(source, cfgFilePath);
         }
         public void SaveToFile(ExtensionsModel source, string cfgFilePath)
@@ -177,56 +161,23 @@ namespace SolutionExtensions
             }
             return StringTemplates.ExpandString(dllPath, getVariable, envVariables: true);
         }
+        public void EnsureTitle(ExtensionItem item)
+        {
+            if (!string.IsNullOrEmpty(item.Title))
+                return;
+            if (string.IsNullOrEmpty(item.ClassName))
+                return;
+            item.Title = item.ClassName.Split('.').Last();
+        }
         public bool IsDllPathSelf(ExtensionItem item)
         {
             return item.DllPath == "$(SELF)";
         }
 
-        //TODO:should return assembly of some extension
+        //TODO:should return assembly of some SELF extension
         private Lazy<Assembly> _selfAssembly = new Lazy<Assembly>(() => typeof(ExtensionManager).Assembly);
         public Assembly SelfAssembly => _selfAssembly.Value;
 
-        public void RunExtension(ExtensionItem extension)
-        {
-            //TODO:try to find dll if only project name ->/bin/debug or /bin/release
-            //TODO:try to rebuild if not found
-            //warning: method/extension can be in this assembly
-            var (method, type) = FindExtensionMethod(extension, throwIfNotFound: true);
-            var dte = this.package.GetService<DTE, DTE>();
-            var parameters = new object[method.GetParameters().Length];
-            parameters[0] = dte;
-            if (parameters.Length > 1)
-                parameters[1] = this.package; //can be used as IServiceProvider, etc.
-            var instance = method.IsStatic ? null : Activator.CreateInstance(type);
-            try
-            {
-                method.Invoke(instance, parameters);
-            }
-            catch (TargetInvocationException tex)
-            {
-                throw tex.InnerException;
-            }
-        }
-
-        public (MethodInfo method, Type type) FindExtensionMethod(ExtensionItem extension, bool throwIfNotFound = false)
-        {
-            var assembly = LoadVersionedAssembly(GetRealPath(extension.DllPath));
-            var type = String.IsNullOrEmpty(extension.ClassName) ? null : assembly.GetType(extension.ClassName);
-            if (type == null)
-            {
-                if (throwIfNotFound)
-                    throw new InvalidOperationException($"Class {extension.ClassName} not found in assembly {assembly.FullName}");
-                return (method: null, type: null);
-            }
-            var method = type.GetMethods().FirstOrDefault(m => IsRunMethod(m));
-            if (method == null)
-            {
-                if (throwIfNotFound)
-                    throw new InvalidOperationException($"Class {extension.ClassName} does not have a valid Run method");
-                return (method: null, type);
-            }
-            return (method, type);
-        }
         public void SetItemTitleFromMethod(ExtensionItem item)
         {
             if (!String.IsNullOrEmpty(item.Title))
@@ -240,15 +191,23 @@ namespace SolutionExtensions
             item.Title = description;
         }
 
+        private (MethodInfo method, Type type) FindExtensionMethod(ExtensionItem item, bool throwIfNotFound)
+        {
+            var assembly = LoadVersionedAssembly(GetRealPath(item.DllPath));
+            return ExtensionObject.FindExtensionMethod(assembly, item.ClassName, throwIfNotFound);
+        }
+
+        private Assembly LoadVersionedAssembly(string dllPath)
+        {
+            if (dllPath == SelfAssembly.Location)
+                return SelfAssembly;
+            return ExtensionObject.LoadVersionedAssembly(dllPath);
+        }
+
         public string[] FindExtensionClassesInDll(string dllPath)
         {
             var assembly = LoadVersionedAssembly(GetRealPath(dllPath));
-            return assembly.GetTypes().Where(t => IsExtensionClass(t)).Select(t => t.FullName).ToArray();
-        }
-
-        public string GetCfgFilePath(DTE dte)
-        {
-            return Path.ChangeExtension(GetSolutionFileName(), ".extensions.cfg");
+            return ExtensionObject.GetExtensionClassNames(assembly);
         }
 
         private void LoadFromFile(ExtensionsModel target, string cfgFilePath)
@@ -287,81 +246,18 @@ namespace SolutionExtensions
             return item;
         }
 
+        public void RunExtension(ExtensionItem extension)
+        {
+            var dte = package.GetService<DTE, DTE>();
+            var (method, type) = FindExtensionMethod(extension, true);
+            ExtensionObject.RunExtension(type, method, dte, package);
+        }
+
         public bool IsClassValid(ExtensionItem item)
         {
             var cls = FindExtensionClassesInDll(item.DllPath);
             return cls.FirstOrDefault(c => c == item.ClassName) != null;
         }
-
-        private bool IsExtensionClass(Type t)
-        {
-            //can be static
-            return t.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly).Any(m => IsRunMethod(m));
-        }
-
-        private bool IsRunMethod(MethodInfo m)
-        {
-            return m.Name == "Run" && m.GetParameters().Length >= 1 && typeof(DTE).IsAssignableFrom(m.GetParameters()[0].ParameterType);
-        }
-
-        private Assembly LoadVersionedAssembly(string dllPath)
-        {
-            if (dllPath == SelfAssembly.Location)
-                return SelfAssembly;
-            var ver = File.GetLastWriteTime(dllPath).ToString("yyyyMMdd-HH-mm-ss-fff");
-            var dllFn = Path.GetFileNameWithoutExtension(dllPath);
-            var dllExt = Path.GetExtension(dllPath);
-            var verFn = $"{dllFn}-{ver}{dllExt}";
-
-            var versionsFolder = Path.GetDirectoryName(dllPath);// do not use another dir, to allow load referenced assemblies //Path.Combine(Path.GetTempPath(), this.GetType().Namespace);
-            var verFullName = Path.Combine(versionsFolder, verFn);
-            if (!File.Exists(verFullName))
-            {
-                if (!Directory.Exists(versionsFolder))
-                    Directory.CreateDirectory(versionsFolder);
-                DeleteUnlockedFiles(versionsFolder, $"{dllFn}-*{dllExt}");
-                using (var ai = Mono.Cecil.AssemblyDefinition.ReadAssembly(dllPath))
-                {
-                    ai.Name.Name = $"{ai.Name.Name}_{ver}";
-                    ai.Write(verFullName);
-                }
-            }
-            var a = Assembly.LoadFrom(verFullName);
-            //Console.WriteLine($"loaded assembly {a.GetName().Name}, version {a.GetName().Version} from {Path.GetFileName(unique)}");
-            return a;
-            //File.Copy(dllPath, verPath);
-        }
-
-        private void DeleteUnlockedFiles(string path, string pattern)
-        {
-            foreach (var fn in Directory.GetFiles(path, pattern))
-            {
-                if (IsFileLocked(fn))
-                    continue;
-                try
-                {
-                    File.Delete(fn);
-                }
-                catch
-                {
-                }
-            }
-        }
-        public static bool IsFileLocked(string filePath)
-        {
-            try
-            {
-                using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
-                {
-                }
-                return false;
-            }
-            catch (IOException)
-            {
-                return true;
-            }
-        }
-
 
         public bool IsDllPathInSolutionScope(ExtensionItem item)
         {
@@ -370,6 +266,11 @@ namespace SolutionExtensions
             var dllPath = Path.GetDirectoryName(realDllPath);
             return dllPath.StartsWith(solPath, StringComparison.OrdinalIgnoreCase);
         }
+        public string GetCfgFilePath()
+        {
+            return Path.ChangeExtension(GetSolutionFileName(), ".extensions.cfg");
+        }
+
         private string GetSolutionFileName()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -386,4 +287,5 @@ namespace SolutionExtensions
         }
 
     }
+
 }

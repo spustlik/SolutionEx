@@ -33,6 +33,34 @@
             </Style>-->
             <BooleanToVisibilityConverter x:Key="boolToVisi"/>
             <model:EmptyConverter x:Key="notEmptyToVisi" Inner="{StaticResource boolToVisi}" Negate="True"/>
+            <model:EmptyConverter x:Key="emptyToVisi" Inner="{StaticResource boolToVisi}"/>
+            <DataTemplate x:Key="extensionListTemplate" DataType="{x:Type model:ExtensionItem}">
+                <Grid HorizontalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.ColumnSpan="99" x:Name="parent" Orientation="Horizontal">
+                        <Label FontWeight="Bold">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Title}"/>
+                                <TextBlock Text="(no name)" Visibility="{Binding Title, Converter={StaticResource emptyToVisi}}"/>
+                            </StackPanel>
+                        </Label>
+                        <Border CornerRadius="5" BorderThickness="1" BorderBrush="{Binding Foreground,ElementName=text}"
+                                    VerticalAlignment="Center" Padding="5,0"
+                                    Visibility="{Binding ShortCutKey,Converter={StaticResource notEmptyToVisi}}">
+                            <TextBlock Text="{Binding ShortCutKey}" FontFamily="Consolas" x:Name="text"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="{Binding ClassName}" Width="150" FontSize="10" Margin="10,0,0,0" Grid.Row="1"/>
+                    <TextBlock Text="{Binding DllPath}" FontSize="10" HorizontalAlignment="Right" Grid.Row="1" Grid.Column="1" TextWrapping="NoWrap"/>
+                </Grid>
+            </DataTemplate>
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid >
@@ -72,33 +100,8 @@
         </StackPanel>
         <!-- list of textensions -->
         <ListBox Grid.Row="1" ItemsSource="{Binding Model.Extensions}" SelectedItem="{Binding SelectedItem}"
-                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-            <ListBox.ItemTemplate>
-                <DataTemplate DataType="{x:Type model:ExtensionItem}">
-                    <Grid HorizontalAlignment="Stretch">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.ColumnSpan="99" x:Name="parent" Orientation="Horizontal">
-                            <Label Content="{Binding Title}" FontWeight="Bold"/>
-                            <Border CornerRadius="5" BorderThickness="1" BorderBrush="{Binding Foreground,ElementName=text}"
-                                    VerticalAlignment="Center" Padding="5,0"
-                                    Visibility="{Binding ShortCutKey,Converter={StaticResource notEmptyToVisi}}">
-                                <TextBlock Text="{Binding ShortCutKey}" FontFamily="Consolas" x:Name="text"/>
-                            </Border>
-                            
-                        </StackPanel>
-                        
-                        <TextBlock Text="{Binding ClassName}" Width="150" FontSize="10" Margin="10,0,0,0" Grid.Row="1"/>
-                        <TextBlock Text="{Binding DllPath}" FontSize="10" HorizontalAlignment="Right" Grid.Row="1" Grid.Column="1" TextWrapping="NoWrap"/>
-                    </Grid>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 ItemTemplate="{StaticResource extensionListTemplate}">
         </ListBox>
         <!-- editor -->
         <StackPanel Grid.Row="2" Visibility="{Binding SelectedItem,Converter={StaticResource notEmptyToVisi}}">

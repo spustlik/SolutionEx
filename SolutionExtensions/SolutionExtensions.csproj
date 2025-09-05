@@ -66,8 +66,6 @@
     <Compile Include="Extensions\DumpExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Model\SimpleDataObject.cs" />
-    <Compile Include="Runner\ExtensionRunner.cs" />
-    <Compile Include="Runner\RotHelper.cs" />
     <Compile Include="SolutionExtensionsPackage.cs" />
     <Compile Include="ExtensionManager.cs" />
     <Compile Include="StringTemplates.cs" />
@@ -84,15 +82,13 @@
       <LastGenOutput>commands.vsct</LastGenOutput>
     </None>
     <None Include="Key.snk" />
+    <None Include="overview.md" />
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Mono.Cecil">
-      <HintPath>..\libs\Mono.Cecil.dll</HintPath>
-    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -133,7 +129,12 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\SolutionExtensions.Launcher\SolutionExtensions.Launcher.csproj">
+      <Project>{1695cadd-4033-4cde-93ed-90c3aee597fb}</Project>
+      <Name>SolutionExtensions.Launcher</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>

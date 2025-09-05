@@ -7,7 +7,7 @@ using System.Runtime.InteropServices.ComTypes;
 namespace SolutionExtensions.Runner
 {
     // Helper to register in ROT (Running object table)
-    public static class RotHelper
+    public static class RunningComObjects
     {
         /*
         •	For .NET objects, use [ComVisible(true)] and a GUID.
