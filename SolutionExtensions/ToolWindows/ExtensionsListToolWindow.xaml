@@ -81,6 +81,7 @@
             <Button Click="AddItem_Click">+ Add</Button>
             <Button Click="Delete_Click" IsEnabled="{Binding IsSelected}">🗙 Delete</Button>
             <Button Click="Run_Click" IsEnabled="{Binding IsSelected}">▶ Run</Button>
+            <Button Click="Debug_Click">🐛Debug</Button>
             <Button Click="ButtonMore_Click">
                 <Button.Content>More▾</Button.Content>
                 <Button.ContextMenu>
@@ -93,7 +94,6 @@
                         <MenuItem Header="Reload" Click="Load_Click"/>
                         <MenuItem Header="Sync to DTE" Click="SyncToDte_Click"/>
                         <MenuItem Header="Save" Click="Save_Click"/>
-                        <MenuItem Header="🐛Debug" Click="Debug_Click"/>
                     </ContextMenu>
                 </Button.ContextMenu>
             </Button>

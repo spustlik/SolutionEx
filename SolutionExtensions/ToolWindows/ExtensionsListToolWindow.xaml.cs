@@ -3,6 +3,7 @@ using EnvDTE100;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.Win32;
+using SolutionExtensions.Launcher;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -341,32 +342,10 @@ namespace SolutionExtensions.ToolWindows
 
         private void Debug_Click(object sender, RoutedEventArgs e)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            MessageBox.Show("Not implemented, sorry.\nThis is so hard...", "Not implemented", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-            return;
-            //to debug extension, it is needed to run it in separate process, because devenv cannot attach to itself
-            // than maybe via remoting and marshalling can be extension executed,
-            // remoting: this must have server
-            // maybe sometinh as ComRunningObject
-            // debugger can attach to this process anz stop
-            //possible there will be problem with symbols, because dll is copied to another path and assembly name
-            //TODO:
-            var runner = Process.Start(new ProcessStartInfo() { FileName = "...my runner..." });
-            var dte = Package.GetService<DTE, DTE>();
-            var dbg = dte.Debugger as Debugger5;
-            foreach (EnvDTE.Process p in dbg.LocalProcesses)
-            {
-                if (p.ProcessID == runner.Id)
-                {
-                    p.Attach();
-                    break;
-                }
-            }
-            if (dbg.CurrentProcess == null)
-            {
-                MessageBox.Show("Cannot attach to runner process", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            var item = ViewModel.SelectedItem;
+            if (item == null)
                 return;
-            }
+            DebuggerLauncher.RunExtension(item, Package, ExtensionManager);
         }
 
         private void Copy_Click(object sender, RoutedEventArgs e)
