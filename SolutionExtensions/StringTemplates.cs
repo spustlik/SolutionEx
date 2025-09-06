@@ -44,6 +44,7 @@ namespace SolutionExtensions
             });
         }
 
+        public static string Nuget_VS = @"Microsoft.VisualStudio.Interop";
         public static string ExtensionCsharp = @"using EnvDTE;
 using System;
 using System.Windows.Forms;

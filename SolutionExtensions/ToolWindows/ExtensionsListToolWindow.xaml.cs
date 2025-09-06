@@ -313,7 +313,7 @@ namespace SolutionExtensions.ToolWindows
             var dte = Package.GetService<DTE, DTE>();
             if (dte.Solution == null)
                 return;
-            var nuget = "Microsoft.VisualStudio.Interop";
+            var nuget = StringTemplates.Nuget_VS;
             if (MessageBox.Show($"Not yet implemented\n" +
                 $"Follow these steps:\n" +
                 $"- Add new class library project in .net 4.8 to your solution\n" +

@@ -33,7 +33,7 @@ namespace SolutionExtensions
                 if (string.IsNullOrEmpty(line))
                     return;
                 output.AppendLine(line);
-                if (line.StartsWith(LauncherProcess.WAIT)) 
+                if (line.StartsWith(LauncherProcess.WAIT))
                     waiting = true;
                 package.AddToOutputPaneThreadSafe(line);
             }
@@ -79,7 +79,8 @@ namespace SolutionExtensions
             //prop.Value = package;
             var id = package.GetType().GUID.ToString("B");
             dte.Globals[id] = package;
-            //not working properly - result is Comobj on client side, but not assignable to IServiceProvider
+            //dte.Globals.VariablePersists[id] = true;
+            //not working properly - result is COM on client side, but not assignable to IServiceProvider
             return id;
         }
 

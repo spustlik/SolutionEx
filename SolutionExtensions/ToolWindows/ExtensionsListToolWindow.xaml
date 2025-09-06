@@ -156,9 +156,6 @@
                     <TextBox Text="{Binding SelectedItem.ShortCutKey, UpdateSourceTrigger=PropertyChanged}"/>
                     <TextBox Grid.Column="1" Text="&lt;Press key here&gt;" KeyDown="Shortcut_KeyDown" PreviewKeyDown="Shortcut_KeyDown"/>
                 </Grid>
-                <Label Content="Class Name"/>
-                <ComboBox IsEditable="True" IsTextSearchEnabled="True" DropDownOpened="PickClass_Opened" Text="{Binding SelectedItem.ClassName}" />
-
                 <Label>
                     <TextBlock ToolTip="You can use $(SolutionDir),$(Self) or any environment variable like %APP_MY_PATH%.">DLL Path 🛈</TextBlock>
                 </Label>
@@ -170,6 +167,8 @@
                     <TextBox Text="{Binding SelectedItem.DllPath, UpdateSourceTrigger=PropertyChanged}"/>
                     <Button Grid.Column="1" Padding="5,0" Width="30" Click="BrowseDll_Click" MinWidth="0">...</Button>
                 </Grid>
+                <Label Content="Class Name"/>
+                <ComboBox IsEditable="True" IsTextSearchEnabled="True" DropDownOpened="PickClass_Opened" Text="{Binding SelectedItem.ClassName}" />
 
             </StackPanel>
         </StackPanel>
