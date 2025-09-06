@@ -78,21 +78,34 @@ namespace SolutionExtensions.Launcher
                 }
             }
             //instantiate dte from moniker
-            Console.Write($"[{LauncherProcess.PREPARE}: Getting running dte from ${cmd.MonikerName}");
+            Console.Write($"{LauncherProcess.PREPARE}: Getting running dte from ${cmd.MonikerName}");
             var dteCom = RunningComObjects.GetRunningComObject(cmd.MonikerName);
             if (dteCom == null)
                 throw new ApplicationException($"DTE COM is not running");
             var dte = dteCom as EnvDTE.DTE;
             if (dte == null)
                 throw new ApplicationException($"Moniker COM is not DTE");
-            var packagePropValue = dte.Solution.Properties.Item(cmd.PackageId).Value;
-            var package = packagePropValue as IServiceProvider;
+            var package = GetPackage(cmd.PackageId, dte);
             //run extension
             Console.Write($"{LauncherProcess.RUN}: Running extension");
             //to simplify code which will break
             var runner = new ExtensionRunner(type, method, cmd.BreakDebugger);
             runner.Run(dte, package);
             Console.WriteLine($"{LauncherProcess.DONE}");
+        }
+
+        private static IServiceProvider GetPackage(string packageId, EnvDTE.DTE dte)
+        {
+            //not working:
+            //var packagePropValue = dte.Solution.Properties.Item(packageId).Value;
+            //var package = packagePropValue as IServiceProvider;
+            var pv = dte.Globals[packageId];
+            if (pv == null)
+                Log("package global variable is null");
+            var package = pv as IServiceProvider;
+            if (package == null)
+                Log("package is not IServiceProvider");
+            return package;
         }
 
         enum ActionEnum

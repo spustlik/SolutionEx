@@ -49,5 +49,7 @@ namespace SolutionExtensions.Launcher
             p.BeginOutputReadLine();
             return p;
         }
+
     }
 }
+

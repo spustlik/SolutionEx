@@ -68,12 +68,13 @@ namespace SolutionExtensions.Extensions
             DumpSolution(parent);
             DumpDocuments(parent);
             DumpGlobals(parent, dte.Globals);
+            DumpWindows(parent, dte);
             if (more)
             {
                 DumpCommands(parent);
                 DumpMenuCommands(parent);
                 DumpDebugger(parent);
-                DumpWindows(parent, dte);
+                
             }
         }
 

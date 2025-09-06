@@ -5,12 +5,9 @@ using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Packaging;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Windows;
-using System.Windows.Documents;
+using System.Threading.Tasks;
 using Task = System.Threading.Tasks.Task;
 
 namespace SolutionExtensions
@@ -37,6 +34,7 @@ namespace SolutionExtensions
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideAutoLoad(UIContextGuids80.SolutionExists, PackageAutoLoadFlags.BackgroundLoad)]
     [ProvideToolWindow(typeof(ToolWindows.ExtensionsListToolWindowPane))]
+    [ComVisible(true)]
     public sealed class SolutionExtensionsPackage : ToolkitPackage
     {
         /// <summary>
@@ -55,10 +53,9 @@ namespace SolutionExtensions
         /// <returns>A task representing the async work of package initialization, or an already completed task if there is none. Do not return null from this method.</returns>
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
+            await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
             // When initialized asynchronously, the current thread may be a background thread at this point.
             // Do any initialization that requires the UI thread after switching to the UI thread.
-            await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
-            await this.SwitchToUiThreadAsync();
             dte = await this.GetServiceAsync<DTE, DTE>();
             ExtensionManager = new ExtensionManager(this);
             Model = new ExtensionsModel();
@@ -119,6 +116,16 @@ namespace SolutionExtensions
             AddToOutputPane(msg);
         }
 
+        public void AddToOutputPaneThreadSafe(string msg)
+        {
+            if (!msg.EndsWith("\n")) msg += "\n";
+            _ = Task.Factory.StartNew(async () =>
+            {
+                await JoinableTaskFactory.SwitchToMainThreadAsync(DisposalToken);
+                AddToOutputPane(msg);
+            }, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Default);
+        }
+
         public void AddToOutputPane(string msg, bool clear = false)
         {
             dte.AddToOutputPane(msg, this.GetType().Namespace, clear);
@@ -159,5 +166,6 @@ namespace SolutionExtensions
         {
             System.Windows.MessageBox.Show("Test method called from extension package");
         }
+
     }
 }

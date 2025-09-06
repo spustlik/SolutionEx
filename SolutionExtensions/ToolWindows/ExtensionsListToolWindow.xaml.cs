@@ -80,7 +80,7 @@ namespace SolutionExtensions.ToolWindows
         }
         private void ViewModelExtensions_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            Package.Log($"ViewModelExtensions_PropertyChanged: {e.PropertyName}");
+            //Package.Log($"ViewModelExtensions_PropertyChanged: {e.PropertyName}");
             if (e.PropertyName == nameof(ExtensionItem.ClassName))
             {
                 var item = sender as ExtensionItem;
@@ -91,7 +91,7 @@ namespace SolutionExtensions.ToolWindows
 
         private void ViewModelExtensions_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            Package.Log($"ViewModelExtensions_CollectionChanged: {e.Action}");
+            //Package.Log($"ViewModelExtensions_CollectionChanged: {e.Action}");
             ThrottleUpdateModel();
         }
 

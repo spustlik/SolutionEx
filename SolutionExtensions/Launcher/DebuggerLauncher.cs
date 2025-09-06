@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Windows.Documents;
 
 namespace SolutionExtensions
 {
@@ -21,10 +20,6 @@ namespace SolutionExtensions
             var monikerName = GetMonikerName(dte);
             var packageId = GetPackageId(dte, package);
 
-            //not working
-            //var prop = dte.Solution.Properties.Item(packageId);
-            //prop.Value = package;
-
             //TODO: how to add exe to vsix?
             var path = Path.GetDirectoryName(typeof(SolutionExtensionsPackage).Assembly.Location);
             var launcherExe = Path.Combine(path, "SolutionExtensions.Launcher.merged.exe");
@@ -35,9 +30,12 @@ namespace SolutionExtensions
             bool waiting = false;
             void launcherOutputData(string line)
             {
+                if (string.IsNullOrEmpty(line))
+                    return;
                 output.AppendLine(line);
-                package.AddToOutputPane(line);
-                if (line.StartsWith(LauncherProcess.WAIT)) waiting = true;
+                if (line.StartsWith(LauncherProcess.WAIT)) 
+                    waiting = true;
+                package.AddToOutputPaneThreadSafe(line);
             }
             var launcher = LauncherProcess.RunExtension(launcherExe, dllPath, item.ClassName, monikerName, packageId, launcherOutputData);
 
@@ -46,7 +44,7 @@ namespace SolutionExtensions
                 if (waiting) break;
                 launcher.WaitForExit(100);
             }
-            
+
             if (launcher.HasExited)
                 throw new Exception($"Launcher exited with {launcher.ExitCode}\n{output}");
 
@@ -76,7 +74,13 @@ namespace SolutionExtensions
 
         private static string GetPackageId(DTE dte, SolutionExtensionsPackage package)
         {
-            return package.GetType().GUID.ToString("B");
+            //not working
+            //var prop = dte.Solution.Properties.Item(packageId);
+            //prop.Value = package;
+            var id = package.GetType().GUID.ToString("B");
+            dte.Globals[id] = package;
+            //not working properly - result is Comobj on client side, but not assignable to IServiceProvider
+            return id;
         }
 
         private static string GetMonikerName(DTE dte, System.Diagnostics.Process process = null)
