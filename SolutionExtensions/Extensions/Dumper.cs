@@ -13,13 +13,14 @@ using System.Xml.Linq;
 
 namespace SolutionExtensions.Extensions
 {
+#pragma warning disable VSTHRD010 // Invoke single-threaded types on Main thread
     public class Dumper
     {
         public XElement Dump(EnvDTE.DTE dte, AsyncPackage package, bool more)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             this.package = package;
-            this.dte = dte;
+            this.dte = package.GetService<DTE2, DTE2>();
             this.cmdSvc = (package as IServiceProvider).GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
             var dumpRoot = new XElement("Dump");
             DumpDte(dumpRoot, more);
@@ -34,7 +35,7 @@ namespace SolutionExtensions.Extensions
         }
 
         AsyncPackage package;
-        DTE dte;
+        DTE2 dte;
         OleMenuCommandService cmdSvc;
         private void DumpDte(XElement parent, bool more)
         {
@@ -58,13 +59,11 @@ namespace SolutionExtensions.Extensions
                 p.MainModule.FileName,
 
             }), new XElement("FileInfo", Attr(p.MainModule.FileVersionInfo))));
-            //dte.Windows
             //dte.StatusBar
             //dte.SourceControl            
             //dte.CommandBars
             //dte.Macros
-            //dte.Properties
-
+            //dte.Properties            
             //DumpProperties(parent, dte.Properties as object as Properties);
             DumpSolution(parent);
             DumpDocuments(parent);
@@ -74,6 +73,18 @@ namespace SolutionExtensions.Extensions
                 DumpCommands(parent);
                 DumpMenuCommands(parent);
                 DumpDebugger(parent);
+                DumpWindows(parent, dte);
+            }
+        }
+
+        private void DumpWindows(XElement parent, DTE2 dte)
+        {
+            var e = new XElement("Windows");
+            parent.Add(e);
+            foreach (EnvDTE.Window w in dte.Windows)
+            {
+                var we = new XElement("Window", Attr(new { w.Caption, w.Kind, w.ObjectKind, w.Visible }));
+                e.Add(we);
             }
         }
 
@@ -90,7 +101,7 @@ namespace SolutionExtensions.Extensions
                 {
                     b.Name,
                     b.Message,
-                    b.Language,                    
+                    b.Language,
 
                     b.File,
                     b.FileLine,
@@ -413,4 +424,5 @@ namespace SolutionExtensions.Extensions
             }
         }
     }
+#pragma warning restore VSTHRD010 // Invoke single-threaded types on Main thread
 }

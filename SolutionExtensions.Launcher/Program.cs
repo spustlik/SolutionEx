@@ -36,11 +36,11 @@ namespace SolutionExtensions.Launcher
             }
             catch (ApplicationException aex)
             {
-                Console.WriteLine("ERROR: " + aex.Message);
+                Console.WriteLine($"{LauncherProcess.ERROR}: {aex.Message}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("ERROR: " + ex.Message);
+                Console.WriteLine($"{LauncherProcess.ERROR}: {ex.Message}");
                 Console.WriteLine(ex);
             }
         }
@@ -59,7 +59,7 @@ namespace SolutionExtensions.Launcher
         {
             Log($"Arguments: dllPath={cmd.DllPath},className={cmd.ClassName},moniker={cmd.MonikerName},package={cmd.PackageId}");
             if (!File.Exists(cmd.DllPath))
-                throw new ApplicationException($"File doesnt exists: {cmd.DllPath}");
+                throw new ApplicationException($"File doesn't exists: {cmd.DllPath}");
             var assembly = Assembly.LoadFrom(cmd.DllPath);
             var (method, type) = ExtensionObject.FindExtensionMethod(assembly, cmd.ClassName, true);
             var par = method.GetParameters().Select(p => p.Name + ": " + GetTypeStr(p.ParameterType)).ToArray();
@@ -69,7 +69,7 @@ namespace SolutionExtensions.Launcher
             if (cmd.WaitForDebugger)
             {
                 var timeOut = DateTime.Now.AddMinutes(1);
-                Log($"Waiting for debugger to attach");
+                Console.WriteLine($"{LauncherProcess.WAIT}: Waiting for debugger to attach");
                 while (!Debugger.IsAttached)
                 {
                     Thread.Sleep(100);
@@ -78,20 +78,21 @@ namespace SolutionExtensions.Launcher
                 }
             }
             //instantiate dte from moniker
-            Log($"Getting running dte from ${cmd.MonikerName}");
+            Console.Write($"[{LauncherProcess.PREPARE}: Getting running dte from ${cmd.MonikerName}");
             var dteCom = RunningComObjects.GetRunningComObject(cmd.MonikerName);
             if (dteCom == null)
                 throw new ApplicationException($"DTE COM is not running");
             var dte = dteCom as EnvDTE.DTE;
             if (dte == null)
                 throw new ApplicationException($"Moniker COM is not DTE");
-            // TODO: try to find for package
-            var package = dte as IServiceProvider;
+            var packagePropValue = dte.Solution.Properties.Item(cmd.PackageId).Value;
+            var package = packagePropValue as IServiceProvider;
             //run extension
-            Log("Running extension");
+            Console.Write($"{LauncherProcess.RUN}: Running extension");
             //to simplify code which will break
             var runner = new ExtensionRunner(type, method, cmd.BreakDebugger);
             runner.Run(dte, package);
+            Console.WriteLine($"{LauncherProcess.DONE}");
         }
 
         enum ActionEnum
@@ -146,7 +147,7 @@ namespace SolutionExtensions.Launcher
 
         private static void Log(string s)
         {
-            Console.WriteLine("LOG:" + s);
+            Console.WriteLine($"{LauncherProcess.LOG}:{s}");
         }
     }
 }

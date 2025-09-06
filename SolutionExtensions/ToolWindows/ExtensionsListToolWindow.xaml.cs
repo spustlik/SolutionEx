@@ -151,7 +151,7 @@ namespace SolutionExtensions.ToolWindows
 
         private void Run_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            var item = ViewModel.SelectedItem;
+            var item = (sender as FrameworkElement).DataContext as ExtensionItem ?? ViewModel.SelectedItem;
             if (item == null)
                 return;
             try
@@ -173,7 +173,10 @@ namespace SolutionExtensions.ToolWindows
                 return;
             if (!DebuggerLauncher.ValidateBreakpoint(item, Package, ExtensionManager))
             {
-                if (MessageBox.Show($"No breakpoint found.\nThere should be breakpoint in your extension to stop debugger there.\nDo you want to continue?", "Breakpoint missing", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                if (MessageBox.Show($"No breakpoint found.\n" +
+                    $"There should be breakpoint in your extension to stop debugger there.\n" +
+                    $"Or add System.Diagnostics.Debugger.Break(); to your code.\n" +
+                    $"Do you want to continue?", "Breakpoint missing", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
                     return;
             }
             try

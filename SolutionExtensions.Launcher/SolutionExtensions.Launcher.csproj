@@ -71,6 +71,9 @@
     <Compile Include="..\SolutionExtensions\Launcher\ExtensionObject.cs">
       <Link>ExtensionObject.cs</Link>
     </Compile>
+    <Compile Include="..\SolutionExtensions\Launcher\LauncherProcess.cs">
+      <Link>LauncherProcess.cs</Link>
+    </Compile>
     <Compile Include="..\SolutionExtensions\Launcher\RunningComObjects.cs">
       <Link>RunningComObjects.cs</Link>
     </Compile>

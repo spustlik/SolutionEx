@@ -1,4 +1,5 @@
 ﻿using EnvDTE;
+using EnvDTE80;
 using System;
 using System.Windows.Forms;
 
@@ -14,6 +15,9 @@ namespace ExtensionSamples
         /// <param name="package">Reference to executing package, you can change it to AsyncPackage,IAsyncServiceProvider</param>
         public void Run(DTE dte, IServiceProvider package)
         {
+            var dte2 = dte as DTE2;
+            var tw = dte2.ToolWindows.GetToolWindow("Solution extensions");
+            //this returns null
             MessageBox.Show("Running!");
             System.Diagnostics.Debugger.Break();
             if (package != null)

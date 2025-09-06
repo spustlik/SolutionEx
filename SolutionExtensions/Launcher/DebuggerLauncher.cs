@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.Shell;
 using SolutionExtensions.Launcher;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows.Documents;
 
@@ -19,9 +20,33 @@ namespace SolutionExtensions
             var dte = package.GetService<DTE, DTE>();
             var monikerName = GetMonikerName(dte);
             var packageId = GetPackageId(dte, package);
+
+            //not working
+            //var prop = dte.Solution.Properties.Item(packageId);
+            //prop.Value = package;
+
+            //TODO: how to add exe to vsix?
+            var path = Path.GetDirectoryName(typeof(SolutionExtensionsPackage).Assembly.Location);
+            var launcherExe = Path.Combine(path, "SolutionExtensions.Launcher.merged.exe");
+            //for debugging purposes, it can be called directly to \bin\debug\SolutionExtensions.Launcher.exe
+            launcherExe = @"D:\GitHub\SolutionEx\SolutionExtensions.Launcher\bin\Debug\SolutionExtensions.Launcher.exe";
+
             var output = new System.Text.StringBuilder();
-            var launcher = LauncherProcess.RunExtension(dllPath, item.ClassName, monikerName, packageId, output);
-            launcher.WaitForExit(1000);
+            bool waiting = false;
+            void launcherOutputData(string line)
+            {
+                output.AppendLine(line);
+                package.AddToOutputPane(line);
+                if (line.StartsWith(LauncherProcess.WAIT)) waiting = true;
+            }
+            var launcher = LauncherProcess.RunExtension(launcherExe, dllPath, item.ClassName, monikerName, packageId, launcherOutputData);
+
+            while (!launcher.HasExited)
+            {
+                if (waiting) break;
+                launcher.WaitForExit(100);
+            }
+            
             if (launcher.HasExited)
                 throw new Exception($"Launcher exited with {launcher.ExitCode}\n{output}");
 
@@ -32,6 +57,7 @@ namespace SolutionExtensions
             p.Attach();
             //caller must verify than there is an breakpoint
         }
+
 
         private static EnvDTE.Process FindDTEProcess(Debugger5 dbg, int id)
         {
