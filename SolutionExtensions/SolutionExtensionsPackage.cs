@@ -117,8 +117,7 @@ namespace SolutionExtensions
         }
 
         public void AddToOutputPaneThreadSafe(string msg)
-        {
-            if (!msg.EndsWith("\n")) msg += "\n";
+        {            
             _ = Task.Factory.StartNew(async () =>
             {
                 await JoinableTaskFactory.SwitchToMainThreadAsync(DisposalToken);

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 
 namespace SolutionExtensions.Launcher
@@ -11,7 +12,9 @@ namespace SolutionExtensions.Launcher
     {
         static void Main(string[] args)
         {
-            Log($"Extension launcher, processID={Process.GetCurrentProcess().Id}");
+            Console.OutputEncoding = Encoding.UTF8;
+            var ver = typeof(Program).Assembly.GetName().Version;
+            Log($"Extension launcher v{ver}, processID={Process.GetCurrentProcess().Id}");
             if (args.Length < 4)
             {
                 Console.WriteLine($"Needs 4 arguments");
@@ -47,8 +50,11 @@ namespace SolutionExtensions.Launcher
 
         private static void DumpMonikers(Arguments cmd)
         {
-            var rot = RunningComObjects.GetROT();
-            var names = RunningComObjects.EnumerateRunning(rot).Select(m => m.GetMonikerDisplayName()).OrderBy(x => x).ToArray();
+            var rot = new RunningComObjects();
+            var names = rot.GetRunningMonikers()
+                .Select(m => RunningComObjects.GetMonikerDisplayName(m))
+                .OrderBy(x => x)
+                .ToArray();
             foreach (var m in names)
             {
                 Log(m);
@@ -78,34 +84,33 @@ namespace SolutionExtensions.Launcher
                 }
             }
             //instantiate dte from moniker
-            Console.Write($"{LauncherProcess.PREPARE}: Getting running dte from ${cmd.MonikerName}");
-            var dteCom = RunningComObjects.GetRunningComObject(cmd.MonikerName);
+            Console.WriteLine($"{LauncherProcess.PREPARE}: Getting running DTE from ${cmd.MonikerName}");
+            var rot = new RunningComObjects();
+            var dteCom = rot.GetRunningComObject(cmd.MonikerName);
             if (dteCom == null)
                 throw new ApplicationException($"DTE COM is not running");
             var dte = dteCom as EnvDTE.DTE;
             if (dte == null)
                 throw new ApplicationException($"Moniker COM is not DTE");
-            var package = GetPackage(cmd.PackageId, dte);
+            var package = GetPackage(cmd.PackageId, dte, rot);
             //run extension
-            Console.Write($"{LauncherProcess.RUN}: Running extension");
+            Console.WriteLine($"{LauncherProcess.RUN}: Running extension");
             //to simplify code which will break
             var runner = new ExtensionRunner(type, method, cmd.BreakDebugger);
             runner.Run(dte, package);
             Console.WriteLine($"{LauncherProcess.DONE}");
         }
 
-        private static IServiceProvider GetPackage(string packageId, EnvDTE.DTE dte)
+        private static IServiceProvider GetPackage(string id, EnvDTE.DTE dte, RunningComObjects rot)
         {
-            //not working:
-            //var packagePropValue = dte.Solution.Properties.Item(packageId).Value;
-            //var package = packagePropValue as IServiceProvider;
-            var pv = dte.Globals[packageId];
-            if (pv == null)
-                Log("package global variable is null");
-            var package = pv as IServiceProvider;
-            if (package == null)
-                Log("package is not IServiceProvider");
-            return package;
+            //sharing obj not working:, see ExtensionDebugger.GetPackageId
+            var sp = dte as IServiceProvider;
+            if (sp == null)
+            {
+                //6D5140C1-7436-11CE-8034-00AA006009FA
+                //var fsp = dte as System.Windows.Forms.IOleServiceProvider;
+            }
+            return sp;
         }
 
         enum ActionEnum

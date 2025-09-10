@@ -9,9 +9,9 @@ using System.Linq;
 
 namespace SolutionExtensions
 {
-    internal class DebuggerLauncher
+    public class ExtensionDebugger
     {
-        internal static void RunExtension(ExtensionItem item, SolutionExtensionsPackage package, ExtensionManager extensionManager)
+        public static void RunExtension(ExtensionItem item, SolutionExtensionsPackage package, ExtensionManager extensionManager)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             //do not copy!
@@ -32,7 +32,9 @@ namespace SolutionExtensions
             {
                 if (string.IsNullOrEmpty(line))
                     return;
-                output.AppendLine(line);
+                if (!line.Contains("\n"))
+                    line += "\n";
+                output.Append(line);
                 if (line.StartsWith(LauncherProcess.WAIT))
                     waiting = true;
                 package.AddToOutputPaneThreadSafe(line);
@@ -74,13 +76,24 @@ namespace SolutionExtensions
 
         private static string GetPackageId(DTE dte, SolutionExtensionsPackage package)
         {
-            //not working
+            var id = package.GetType().GUID.ToString("B");
+
+            //not working anything access to share object to another process
+            // so launcher is creating serviceprovider accessing DTE services
+
             //var prop = dte.Solution.Properties.Item(packageId);
             //prop.Value = package;
-            var id = package.GetType().GUID.ToString("B");
+            //var sp = package as IServiceProvider;
+            //var svc = new ServiceProiderObj(svcType => sp.GetService(svcType));
+            //var rot = new RunningComObjects();
+            //rot.RegisterComObject(svc, id + "_Moniker");
+            /*
             dte.Globals[id] = package;
+            dte.Globals[id + "_ServiceProvider"] = svc;
+            */
             //dte.Globals.VariablePersists[id] = true;
             //not working properly - result is COM on client side, but not assignable to IServiceProvider
+            //see also Program.cs GetPackage
             return id;
         }
 

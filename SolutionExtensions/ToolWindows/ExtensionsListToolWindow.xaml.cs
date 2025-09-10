@@ -1,15 +1,9 @@
 ﻿using EnvDTE;
-using EnvDTE100;
-using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.Win32;
-using SolutionExtensions.Launcher;
 using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -18,14 +12,15 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
-using Process = System.Diagnostics.Process;
 
 namespace SolutionExtensions.ToolWindows
 {
     [Guid("D4B5F1E3-8F2A-4C6A-9D3E-2B1C6F7E8A9B")]
     public class ExtensionsListToolWindowPane : ToolWindowPaneBase<ExtensionsListToolWindow>
     {
-        public ExtensionsListToolWindowPane() : base("Solution extensions", new ExtensionsListToolWindow())
+        public static string CAPTION = "Solution extensions";
+
+        public ExtensionsListToolWindowPane() : base(CAPTION, new ExtensionsListToolWindow())
         {
         }
     }
@@ -70,7 +65,6 @@ namespace SolutionExtensions.ToolWindows
             this.DataContext = new VM();
             ViewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
-        static string EXLIST = nameof(VM.Model) + "." + nameof(VM.Model.Extensions) + ".";
         private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(VM.SelectedItem))
@@ -156,7 +150,9 @@ namespace SolutionExtensions.ToolWindows
                 return;
             try
             {
+                Package.Log($"Running extension '{item.Title}' from {Path.GetFileName(item.DllPath)},{item.ClassName}");
                 ExtensionManager.RunExtension(item);
+                Package.Log($"Done.");
             }
             catch (Exception ex)
             {
@@ -171,7 +167,7 @@ namespace SolutionExtensions.ToolWindows
             var item = ViewModel.SelectedItem;
             if (item == null)
                 return;
-            if (!DebuggerLauncher.ValidateBreakpoint(item, Package, ExtensionManager))
+            if (!ExtensionDebugger.ValidateBreakpoint(item, Package, ExtensionManager))
             {
                 if (MessageBox.Show($"No breakpoint found.\n" +
                     $"There should be breakpoint in your extension to stop debugger there.\n" +
@@ -181,7 +177,7 @@ namespace SolutionExtensions.ToolWindows
             }
             try
             {
-                DebuggerLauncher.RunExtension(item, Package, ExtensionManager);
+                ExtensionDebugger.RunExtension(item, Package, ExtensionManager);
             }
             catch (Exception ex)
             {
@@ -380,6 +376,11 @@ namespace SolutionExtensions.ToolWindows
             };
             ViewModel.Model.Extensions.Add(item);
             ViewModel.SelectedItem = item;
+        }
+
+        private void ButtonDump_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Not implemented");
         }
     }
 }

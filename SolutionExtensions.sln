@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "libs", "libs", "{02EA681E-C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SolutionExtensions.Launcher", "SolutionExtensions.Launcher\SolutionExtensions.Launcher.csproj", "{1695CADD-4033-4CDE-93ED-90C3AEE597FB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reflector", "Reflector\Reflector.csproj", "{AA01A677-E2BC-462F-A418-0CA45CF172C6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -76,6 +78,18 @@ Global
 		{1695CADD-4033-4CDE-93ED-90C3AEE597FB}.Release|arm64.Build.0 = Release|Any CPU
 		{1695CADD-4033-4CDE-93ED-90C3AEE597FB}.Release|x86.ActiveCfg = Release|Any CPU
 		{1695CADD-4033-4CDE-93ED-90C3AEE597FB}.Release|x86.Build.0 = Release|Any CPU
+		{AA01A677-E2BC-462F-A418-0CA45CF172C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA01A677-E2BC-462F-A418-0CA45CF172C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA01A677-E2BC-462F-A418-0CA45CF172C6}.Debug|arm64.ActiveCfg = Debug|Any CPU
+		{AA01A677-E2BC-462F-A418-0CA45CF172C6}.Debug|arm64.Build.0 = Debug|Any CPU
+		{AA01A677-E2BC-462F-A418-0CA45CF172C6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AA01A677-E2BC-462F-A418-0CA45CF172C6}.Debug|x86.Build.0 = Debug|Any CPU
+		{AA01A677-E2BC-462F-A418-0CA45CF172C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA01A677-E2BC-462F-A418-0CA45CF172C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA01A677-E2BC-462F-A418-0CA45CF172C6}.Release|arm64.ActiveCfg = Release|Any CPU
+		{AA01A677-E2BC-462F-A418-0CA45CF172C6}.Release|arm64.Build.0 = Release|Any CPU
+		{AA01A677-E2BC-462F-A418-0CA45CF172C6}.Release|x86.ActiveCfg = Release|Any CPU
+		{AA01A677-E2BC-462F-A418-0CA45CF172C6}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

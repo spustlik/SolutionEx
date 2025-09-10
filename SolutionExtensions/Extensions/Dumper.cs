@@ -3,27 +3,75 @@ using EnvDTE100;
 using EnvDTE80;
 using EnvDTE90a;
 using Microsoft.VisualStudio.Shell;
+using SolutionExtensions.Reflector;
+using SolutionExtensions.ToolWindows;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Xml.Linq;
+using VSLangProj;
 
 namespace SolutionExtensions.Extensions
 {
 #pragma warning disable VSTHRD010 // Invoke single-threaded types on Main thread
     public class Dumper
     {
+        private readonly ReflectionDumper reflectionDumper;
+        private readonly Stopwatch watches = new Stopwatch();
+
+        public Dumper()
+        {
+            reflectionDumper = new ReflectionDumper(
+                    typeof(System.Globalization.CultureInfo),
+                    typeof(System.Threading.Thread),
+                    typeof(Task),
+                    typeof(Microsoft.VisualStudio.Threading.JoinableTaskFactory));
+            /*
+                        //Microsoft.VisualStudio.RpcContracts
+                        reflectionDumper.ComReflection.RegisterInterfaces(typeof(Microsoft.VisualStudio.VisualStudioServices).Assembly);
+                        //Microsoft.VisualStudio.Interop
+                        reflectionDumper.ComReflection.RegisterInterfaces(typeof(EnvDTE.BuildEventsClass).Assembly);
+                        //Microsoft.VisualStudio.Shell.Framework
+                        reflectionDumper.ComReflection.RegisterInterfaces(typeof(Microsoft.VisualStudio.Shell.AccountPickerOptions).Assembly);
+            */
+            reflectionDumper.ComReflection.RegisterInterfacesFromAppDomain();
+        }
         public XElement Dump(EnvDTE.DTE dte, AsyncPackage package, bool more)
         {
+            reflectionDumper.AddDumper(typeof(Url), (o, parent) =>
+            {
+                parent.Add(new XAttribute("value", o));
+            });
+            reflectionDumper.AddDumper<EnvDTE.Property>((p, parent) =>
+            {
+                parent.Attribute("_type")?.Remove();
+                parent.Attribute("_interfaces")?.Remove();
+                parent.Add(new XAttribute("Name", p.Name));
+                if (p.NumIndices != 0)
+                    parent.Add(new XAttribute("NumIndices", p.NumIndices));
+                if (p.Object != null)
+                    parent.Add(UntypedObject(p.Object));
+                var value = p.Value;
+                if (value == null)
+                    return;
+                if (value is string || value.GetType().IsPrimitive)
+                    parent.Add(new XAttribute("Value", p.Value));
+                else
+                    parent.Add(reflectionDumper.DumpUntypedObject(value, "Value"));
+            });
             ThreadHelper.ThrowIfNotOnUIThread();
             this.package = package;
-            this.dte = package.GetService<DTE2, DTE2>();
+            this.dte = package.GetService<DTE, DTE>() as DTE2;
             this.cmdSvc = (package as IServiceProvider).GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
             var dumpRoot = new XElement("Dump");
+            watches.Restart();
             DumpDte(dumpRoot, more);
+            reflectionDumper.DumpUsedTypes(dumpRoot);
             return dumpRoot;
         }
 
@@ -62,20 +110,95 @@ namespace SolutionExtensions.Extensions
             //dte.StatusBar
             //dte.SourceControl            
             //dte.CommandBars
-            //dte.Macros
+            //--dte.Macros
             //dte.Properties            
             //DumpProperties(parent, dte.Properties as object as Properties);
+            //dte.ContextAttributes
+
             DumpSolution(parent);
+            AddElapsed(parent);
             DumpDocuments(parent);
+            AddElapsed(parent);
             DumpGlobals(parent, dte.Globals);
+            AddElapsed(parent);
             DumpWindows(parent, dte);
+            AddElapsed(parent);
             if (more)
             {
                 DumpCommands(parent);
+                AddElapsed(parent);
                 DumpMenuCommands(parent);
+                AddElapsed(parent);
                 DumpDebugger(parent);
-                
+                AddElapsed(parent);
+                DumpToolWindows(parent);
+                AddElapsed(parent);
             }
+        }
+
+        private void AddElapsed(XElement parent)
+        {
+            watches.Stop();
+            parent.Add(new XComment($"elapsed {watches.ElapsedMilliseconds}ms"));
+            watches.Restart();
+        }
+        private void DumpToolWindows(XElement parent)
+        {
+            var e = new XElement("ToolWindows");
+            parent.Add(e);
+            //not working:var list= dte.ToolWindows as IEnumerable;
+            //not interesting interfaces: parent.Add(reflectionDumper.DumpUntypedObject(dte.ToolWindows, "_ReflectedToolWindows"));
+            //OK:var w01 = dte.ToolWindows.GetToolWindow("Solution explorer");
+            //null:var w1 = dte.ToolWindows.GetToolWindow(ExtensionsListToolWindowPane.CAPTION);
+            //err:var w2 = dte.ToolWindows.GetToolWindow(typeof(ExtensionsListToolWindowPane).GUID.ToString());
+            //dte.ToolWindows.GetToolWindow(name)
+            //dte.ToolWindows.OutputWindow
+            //dte.ToolWindows.CommandWindow
+            //dte.ToolWindows.ErrorList
+            //dte.ToolWindows.TaskList
+
+            //??? dte.ToolWindows.ToolBox.ToolBoxTabs
+            DumpSolutionExplorer(e);
+        }
+
+        private void DumpToolWindow(XElement parent, object w)
+        {
+            if (w == null) return;
+            parent.Add(reflectionDumper.DumpUntypedObject(w, "_ToolWindow"));
+        }
+
+        private void DumpSolutionExplorer(XElement parent)
+        {
+            var s = dte.ToolWindows?.SolutionExplorer;
+            if (s == null)
+                return;
+            var e = new XElement("SolutionExplorer", Attr(new
+            {
+                SelectedItemsCount = (s.SelectedItems as object[]).Length,
+            }));
+            parent.Add(e);
+            DumpSolutionExplorerHierarchy(e, s.UIHierarchyItems);
+        }
+
+        private void DumpSolutionExplorerHierarchy(XElement parent, UIHierarchyItems items)
+        {
+            foreach (UIHierarchyItem item in items)
+            {
+                var e = new XElement("UIHierarchyItem", Attr(new
+                {
+                    item.Name,
+                    item.IsSelected
+                }),
+                    UntypedObject(item.Object, dte, item.Collection));
+                parent.Add(e);
+                DumpSolutionExplorerHierarchy(e, item.UIHierarchyItems);
+            }
+        }
+
+        private XObject UntypedObject(object o, params object[] known)
+        {
+            var knownObjects = new HashSet<object>(known);
+            return reflectionDumper.DumpUntypedObject(o, "Object", knownObjects);
         }
 
         private void DumpWindows(XElement parent, DTE2 dte)
@@ -115,7 +238,7 @@ namespace SolutionExtensions.Extensions
                     b.Type
                 })));
             }
-            foreach (Process p in dbg.LocalProcesses)
+            foreach (EnvDTE.Process p in dbg.LocalProcesses)
             {
                 var pe = new XElement("Process", Attr(new { p.Name, p.ProcessID }));
                 e.Add(pe);
@@ -208,7 +331,17 @@ namespace SolutionExtensions.Extensions
             if (v == null) return null;
             if (v.GetType().IsCOMObject)
             {
+                //var d = v as IDispatch;
+                //var r = v as IReflect;
+                //if (r != null)
+                //{
+                //    var type = r.UnderlyingSystemType;
+                //    var methods = r.GetMethods(BindingFlags.Default);
+                //    var properties = r.GetProperties(BindingFlags.Default);
+                //}
                 //nothing is possible via reflection
+                var interfaces = v.GetType().GetInterfaces();
+
             }
             if (v.GetType() == typeof(object[]))
             {
@@ -262,8 +395,10 @@ namespace SolutionExtensions.Extensions
                     proj.Kind,
                     proj.UniqueName,
                     proj.CodeModel,
-                    objectType = proj.Object
-                }));
+                }),
+                UntypedObject(proj.Object));
+            var vsProject = proj.Object as VSProject;
+
             parent.Add(e);
             //DumpExtenders(e, proj);
             DumpGlobals(e, proj.Globals); //possible same as sol?
@@ -285,8 +420,18 @@ namespace SolutionExtensions.Extensions
                 Files = files,
                 //item.IsDirty,
                 //item.Saved,
-                objectType = item.Object
-            }));
+            }),
+                UntypedObject(item.Object)
+                );
+            var vsProjectItem = item.Object as VSProjectItem;
+            if (vsProjectItem != null)
+            {
+                var dte1 = vsProjectItem.ContainingProject.DTE;
+                var dte2 = (vsProjectItem as dynamic).ContainingProject.DTE;
+                var dte1_t = ReflectionCOM.QueryInterface<DTE>(dte1);
+                var dte2_t = ReflectionCOM.QueryInterface<DTE>(dte2);
+                var v = dte1.Version;
+            }
             parent.Add(e);
             //DumpExtenders(e, item);
             DumpProperties(e, item.Properties);

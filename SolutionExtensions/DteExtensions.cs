@@ -106,7 +106,9 @@ namespace SolutionExtensions
                 outputPane.Clear();
             if (activate)
                 outputPane.Activate();
-            outputPane.OutputString($"{msg}\n");
+            if (!msg.EndsWith("\n"))
+                msg += "\n";
+            outputPane.OutputString(msg);
         }
         public static async Task SwitchToUiThreadAsync(this AsyncPackage package)
         {

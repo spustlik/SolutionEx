@@ -62,7 +62,7 @@ Your extension is just compiled assembly and should be in your solution.
     * referenced only one dll, not whole package
 
 ### Todo
- * [ ] how to find package argument obj in launcher from DTE ?
+ * [ ] how to find package argument obj in Launcher from DTE ?
  * [ ] how to add exe to vsix ?
- * [ ] ugly lines from exe
  * [ ] add images to doc
+ * [ ] nest file is not unnesting

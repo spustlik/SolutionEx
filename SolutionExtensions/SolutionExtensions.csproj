@@ -65,6 +65,10 @@
     <Compile Include="Extensions\DumpExtensionMore.cs" />
     <Compile Include="Extensions\DumpExtension.cs" />
     <Compile Include="Extensions\NestFileExtension.cs" />
+    <Compile Include="Reflector\ReflectionBuilderCS.cs" />
+    <Compile Include="Reflector\ReflectionCOM.cs" />
+    <Compile Include="Extensions\ReflectionDumper.cs" />
+    <Compile Include="Reflector\ReflectionHelper.cs" />
     <Compile Include="Launcher\ExtensionObject.cs" />
     <Compile Include="Launcher\LauncherProcess.cs" />
     <Compile Include="Launcher\RunningComObjects.cs" />
@@ -73,7 +77,7 @@
     <Compile Include="SolutionExtensionsPackage.cs" />
     <Compile Include="ExtensionManager.cs" />
     <Compile Include="StringTemplates.cs" />
-    <Compile Include="Launcher\DebuggerLauncher.cs" />
+    <Compile Include="Launcher\ExtensionDebugger.cs" />
     <Compile Include="ToolWindows\ExtensionsListToolWindow.xaml.cs">
       <DependentUpon>ExtensionsListToolWindow.xaml</DependentUpon>
     </Compile>

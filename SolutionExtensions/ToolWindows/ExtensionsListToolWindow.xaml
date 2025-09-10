@@ -83,21 +83,24 @@
             <StackPanel.Resources>
                 <Style x:Key="btnStyle" TargetType="Button" 
                        BasedOn="{StaticResource {x:Static shell:VsResourceKeys.ButtonStyleKey}}">
-                    <Setter Property="Padding" Value="10,2"/>
                     <Setter Property="Margin" Value="0,0,5,0"/>
+                    <Setter Property="Padding" Value="5,2,10,2"/>
                     <Setter Property="MinWidth" Value="0"/>
                 </Style>
-                <Style TargetType="Button" BasedOn="{StaticResource btnStyle}"></Style>
+                <Style TargetType="Button" BasedOn="{StaticResource btnStyle}">
+                </Style>
                 <Style x:Key="btnSelectedStyle" TargetType="Button" BasedOn="{StaticResource btnStyle}">
                     <Setter Property="IsEnabled" Value="{Binding SelectedItem, Converter={StaticResource notEmpty}}"/>
                 </Style>
             </StackPanel.Resources>
-            <Button Click="AddItem_Click">+ Add</Button>
-            <Button Click="Delete_Click" Style="{StaticResource btnSelectedStyle}">🗙 Delete</Button>
-            <Button Click="Run_Click" Style="{StaticResource btnSelectedStyle}">▶ Run</Button>
-            <Button Click="Debug_Click" Style="{StaticResource btnSelectedStyle}">🐛Debug</Button>
+            <Button Click="AddItem_Click" ToolTip="Add new extension">✚ Add</Button>
+            <Button Click="Delete_Click" Style="{StaticResource btnSelectedStyle}" ToolTip="Delete selected extension">🗙 Delete</Button>
+            <Button Click="Run_Click" Style="{StaticResource btnSelectedStyle}" ToolTip="Run selected extension">
+                <TextBlock Padding="5,0,0,0">▶ Run</TextBlock></Button>
+            <Button Click="Debug_Click" Style="{StaticResource btnSelectedStyle}" ToolTip="Run selected extenion in debugger">⚡Debug</Button>
+            <Button Click="ButtonDump_Click" ToolTip="Inspect DTE objects...">🔦DTE</Button>
             <Button Click="ButtonMore_Click">
-                <Button.Content>More▾</Button.Content>
+                <Button.Content>💡More▾</Button.Content>
                 <Button.ContextMenu>
                     <ContextMenu Style="{StaticResource {x:Static shell:VsResourceKeys.ContextMenuStyleKey}}">
                         <MenuItem Header="📋 Copy extension" Click="Copy_Click"/>

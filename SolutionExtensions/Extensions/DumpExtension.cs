@@ -14,6 +14,7 @@ namespace SolutionExtensions.Extensions
             var root = dumper.Dump(dte, package, false);
             var fn = dumper.Save(root);
             dte.Documents.Open(fn);
+            
         }
     }
 }
