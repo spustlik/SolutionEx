@@ -7,14 +7,22 @@
         mc:Ignorable="d" Loaded="Window_Loaded"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
+        <Grid.LayoutTransform>
+            <ScaleTransform ScaleX="2" ScaleY="2"/>
+        </Grid.LayoutTransform>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <StackPanel HorizontalAlignment="Left">
-            
+        <StackPanel HorizontalAlignment="Left" Orientation="Horizontal"
+                    d:DataContext="{d:DesignData /_DesignData/TestModel.xaml}">
+            <Button Click="Reset_Click">Reset</Button>
+            <Label Content="{Binding Prop1}"/>
+            <!--<Label Content="{Binding RootType}"/>
+            <Label Content="{Binding IsChanged}"/>
+            <Label Content="{Binding Error}"/>-->
         </StackPanel>
-        <local:ReflectorControl Grid.Row="1" x:Name="reflector">
-        </local:ReflectorControl>
+        <local:ReflectorControl Grid.Row="1" x:Name="reflector"/>
+
     </Grid>
 </Window>

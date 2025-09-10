@@ -7,10 +7,11 @@ using System.Reflection;
 
 namespace Reflector
 {
-    public class ReflectorNode : SimpleDataObject
+
+    public abstract class ReflectorNode : SimpleDataObject
     {
         public ReflectorNode Parent { get; private set; }
-        public ObservableCollection<ReflectorNode> Children { get; set; } = new ObservableCollection<ReflectorNode>();
+        public ObservableCollection<ReflectorNode> Children { get; } = new ObservableCollection<ReflectorNode>();
 
         #region Error property
         private string _error;
@@ -28,10 +29,12 @@ namespace Reflector
 
         private void Children_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            foreach (ReflectorNode node in e.OldItems)
-                node.Parent = null;
-            foreach (ReflectorNode node in e.NewItems)
-                node.Parent = this;
+            if (e.OldItems != null)
+                foreach (ReflectorNode node in e.OldItems)
+                    node.Parent = null;
+            if (e.NewItems != null)
+                foreach (ReflectorNode node in e.NewItems)
+                    node.Parent = this;
         }
     }
 
@@ -244,18 +247,21 @@ namespace Reflector
         }
         #endregion
     }
-
+    public class ReflectorVM
+    {
+        public ObservableCollection<ReflectorNode> Children { get; } = new ObservableCollection<ReflectorNode>();
+    }
 
     public class ReflectorFactory
     {
         public ReflectionCOM COM { get; } = new ReflectionCOM();
         public ReflectionBuilderCS Builder { get; } = new ReflectionBuilderCS();
-        public void SetRoot(ReflectorRoot root, string rootType, object value)
+        public ReflectorRoot CreateRoot(string rootType, object value)
         {
-            root.RootType = rootType;
+            var root = new ReflectorRoot() { RootType = rootType };
             SetValue(root, value);
+            return root;
         }
-
         private void SetValue(ReflectorValueNode node, object value)
         {
             node.Value = value;
@@ -276,12 +282,13 @@ namespace Reflector
                 node.ValueSimpleText = value.ToString();
             }
         }
-
         private void SetValueType(ReflectorTypeNode node, object value)
         {
             node.ValueType = value.GetType();
             node.ValueTypeName = Builder.GetTypeName(node.ValueType);
-            node.IsSimpleType = node.ValueType == typeof(string) || node.ValueType.IsPrimitive;
+            node.IsSimpleType = node.ValueType == typeof(string) || 
+                node.ValueType.IsPrimitive || 
+                node.ValueType.IsEnum; //TODO: expand/generate enum to members
             if (!node.IsSimpleType)
             {
                 node.CanExpandMethods = true;
@@ -289,7 +296,6 @@ namespace Reflector
                 node.CanExpandInterfaces = node.ValueType.GetInterfaces().Length > 0 || ReflectionCOM.IsCOMObjectType(node.ValueType);
             }
         }
-
         public void ExpandMethods(ReflectorTypeNode parent)
         {
             if (!parent.CanExpandMethods)
@@ -311,7 +317,7 @@ namespace Reflector
             if (!parent.CanExpandProperties)
                 return;
             parent.CanExpandProperties = false;
-            foreach (var pi in parent.ValueType.GetProperties())
+            foreach (var pi in parent.ValueType.GetProperties(BindingFlags.Instance))
             {
                 var node = new ReflectorPropertyValue()
                 {
@@ -401,8 +407,7 @@ namespace Reflector
             }
             node.Error += ex.Message;
         }
-
-        internal string BuildNodeSource(ReflectorNode node)
+        public string BuildNodeSource(ReflectorNode node)
         {
             //interface->full intf
             if (node is ReflectorInterface nodei)

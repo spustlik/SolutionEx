@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -30,11 +28,20 @@ namespace Reflector
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            reflector.Factory.SetRoot(reflector.ViewModel,"Window",this);
-            reflector.Factory.ExpandProperties(reflector.ViewModel);
-            //reflector.Factory.ExpandMethods(reflector.ViewModel);
+            Reset();
         }
 
+        private void Reset_Click(object sender, RoutedEventArgs e)
+        {
+            Reset();
+        }
 
+        private void Reset()
+        {
+            var root = reflector.Factory.CreateRoot("Window", this);
+            reflector.ViewModel.Children.Clear();
+            reflector.ViewModel.Children.Add(root);
+            reflector.Factory.ExpandProperties(root);
+        }
     }
 }

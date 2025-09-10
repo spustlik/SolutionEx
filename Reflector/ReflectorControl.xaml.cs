@@ -24,20 +24,21 @@ namespace Reflector
         public ReflectorControl()
         {
             InitializeComponent();
-            ViewModel = new ReflectorRoot();
+            ViewModel = new ReflectorVM();
             Factory.COM.RegisterInterfacesFromAppDomain();
         }
 
-        public ReflectorRoot ViewModel
+        public ReflectorVM ViewModel
         {
-            get => DataContext as ReflectorRoot;
+            get => DataContext as ReflectorVM;
             set => DataContext = value;
         }
         public ReflectorFactory Factory { get; } = new ReflectorFactory();
 
         private void CallExpand<T>(object sender, Action<T> action) where T : class
         {
-            var node = (sender as FrameworkElement).DataContext as T;
+            var ctx = (sender as FrameworkElement).DataContext;
+            var node = ctx as T;
             if (node == null)
                 return;
             action(node);
@@ -58,12 +59,12 @@ namespace Reflector
 
         private void ExpandMethods_Click(object sender, RoutedEventArgs e)
         {
-            CallExpand<ReflectorValueNode>(sender, node => Factory.ExpandMethods(node));
+            CallExpand<ReflectorTypeNode>(sender, node => Factory.ExpandMethods(node));
         }
 
         private void ExpandEnumerable_Click(object sender, RoutedEventArgs e)
         {
-            CallExpand<ReflectorValueNode>(sender, node => Factory.ExpandInterfaces(node));
+            CallExpand<ReflectorValueNode>(sender, node => Factory.ExpandEnumerable(node));
         }
 
         private void Generate_Click(object sender, RoutedEventArgs e)
