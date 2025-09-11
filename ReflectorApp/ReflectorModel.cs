@@ -2,9 +2,7 @@
 using SolutionExtensions.Reflector;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Reflection;
 
 namespace Reflector
@@ -13,14 +11,6 @@ namespace Reflector
     public abstract class ReflectorNode : SimpleDataObject
     {
         public ReflectorNode Parent { get; private set; }
-        public void GetPath(out List<ReflectorNode> path)
-        {
-            if (Parent == null)
-                path = new List<ReflectorNode>();
-            else
-                Parent.GetPath(out path);
-            path.Add(this);
-        }
         public ObservableCollection<ReflectorNode> Children { get; } = new ObservableCollection<ReflectorNode>();
 
         #region Error property
@@ -46,14 +36,10 @@ namespace Reflector
                 foreach (ReflectorNode node in e.NewItems)
                     node.Parent = this;
         }
-        #region CanExpandEnumerable property
-        private bool _canExpandEnumerable;
-        public bool CanExpandEnumerable
-        {
-            get => _canExpandEnumerable;
-            set => Set(ref _canExpandEnumerable, value);
-        }
-        #endregion
+    }
+
+    public abstract class ReflectorTypeNode : ReflectorNode
+    {
         #region CanExpandProperties property
         private bool _canExpandProperties;
         public bool CanExpandProperties
@@ -80,10 +66,6 @@ namespace Reflector
             set => Set(ref _canExpandInterfaces, value);
         }
         #endregion
-    }
-
-    public abstract class ReflectorTypeNode : ReflectorNode
-    {
 
         #region ValueType property
         private Type _valueType;
@@ -141,6 +123,14 @@ namespace Reflector
         }
         #endregion
 
+        #region CanExpandEnumerable property
+        private bool _canExpandEnumerable;
+        public bool CanExpandEnumerable
+        {
+            get => _canExpandEnumerable;
+            set => Set(ref _canExpandEnumerable, value);
+        }
+        #endregion
 
     }
 
@@ -162,15 +152,6 @@ namespace Reflector
         {
             get => _propertyInfo;
             set => Set(ref _propertyInfo, value);
-        }
-        #endregion
-
-        #region PropertyModifiers property
-        private string _propertyModifiers;
-        public string PropertyModifiers
-        {
-            get => _propertyModifiers;
-            set => Set(ref _propertyModifiers, value);
         }
         #endregion
 
@@ -246,11 +227,11 @@ namespace Reflector
     public class ReflectorInterface : ReflectorTypeNode
     {
         #region IsCOM property
-        private bool _IsCOM;
+        private bool _isCom;
         public bool IsCOM
         {
-            get => _IsCOM;
-            set => Set(ref _IsCOM, value);
+            get => _isCom;
+            set => Set(ref _isCom, value);
         }
         #endregion
 
@@ -298,15 +279,15 @@ namespace Reflector
             }
             else
             {
-                node.ValueSimpleText = Builder.BuildLiteral(value);
+                node.ValueSimpleText = value.ToString();
             }
         }
         private void SetValueType(ReflectorTypeNode node, object value)
         {
             node.ValueType = value.GetType();
             node.ValueTypeName = Builder.GetTypeName(node.ValueType);
-            node.IsSimpleType = node.ValueType == typeof(string) ||
-                node.ValueType.IsPrimitive ||
+            node.IsSimpleType = node.ValueType == typeof(string) || 
+                node.ValueType.IsPrimitive || 
                 node.ValueType.IsEnum; //TODO: expand/generate enum to members
             if (!node.IsSimpleType)
             {
@@ -322,17 +303,11 @@ namespace Reflector
             parent.CanExpandMethods = false;
             foreach (var mi in parent.ValueType.GetMethods())
             {
-                //if (mi.DeclaringType != parent.ValueType)
-                //    continue;
-                if (mi.IsPrivate)
-                    continue;
-                if (mi.IsSpecialName) //get/set
-                    continue;
                 var node = new ReflectorMethod()
                 {
                     MethodInfo = mi,
                     MethodName = mi.Name,
-                    Signature = Builder.BuildMethodSignature(mi, returnTypeAtEnd: true)
+                    Signature = Builder.GetMethodSignature(mi)
                 };
                 parent.Children.Add(node);
             }
@@ -342,25 +317,11 @@ namespace Reflector
             if (!parent.CanExpandProperties)
                 return;
             parent.CanExpandProperties = false;
-            foreach (var pi in parent.ValueType.GetProperties())
+            foreach (var pi in parent.ValueType.GetProperties(BindingFlags.Instance))
             {
-                //if (pi.DeclaringType != parent.ValueType)
-                //    continue;
-                //var acc = pi.GetAccessors(nonPublic: false);
-                bool isStatic = (pi.GetGetMethod() ?? pi.GetSetMethod())?.IsStatic == true;
-                bool isPrivateGet = pi.GetGetMethod()?.IsPrivate != false;
-                bool isPrivateSet = pi.GetSetMethod()?.IsPrivate != false;
-                if (isPrivateGet)
-                    continue;
-                var modifiers = new List<string>();
-                if (isStatic)
-                    modifiers.Add("static");
-                if (isPrivateSet)
-                    modifiers.Add("readonly");
                 var node = new ReflectorPropertyValue()
                 {
                     PropertyInfo = pi,
-                    PropertyModifiers = String.Join(" ", modifiers),
                     PropertyName = pi.Name,
                     PropertyType = pi.PropertyType,
                     PropertyTypeName = Builder.GetTypeName(pi.PropertyType),
@@ -409,31 +370,32 @@ namespace Reflector
             if (!parent.CanExpandInterfaces)
                 return;
             parent.CanExpandInterfaces = false;
-            var interfaces = parent.ValueType.GetInterfaces().Select(i => new { IsCOM = false, Type = i }).ToList();
-            if (parent is ReflectorPropertyValue parentv)
-            {
-                //add known interaces implemented by COM object and replace type-declared
-                var com = COM.GetInterfaces(parentv.Value).Select(i => new { IsCOM = true, Type = i }).ToArray();
-                foreach (var i in com)
-                {
-                    var found = interfaces.FirstOrDefault(x => x.Type == i.Type);
-                    if (found != null)
-                        interfaces.Remove(found);
-                }
-                interfaces.AddRange(com);
-            }
-
-            foreach (var x in interfaces.OrderBy(x => x.Type.FullName))
+            foreach (var intfType in parent.ValueType.GetInterfaces())
             {
                 var node = new ReflectorInterface()
                 {
-                    IsCOM = x.IsCOM,
-                    ValueType = x.Type,
-                    ValueTypeName = Builder.GetTypeName(x.Type),
+                    ValueType = intfType,
+                    ValueTypeName = Builder.GetTypeName(intfType),
                     CanExpandMethods = true,
                     CanExpandProperties = true
                 };
                 parent.Children.Add(node);
+            }
+            if (parent is ReflectorPropertyValue parentv)
+            {
+                var com = COM.GetInterfaces(parentv.Value);
+                foreach (var intfType in com)
+                {
+                    var node = new ReflectorInterface()
+                    {
+                        IsCOM = true,
+                        ValueType = intfType,
+                        ValueTypeName = Builder.GetTypeName(intfType),
+                        CanExpandMethods = true,
+                        CanExpandProperties = true
+                    };
+                    parent.Children.Add(node);
+                }
             }
 
         }
@@ -447,22 +409,35 @@ namespace Reflector
         }
         public string BuildNodeSource(ReflectorNode node)
         {
+            //interface->full intf
+            if (node is ReflectorInterface nodei)
+            {
+                return Builder.GenerateInterface(nodei.ValueType);
+            }
+            //class->abstract class,
+            //if (node is ReflectorTypeNode typeNode)
+            //{
+            //    return Builder.GenerateAbstractClass(typeNode.ValueType);
+            //}
             if (node is ReflectorPropertyValue propNode)
             {
                 //property with value ->class of value type
                 if (propNode.ValueType != null)
-                    return Builder.BuildDeclaration(propNode.ValueType);
+                    return Builder.GenerateAbstractClass(propNode.ValueType);
                 else
-                    //property without value - property type, no:containing class (pi.declaringtype)
-                    return Builder.BuildDeclaration(propNode.PropertyInfo.PropertyType);
+                    //property without value - containing class (pi.declaringtype)
+                    return Builder.GenerateAbstractClass(propNode.PropertyInfo.DeclaringType);
             }
             //method -> containing class
             if (node is ReflectorMethod methodNode)
-                return Builder.BuildDeclaration(methodNode.MethodInfo.DeclaringType);
+            {
+                return Builder.GenerateAbstractClass(methodNode.MethodInfo.DeclaringType);
+            }
             //enum item->class of value
-            //interface->full intf
-            if (node is ReflectorTypeNode typeNode)
-                return Builder.BuildDeclaration(typeNode.ValueType);
+            if (node is ReflectorEnumItem enumNode)
+            {
+                return Builder.GenerateAbstractClass(enumNode.ValueType);
+            }
             return null;
         }
     }

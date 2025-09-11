@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace SolutionExtensions.Reflector
@@ -43,10 +44,12 @@ namespace SolutionExtensions.Reflector
 
         public static string GetPrimitiveTypeName(Type t)
         {
-            if (!t.IsPrimitive)
-                return null;
             if (t == typeof(string))
                 return "string";
+            if (t == typeof(object))
+                return "object";
+            if (!t.IsPrimitive)
+                return null;
             if (t == typeof(int))
                 return "int";
             if (t == typeof(uint))
@@ -56,35 +59,6 @@ namespace SolutionExtensions.Reflector
             if (t == typeof(double))
                 return "double";
             return null;
-        }
-
-        public string GetMethodSignature(System.Reflection.MethodInfo m, bool returnTypeAtEnd = true)
-        {
-            var returnType = m.ReturnType == null || m.ReturnType == typeof(void) ? "void" : GetTypeName(m.ReturnType, true);
-            var s = new StringBuilder();
-            if (!returnTypeAtEnd)
-                s.Append(returnType).Append(" ");
-            s.Append(m.Name);
-            if (m.IsGenericMethod)
-                s.Append($"<{String.Join(", ", m.GetGenericArguments().Select(ar => GetTypeName(ar, true)))}>");
-            s.Append("(");
-            foreach (var arg in m.GetParameters())
-            {
-                if (arg.IsOut)
-                    s.Append("out ");
-                s.Append(GetTypeName(arg.ParameterType, true));
-                if (arg.IsOptional)
-                    s.Append("?");
-                s.Append(" " + arg.Name);
-                if (arg.HasDefaultValue)
-                    s.Append(arg.DefaultValue);
-                if (arg != m.GetParameters().Last())
-                    s.Append(", ");
-            }
-            s.Append(")");
-            if (returnTypeAtEnd)
-                s.Append(": " + returnType);
-            return s.ToString();
         }
 
 
@@ -104,37 +78,82 @@ namespace SolutionExtensions.Reflector
                 sb.Append(s);
             }
         }
-        internal string GenerateAbstractClass(Type type)
+        public string BuildDeclaration(Type type)
         {
             var w = new IndentableWriter();
             w.WriteLine($"namespace {type.Namespace}");
             w.WriteLine("{");
             w.PushIndent();
             GenerateAttributes(w, type);
-            var s = $"public abstract class {GetTypeName(type, true)}";
-            var bases = new List<Type>();
-            if (type.BaseType != null && type.BaseType != typeof(object))
-            {
-                bases.Add(type.BaseType);
-            }
-            //bases.AddRange(type.GetInterfaces());
-            if (bases.Count > 0)
-                s += " : " + String.Join(", ", bases.Select(t => GetTypeName(t)));
-            w.WriteLine(s);
+            if (type.IsEnum)
+                GenerateEnum(w, type);
+            else
+                GenerateClass(w, type);
+            w.PopIndent();
+            w.WriteLine("}"); //ns
+            return w.Text;
+        }
+
+        private void GenerateClass(IndentableWriter w, Type type)
+        {
+            var parts = new List<string>();
+            if (type.IsValueType)
+                parts.Add($"struct {GetTypeName(type, true)}");
+            else if (type.IsInterface)
+                parts.Add($"interface {GetTypeName(type, true)}");
+            else
+                parts.Add($"public abstract class {GetTypeName(type, useShort: true)}");
+
+            var baseTypes = new List<Type>();
+            if (type.BaseType != null && type.BaseType != typeof(object) && type.BaseType != typeof(ValueType))
+                baseTypes.Add(type.BaseType);
+            baseTypes.AddRange(type.GetInterfaces());
+            if (baseTypes.Count > 0)
+                parts.Add(": " + String.Join(", ", baseTypes.Select(t => GetTypeName(t))));
+            w.WriteLine(string.Join(" ", parts));
             w.WriteLine("{");
             w.PushIndent();
+            GenerateFields(w, type);
             GenerateProperties(w, type);
             GenerateMethods(w, type);
             w.PopIndent();
             w.WriteLine("}");
+        }
+
+        private void GenerateEnum(IndentableWriter w, Type type)
+        {
+            var s = $"public enum {GetTypeName(type, useShort: true)}";
+            var ut = Enum.GetUnderlyingType(type);
+            w.WriteLine(s);
+            w.WriteLine("{");
+            w.PushIndent();
+            foreach (var item in Enum.GetValues(type))
+            {
+                var name = Enum.GetName(type, item);
+                var value = "";
+                if (ut == typeof(int))
+                    value = $" = {(int)item}";
+                w.WriteLine($"{name}{value},");
+            }
             w.PopIndent();
             w.WriteLine("}");
-            return w.Text;
+        }
+
+        private string BuildAttributes(object[] attrs)
+        {
+            var w = new IndentableWriter();
+            GenerateAttributes(w, attrs);
+            return w.Text.Trim();
         }
 
         private void GenerateAttributes(IndentableWriter w, MemberInfo info)
         {
             var attrs = info.GetCustomAttributes(false);
+            GenerateAttributes(w, attrs);
+        }
+
+        private void GenerateAttributes(IndentableWriter w, object[] attrs)
+        {
             foreach (var attr in attrs)
             {
                 var name = GetTypeName(attr.GetType());
@@ -149,20 +168,26 @@ namespace SolutionExtensions.Reflector
                     if (pv != null)
                         args.Add((pi.Name, pv));
                 }
-                var sargs = args.Select(x => x.Item1 + " = " + GenerateLiteral(x.Item2));
+                var sargs = args.Select(x => x.Item1 + " = " + BuildLiteral(x.Item2));
                 //can be optimized to use constructor
                 w.WriteLine($"[{name}({String.Join(", ", sargs)})]");
             }
         }
 
-        private string GenerateLiteral(object value)
+        public string BuildLiteral(object value, bool niceNumbers = true)
         {
             if (value == null)
                 return "null";
             if (value is bool b)
                 return b ? "true" : "false";
             if (value is int i)
-                return i.ToString();
+            {
+                //in WPF double is used
+                var s = i.ToString();
+                if (niceNumbers)
+                    if (i > 10000 || i < -10000) s += $" (0x{i:X})";
+                return s;
+            }
             if (value is double d)
                 return d.ToString(CultureInfo.InvariantCulture);
             if (value is Type t)
@@ -172,11 +197,34 @@ namespace SolutionExtensions.Reflector
             return $"\"{value}\"";
         }
 
+        private void GenerateFields(IndentableWriter w, Type type)
+        {
+            foreach (var fi in type.GetFields())
+            {
+                GenerateField(w, fi);
+            }
+        }
+
+        private void GenerateField(IndentableWriter w, FieldInfo fi)
+        {
+            var parts = new List<string>();
+            if (fi.IsPublic)
+                parts.Add("public");
+            if (fi.IsStatic)
+                parts.Add("static");
+            GenerateAttributes(w, fi);
+            parts.Add(GetTypeName(fi.FieldType, useShort: false));
+            parts.Add(fi.Name);
+            w.WriteLine(string.Join(" ", parts) + ";");
+        }
         private void GenerateMethods(IndentableWriter w, Type type)
         {
-            foreach (var mi in type.GetMethods(
-                BindingFlags.DeclaredOnly))
+            foreach (var mi in type.GetMethods())
             {
+                if (mi.DeclaringType != type)
+                    continue;
+                if (mi.IsSpecialName)
+                    continue;
                 GenerateMethod(w, mi);
             }
         }
@@ -184,22 +232,67 @@ namespace SolutionExtensions.Reflector
         private void GenerateMethod(IndentableWriter w, MethodInfo mi)
         {
             GenerateAttributes(w, mi);
-            var keys = new List<string>();
-            if (mi.IsPublic) keys.Add("public");
-            if (mi.IsPrivate) keys.Add("private");
-            if (mi.IsFinal) keys.Add("sealed");
-            if (mi.IsStatic) keys.Add("static");
-            var s = String.Join(" ", keys);
-            s += " ";
-            //TODO: arguments attributes, in, out, ref, ...
-            w.WriteLine(s + GetMethodSignature(mi, false) + ";");
+            w.WriteLine(BuildMethodSignature(mi) + ";");
+        }
 
+        public string BuildMethodSignature(MethodInfo mi, bool returnTypeAtEnd = false)
+        {
+            var parts = new List<string>();
+            if (mi.IsPublic) parts.Add("public");
+            if (mi.IsPrivate) parts.Add("private");
+            if (mi.IsFinal) parts.Add("sealed");
+            if (mi.IsStatic) parts.Add("static");
+            var returnType = mi.ReturnType == null || mi.ReturnType == typeof(void) ? "void" : GetTypeName(mi.ReturnType, true);
+            if (!returnTypeAtEnd)
+                parts.Add(returnType);
+            var name = BuildMethodName(mi);
+            parts.Add(name);
+            if (returnTypeAtEnd)
+                parts.Add(": " + returnType);
+            return string.Join(" ", parts);
+        }
+
+        private string BuildMethodName(MethodInfo mi)
+        {
+            var name = mi.Name;
+            if (mi.IsGenericMethod)
+                name = $"{name}<{String.Join(", ", mi.GetGenericArguments().Select(ar => GetTypeName(ar, true)))}>";
+            var args = new List<string>();
+            foreach (var arg in mi.GetParameters())
+            {
+                args.Add(BuildMethodParameter(arg));
+            }
+            return $"{name}({string.Join(", ", args)})";
+        }
+
+        private string BuildMethodParameter(ParameterInfo arg)
+        {
+            var parts = new List<string>();
+            var at = BuildAttributes(arg.GetCustomAttributes().ToArray());
+            if (!string.IsNullOrEmpty(at))
+                parts.Add(at);
+            if (arg.IsIn)
+                parts.Add("in");
+            if (arg.IsOut)
+                parts.Add("out");
+            if (arg.ParameterType.IsByRef)
+                parts.Add("ref");
+            var type = GetTypeName(arg.ParameterType, true);
+            if (arg.IsOptional)
+                type += "?";
+            parts.Add(type);
+            parts.Add(arg.Name);
+            if (arg.HasDefaultValue)
+                parts.Add(BuildLiteral(arg.DefaultValue));
+            return string.Join(" ", parts);
         }
 
         private void GenerateProperties(IndentableWriter w, Type type)
         {
-            foreach (var pi in type.GetProperties(BindingFlags.DeclaredOnly))
+            foreach (var pi in type.GetProperties())
             {
+                if (pi.IsSpecialName)
+                    continue;
                 GenerateProperty(w, pi);
             }
         }
@@ -208,36 +301,23 @@ namespace SolutionExtensions.Reflector
         {
             GenerateAttributes(w, pi);
             var keys = new List<string>();
-            if (pi.CanRead || pi.CanWrite) keys.Add("public");
-            else keys.Add("private");
-            //if (pi.IsStatic) keys.Add("static");
+            if (pi.CanRead || pi.CanWrite)
+                keys.Add("public");
+            else
+                keys.Add("private");
+            if (pi.GetGetMethod()?.IsStatic == true || pi.GetSetMethod()?.IsStatic == true)
+                keys.Add("static");
+            keys.Add(GetTypeName(pi.PropertyType, useShort: false));
             keys.Add(pi.Name);
+            keys.Add("{");
             if (pi.CanRead)
                 keys.Add("get;");
             if (pi.CanWrite)
                 keys.Add("set;");
+            keys.Add("}");
             var s = String.Join(" ", keys);
             //TODO: ?? get/set attributes? private/public get/set
             w.WriteLine(s);
-        }
-
-        public string GenerateInterface(Type type)
-        {
-            var w = new IndentableWriter();
-            w.WriteLine($"namespace {type.Namespace}");
-            w.WriteLine("{");
-            w.PushIndent();
-            GenerateAttributes(w, type);
-            w.WriteLine($"interface ${GetTypeName(type, true)}");
-            w.WriteLine("{");
-            w.PushIndent();
-            GenerateProperties(w, type);
-            GenerateMethods(w, type);
-            w.PopIndent();
-            w.WriteLine("}");
-            w.PopIndent();
-            w.WriteLine("}");
-            return w.Text;
         }
 
     }

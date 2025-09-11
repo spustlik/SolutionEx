@@ -1,7 +1,18 @@
-﻿using System;
-using System.IO;
+﻿using SolutionExtensions.Reflector;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
 
 namespace Reflector
 {
@@ -31,32 +42,10 @@ namespace Reflector
             if (node == null)
                 return;
             action(node);
-            var container = treeView.ItemContainerGenerator.ContainerFromItem(node);
-            if (container == null)
-                container = GetContainerFromNode(treeView.ItemContainerGenerator, node as ReflectorNode);
-            var item = container as TreeViewItem;
+            var item = treeView.ItemContainerGenerator.ContainerFromItem(node) as TreeViewItem;
             if (item != null)
                 item.IsExpanded = true;
         }
-
-        private DependencyObject GetContainerFromNode(ItemContainerGenerator generator, ReflectorNode node)
-        {
-            node.GetPath(out var path);
-            var g = generator;
-            foreach (var n in path)
-            {
-                var container = g.ContainerFromItem(n);
-                if (container == null || !(container is ItemsControl ic))
-                    return null;
-                g = ic.ItemContainerGenerator;
-                if (g == null)
-                    return null;
-                if (n == node)
-                    return container;
-            }
-            return null;
-        }
-
         private void ExpandProperties_Click(object sender, RoutedEventArgs e)
         {
             CallExpand<ReflectorTypeNode>(sender, node => Factory.ExpandProperties(node));
@@ -85,14 +74,8 @@ namespace Reflector
             var s = Factory.BuildNodeSource(node);
             if (s == null)
                 return;
-            var fn = Path.Combine(Path.GetTempPath(), "dump.cs");
-            if (File.Exists(fn))
-            {
-                var current = File.ReadAllText(fn);
-                s += "//-------\n" + current;
-            }
-            File.WriteAllText(fn, s);
-            //TODO: if not opened in DTE, open
+            Clipboard.SetText(s);
+            MessageBox.Show($"Generated source copied to clipboard.");
         }
     }
 }

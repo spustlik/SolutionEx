@@ -119,113 +119,59 @@
                     </Setter.Value>
                 </Setter>
             </Style>
-            <Style x:Key="buttons" TargetType="ContentControl">
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate>
-                            <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
-                                <StackPanel.Resources>
-                                    <Style TargetType="Button" x:Key="button">
-                                        <Setter Property="Background" Value="Transparent"/>
-                                        <Setter Property="Width" Value="20"/>
-                                        <Setter Property="FontFamily" Value="Courier New"/>
-                                        <Setter Property="FontSize" Value="9"/>
-                                        <Setter Property="Margin" Value="0,0,2,0"/>
-                                        <Setter Property="Padding" Value="2,0"/>
-                                    </Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource button}"/>
-                                    <Style x:Key="genButton" TargetType="Button" BasedOn="{StaticResource button}">
-                                        <Setter Property="Width" Value="20"/>
-                                        <Setter Property="BorderThickness" Value="0"/>
-                                        <Setter Property="Padding" Value="0"/>
-                                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
-                                        <Setter Property="ContentTemplate">
-                                            <Setter.Value>
-                                                <DataTemplate>
-                                                    <Border HorizontalAlignment="Stretch"
-                                                            VerticalAlignment="Stretch"
-                                                            CornerRadius="4" 
-                                                            BorderThickness="1"
-                                                            BorderBrush="{Binding BorderBrush, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}"
-                                                            >
-                                                        <ContentPresenter 
-                                                            HorizontalAlignment="Center"
-                                                            VerticalAlignment="Center"                                                                                                                       
-                                                            Content="{Binding Content, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Button}}}"/>
-                                                    </Border>
-                                                </DataTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </StackPanel.Resources>
-                                <Button Content=".p" ToolTip="Expand properties" Visibility="{Binding CanExpandProperties, Converter={StaticResource boolToVisi}}" Click="ExpandProperties_Click"/>
-                                <Button Content="{}{i}" ToolTip="Expand interfaces" Visibility="{Binding CanExpandInterfaces, Converter={StaticResource boolToVisi}}" Click="ExpandInterfaces_Click"/>
-                                <Button Content="m()" ToolTip="Expand methods" Visibility="{Binding CanExpandMethods, Converter={StaticResource boolToVisi}}" Click="ExpandMethods_Click"/>
-                                <Button Content="[e]" ToolTip="Expand enumerable items" Visibility="{Binding CanExpandEnumerable, Converter={StaticResource boolToVisi}}" Click="ExpandEnumerable_Click"/>
-                                <Button Content="c#" ToolTip="Generate c# source" Click="Generate_Click" Style="{StaticResource genButton}"/>
-                            </StackPanel>
 
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-            <ControlTemplate x:Key="tvItemTemplate" TargetType="ContentControl" >
+            <ControlTemplate TargetType="ContentControl" x:Key="tvItemTemplate">
                 <Border BorderBrush="{TemplateBinding Background}" 
                         HorizontalAlignment="Stretch"
                         Background="{TemplateBinding Background}" 
-                        BorderThickness="1" CornerRadius="4" Padding="0">
+                        BorderThickness="1" CornerRadius="4" Padding="10,5">
                     <Grid HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" SharedSizeGroup="colButtons"/>
                         </Grid.ColumnDefinitions>
                         <ContentPresenter/>
-                        <ContentControl Grid.Column="1" Style="{StaticResource buttons}"/>
+                        <StackPanel Orientation="Horizontal" Grid.Column="1"
+                                    Margin="10,0,0,0">
+                            <StackPanel.Resources>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Width" Value="30"/>
+                                    <Setter Property="FontFamily" Value="Courier New"/>
+                                    <Setter Property="Margin" Value="0,0,5,0"/>
+                                </Style>
+                            </StackPanel.Resources>
+                            <Button Content=".p" Visibility="{Binding CanExpandProperties, Converter={StaticResource boolToVisi}}" Click="ExpandProperties_Click"/>
+                            <Button Content="{}{i}" Visibility="{Binding CanExpandInterfaces, Converter={StaticResource boolToVisi}}" Click="ExpandInterfaces_Click"/>
+                            <Button Content="m()" Visibility="{Binding CanExpandMethods, Converter={StaticResource boolToVisi}}" Click="ExpandMethods_Click"/>
+                            <Button Content="[e]" Visibility="{Binding CanExpandEnumerable, Converter={StaticResource boolToVisi}}" Click="ExpandEnumerable_Click"/>
+                            <Button Content="c#" Click="Generate_Click"/>
+                        </StackPanel>
                     </Grid>
                 </Border>
             </ControlTemplate>
-            <Style x:Key="tvItem" TargetType="ContentControl" >
+            <Style TargetType="ContentControl" x:Key="tvItem">
                 <Setter Property="Template" Value="{StaticResource tvItemTemplate}"/>
             </Style>
             <Style x:Key="ico" TargetType="TextBlock">
                 <Setter Property="FontFamily" Value="Courier New"/>
                 <Setter Property="VerticalAlignment" Value="Center"/>
-                <Setter Property="Padding" Value="0,0,5,0"/>
             </Style>
             <Style x:Key="code" TargetType="TextBlock">
                 <Setter Property="FontFamily" Value="Courier New"/>
                 <Setter Property="VerticalAlignment" Value="Center"/>
             </Style>
-            <Style x:Key="codeRun" TargetType="Run">
-                <Setter Property="FontFamily" Value="Courier New"/>
-            </Style>
-            <Style x:Key="canvasValue" TargetType="Canvas">
-                <Setter Property="Grid.Column" Value="2"/>
-                <Setter Property="ClipToBounds" Value="True"/>
-            </Style>
             <HierarchicalDataTemplate 
                 DataType="{x:Type local:ReflectorRoot}"
                 ItemsSource="{Binding Path=Children}">
-                <ContentControl Style="{StaticResource tvItem}" Background="#4080ff80">
-                    <TextBlock Padding="5,0" Text="{Binding RootType}"/>
+                <ContentControl Style="{StaticResource tvItem}" Background="#80ff80">
+                    <TextBlock Grid.Column="1" Text="{Binding RootType}"/>
                 </ContentControl>
             </HierarchicalDataTemplate>
             <HierarchicalDataTemplate 
                 DataType="{x:Type local:ReflectorPropertyValue}"
                 ItemsSource="{Binding Path=Children}">
-                <ContentControl Style="{StaticResource tvItem}" Background="#4080ff80">
-                    <ContentControl.ToolTip>
-                        <StackPanel>
-                            <TextBlock>
-                                <Run Text="Type: "/>
-                                <Run Text="{Binding PropertyTypeName}" Style="{StaticResource codeRun}" FontWeight="Bold"/>
-                            </TextBlock>
-                            <TextBlock Visibility="{Binding PropertyModifiers, Converter={StaticResource notEmptyToVisi}}">
-                                <Run Text="{Binding PropertyModifiers}" Style="{StaticResource codeRun}"/>
-                            </TextBlock>
-                        </StackPanel>
-                    </ContentControl.ToolTip>
+                <ContentControl Style="{StaticResource tvItem}" Background="#80ff80">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" SharedSizeGroup="colIco"/>
@@ -233,36 +179,23 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="(p)" Style="{StaticResource ico}"/>
-                        <TextBlock Grid.Column="1">
-                            <Run Text="{Binding PropertyName}" FontWeight="Bold"/>
-                        </TextBlock>
-                        <Canvas Style="{StaticResource canvasValue}">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Visibility="{Binding ValueSimpleText,Converter={StaticResource notEmptyToVisi}}" Margin="0,0,5,0">
+                        <TextBlock Text="{Binding PropertyName}" FontWeight="Bold" Grid.Column="1"/>
+                        <StackPanel Orientation="Horizontal" Grid.Column="2">
+                            <TextBlock Visibility="{Binding ValueSimpleText,Converter={StaticResource notEmptyToVisi}}" Margin="0,0,5,0">
                                 =<Run Text="{Binding ValueSimpleText}"/>
-                                </TextBlock>
-                                <TextBlock 
-                                    Visibility="{Binding IsNull,Converter={StaticResource boolToVisi}}" 
-                                    Opacity="0.4"
-                                    Margin="0,0,5,0">
+                            </TextBlock>
+                            <TextBlock Visibility="{Binding IsNull,Converter={StaticResource boolToVisi}}" Margin="0,0,5,0">
                                 =<Run Text="(null)"/>
-                                </TextBlock>
-                            </StackPanel>
-                        </Canvas>
+                            </TextBlock>
+                            <TextBlock Text="{Binding PropertyTypeName}" Style="{StaticResource code}" FontSize="10"/>
+                        </StackPanel>
                     </Grid>
                 </ContentControl>
             </HierarchicalDataTemplate>
             <HierarchicalDataTemplate 
                 DataType="{x:Type local:ReflectorMethod}"
                 ItemsSource="{Binding Path=Children}">
-                <ContentControl Style="{StaticResource tvItem}" Background="#408080ff">
-                    <ContentControl.ToolTip>
-                        <StackPanel>
-                            <TextBlock>                                
-                                <Run Text="{Binding Signature}" Style="{StaticResource codeRun}" FontWeight="Bold"/>
-                            </TextBlock>
-                        </StackPanel>
-                    </ContentControl.ToolTip>
+                <ContentControl Style="{StaticResource tvItem}" Background="#8080ff">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" SharedSizeGroup="colIco"/>
@@ -271,23 +204,14 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="(m)" Style="{StaticResource ico}"/>
                         <TextBlock Text="{Binding MethodName}" Grid.Column="1" FontWeight="Bold" />
-                        <Canvas Style="{StaticResource canvasValue}">
-                            <TextBlock Text="{Binding Signature}" Style="{StaticResource code}"/>
-                        </Canvas>
+                        <TextBlock Text="{Binding Signature}" Grid.Column="2" Style="{StaticResource code}"/>
                     </Grid>
                 </ContentControl>
             </HierarchicalDataTemplate>
             <HierarchicalDataTemplate 
                 DataType="{x:Type local:ReflectorEnumItem}"
                 ItemsSource="{Binding Path=Children}">
-                <ContentControl Style="{StaticResource tvItem}" Background="#4040ff40">
-                    <ContentControl.ToolTip>
-                        <StackPanel>
-                            <TextBlock>                                
-                                <Run Text="{Binding ValueTypeName}" Style="{StaticResource codeRun}" FontWeight="Bold"/>
-                            </TextBlock>
-                        </StackPanel>
-                    </ContentControl.ToolTip>            
+                <ContentControl Style="{StaticResource tvItem}" Background="#40ff40">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" SharedSizeGroup="colIco"/>
@@ -295,36 +219,25 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="{Binding Index, StringFormat={}[{0}]}" Style="{StaticResource ico}"/>
-                        <Canvas Style="{StaticResource canvasValue}">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding ValueSimpleText}"/>
-                                <TextBlock Text="{Binding ValueTypeName}" FontWeight="Bold"/>
-                            </StackPanel>
-                        </Canvas>
+                        <StackPanel Orientation="Horizontal" Grid.Column="1">
+                            <TextBlock Text="{Binding ValueSimpleText}"/>
+                            <TextBlock Text="{Binding ValueTypeName}" FontWeight="Bold"/>
+                        </StackPanel>
                     </Grid>
                 </ContentControl>
             </HierarchicalDataTemplate>
             <HierarchicalDataTemplate 
                 DataType="{x:Type local:ReflectorInterface}" 
                 ItemsSource="{Binding Path=Children}">
-                <ContentControl Style="{StaticResource tvItem}" Background="#40FFFF00">
-                    <ContentControl.ToolTip>
-                        <StackPanel>
-                            <TextBlock>                                
-                                <Run Text="{Binding ValueTypeName}" Style="{StaticResource codeRun}" FontWeight="Bold"/>
-                            </TextBlock>
-                        </StackPanel>
-                    </ContentControl.ToolTip>
+                <ContentControl Style="{StaticResource tvItem}" Background="#FFFF00">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" SharedSizeGroup="colIco"/>
                             <ColumnDefinition Width="Auto" SharedSizeGroup="colName"/>
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="{}{i}" Style="{StaticResource ico}"/>
-                        <Canvas Style="{StaticResource canvasValue}" Grid.Column="1" Grid.ColumnSpan="2">
-                            <TextBlock Text="{Binding ValueTypeName}" FontWeight="Bold" Style="{StaticResource code}"/>
-                        </Canvas>
+                        <TextBlock Text="{}{intf}" Style="{StaticResource ico}"/>
+                        <TextBlock Text="{Binding ValueTypeName}" Grid.Column="2" FontWeight="Bold" Style="{StaticResource code}"/>
                     </Grid>
                 </ContentControl>
             </HierarchicalDataTemplate>
