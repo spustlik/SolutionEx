@@ -63,6 +63,10 @@
     <Compile Include="..\SolutionExtensions\Reflector\ReflectionHelper.cs">
       <Link>Linked\ReflectionHelper.cs</Link>
     </Compile>
+    <Compile Include="Formula\ReflectionBinder.cs" />
+    <Compile Include="Formula\Syntax.cs" />
+    <Compile Include="Formula\SyntaxTree.cs" />
+    <Compile Include="Formula\Tokenizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
