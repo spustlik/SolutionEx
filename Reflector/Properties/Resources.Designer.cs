@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Reflector.Properties {
+namespace SolutionExtensions.Properties {
     
     
     /// <summary>

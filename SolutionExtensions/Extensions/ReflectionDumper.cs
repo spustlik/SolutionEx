@@ -193,7 +193,7 @@ namespace SolutionExtensions.Extensions
                     continue;
                 //if (m.IsSpecialName)
                 //    continue;
-                var me = new XElement("_Method", new XAttribute("Name", m.Name), new XAttribute("signature", builder.GetMethodSignature(m)));
+                var me = new XElement("_Method", new XAttribute("Name", m.Name), new XAttribute("signature", builder.BuildMethodSignature(m)));
                 if (m.ReturnType != typeof(void))
                     me.Add(new XAttribute("_returnType", GetTypeName(m.ReturnType)));
                 parent.Add(me);

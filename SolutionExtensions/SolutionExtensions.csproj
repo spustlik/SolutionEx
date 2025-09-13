@@ -65,6 +65,14 @@
     <Compile Include="Extensions\DumpExtensionMore.cs" />
     <Compile Include="Extensions\DumpExtension.cs" />
     <Compile Include="Extensions\NestFileExtension.cs" />
+    <Compile Include="Formula\ReflectionBinder.cs" />
+    <Compile Include="Formula\Syntax.cs" />
+    <Compile Include="Formula\SyntaxTree.cs" />
+    <Compile Include="Formula\Tokenizer.cs" />
+    <Compile Include="ReflectorControl\ReflectorControl.xaml.cs">
+      <DependentUpon>ReflectorControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ReflectorControl\ReflectorModel.cs" />
     <Compile Include="Reflector\ReflectionBuilderCS.cs" />
     <Compile Include="Reflector\ReflectionCOM.cs" />
     <Compile Include="Extensions\ReflectionDumper.cs" />
@@ -82,8 +90,12 @@
       <DependentUpon>ExtensionsListToolWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Model\ExtensionsModel.cs" />
+    <Compile Include="ToolWindows\ReflectorToolWindow.xaml.cs">
+      <DependentUpon>ReflectorToolWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ToolWindows\ToolWindowPaneBase.cs" />
     <Compile Include="Commands\DataExtensions.cs" />
+    <Compile Include="WpfExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="commands.t4">
@@ -134,6 +146,10 @@
     <Content Include="Resources\CommandAddConfig.png" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="ReflectorControl\ReflectorControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="ToolWindows\ExtensionsListToolWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -141,6 +157,10 @@
     <None Include="_DesignData\ExtensionListToolWindowVM.xaml">
       <SubType>Designer</SubType>
     </None>
+    <Page Include="ToolWindows\ReflectorToolWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

@@ -34,6 +34,7 @@ namespace SolutionExtensions
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideAutoLoad(UIContextGuids80.SolutionExists, PackageAutoLoadFlags.BackgroundLoad)]
     [ProvideToolWindow(typeof(ToolWindows.ExtensionsListToolWindowPane))]
+    [ProvideToolWindow(typeof(ToolWindows.ReflectorToolWindowPane))]
     [ComVisible(true)]
     public sealed class SolutionExtensionsPackage : ToolkitPackage
     {

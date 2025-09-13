@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Reflector.Formula;
+using SolutionExtensions.Formula;
 using System;
 using System.Linq;
 using System.Runtime.CompilerServices;

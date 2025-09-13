@@ -8,6 +8,8 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -130,6 +132,7 @@ namespace SolutionExtensions.ToolWindows
                 //ignore
             }
         }
+
         private void AddItem_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             this.ViewModel.Model.Extensions.Add(new ExtensionItem());
@@ -156,10 +159,10 @@ namespace SolutionExtensions.ToolWindows
             }
             catch (Exception ex)
             {
-                var err = $"Error running extension '{item.Title}'";
-                Package.AddToOutputPane($"{err}:\nfrom:{item.DllPath}\n" + ex);
+                var title = $"Error running extension '{item.Title}'";
+                Package.AddToOutputPane($"{title}:\nfrom:{item.DllPath}\n" + ex);
                 _ = Package.ShowStatusBarErrorAsync(ex.Message);
-                MessageBox.Show(ex.Message + "\nSee output pane for details", err, MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                this.ShowException(ex, "See output pane for details", title);
             }
         }
         private void Debug_Click(object sender, RoutedEventArgs e)
@@ -181,10 +184,10 @@ namespace SolutionExtensions.ToolWindows
             }
             catch (Exception ex)
             {
-                var err = $"Error running extension '{item.Title}' in DEBUG";
-                Package.AddToOutputPane($"{err}:\nfrom:{item.DllPath}\n" + ex);
+                var title = $"Error running extension '{item.Title}' in DEBUG";
+                Package.AddToOutputPane($"{title}:\nfrom:{item.DllPath}\n" + ex);
                 _ = Package.ShowStatusBarErrorAsync(ex.Message);
-                MessageBox.Show(ex.Message + "\nSee output pane for details", err, MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                this.ShowException(ex, "See output pane for details", title);
             }
         }
         private void Load_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -378,9 +381,17 @@ namespace SolutionExtensions.ToolWindows
             ViewModel.SelectedItem = item;
         }
 
-        private void ButtonDump_Click(object sender, RoutedEventArgs e)
+        private async void ButtonDump_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Not implemented");
+            var p = this.Package;
+            try
+            {
+                await p.ShowToolWindowAsync(typeof(ReflectorToolWindowPane), 0, true, CancellationToken.None);
+            }
+            catch (Exception ex)
+            {
+                this.ShowException(ex);
+            }
         }
     }
 }

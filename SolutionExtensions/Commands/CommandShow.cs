@@ -20,7 +20,7 @@ namespace SolutionExtensions
         {
             var p = this.package as SolutionExtensionsPackage;
             p.Log("Show command executed");
-            await p.ShowToolWindowAsync(typeof(ExtensionsListToolWindowPane), 0, true, CancellationToken.None);
+            await p.ShowToolWindowAsync(typeof(ReflectorToolWindowPane), 0, true, CancellationToken.None);
         }
     }
 }

@@ -46,7 +46,7 @@ namespace SolutionExtensions
                 foreach (ReflectorNode node in e.NewItems)
                     node.Parent = this;
         }
-    
+
         #region CanExpandEnumerable property
         private bool _canExpandEnumerable;
         public bool CanExpandEnumerable
@@ -241,7 +241,7 @@ namespace SolutionExtensions
         }
         #endregion
     }
-    public class ReflectorInterface : ReflectorTypeNode
+    public class ReflectorInterface : ReflectorValueNode
     {
         #region IsCOM property
         private bool _IsCOM;
@@ -363,7 +363,7 @@ namespace SolutionExtensions
                     PropertyType = pi.PropertyType,
                     PropertyTypeName = Builder.GetTypeName(pi.PropertyType),
                 };
-                if (parent is ReflectorValueNode parentv)
+                if (parent is ReflectorValueNode parentv && !parentv.IsNull)
                 {
                     try
                     {
@@ -407,11 +407,15 @@ namespace SolutionExtensions
             if (!parent.CanExpandInterfaces)
                 return;
             parent.CanExpandInterfaces = false;
-            var interfaces = parent.ValueType.GetInterfaces().Select(i => new { IsCOM = false, Type = i }).ToList();
-            if (parent is ReflectorPropertyValue parentv)
+            var interfaces = parent.ValueType.GetInterfaces()
+                .Select(i => new { IsCOM = false, Type = i }).ToList();
+            object value = null;
+            if (parent is ReflectorValueNode parentv && !parentv.IsNull)
             {
+                value = parentv.Value;
                 //add known interaces implemented by COM object and replace type-declared
-                var com = COM.GetInterfaces(parentv.Value).Select(i => new { IsCOM = true, Type = i }).ToArray();
+                var com = COM.GetInterfaces(parentv.Value)
+                    .Select(i => new { IsCOM = true, Type = i }).ToArray();
                 foreach (var i in com)
                 {
                     var found = interfaces.FirstOrDefault(x => x.Type == i.Type);
@@ -426,11 +430,13 @@ namespace SolutionExtensions
                 var node = new ReflectorInterface()
                 {
                     IsCOM = x.IsCOM,
-                    ValueType = x.Type,
-                    ValueTypeName = Builder.GetTypeName(x.Type),
-                    CanExpandMethods = true,
-                    CanExpandProperties = true
                 };
+                SetValue(node, value);
+                node.ValueType = x.Type;
+                node.ValueTypeName = Builder.GetTypeName(x.Type);
+                node.CanExpandMethods = true;
+                node.CanExpandProperties = true;
+
                 parent.Children.Add(node);
             }
 

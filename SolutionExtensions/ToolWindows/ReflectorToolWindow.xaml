@@ -1,0 +1,52 @@
+﻿<UserControl x:Class="SolutionExtensions.ToolWindows.ReflectorToolWindow"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SolutionExtensions.ToolWindows"
+             xmlns:model="clr-namespace:SolutionExtensions"
+             xmlns:toolkit="clr-namespace:Community.VisualStudio.Toolkit;assembly=Community.VisualStudio.Toolkit"              
+             xmlns:shell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"             
+             xmlns:ui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
+             xmlns:cmt="uri:comments"
+             mc:Ignorable="d cmt" 
+             toolkit:Themes.UseVsTheme="True"
+             d:Background="White"
+             Loaded="UserControl_Loaded"
+             d:DesignHeight="264.817" d:DesignWidth="252.669">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="{x:Static toolkit:ToolkitResourceKeys.ThemeResourcesUri}"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal">
+            <StackPanel.Resources>
+                <Style x:Key="btnStyle" TargetType="Button" 
+                       BasedOn="{StaticResource {x:Static shell:VsResourceKeys.ButtonStyleKey}}">
+                    <Setter Property="Margin" Value="0,0,5,0"/>
+                    <Setter Property="Padding" Value="5,2,10,2"/>
+                    <Setter Property="MinWidth" Value="0"/>
+                </Style>
+                <Style TargetType="Button" BasedOn="{StaticResource btnStyle}">
+                </Style>
+            </StackPanel.Resources>
+            <Button Click="Zoom_Click">Zoom</Button>
+            <Button Click="DTE_Click">DTE</Button>
+            <Button Click="TW1_Click">Toolwindow1</Button>
+            <Button Content="Test" Click="Test_Click" />
+            <!--<Button Background="{DynamicResource {x:Static ui:TreeViewColors.BackgroundTextColorKey}}">X</Button>
+            <Button Background="{DynamicResource {x:Static ui:TreeViewColors.BackgroundColorKey}}">X</Button>-->
+            <Button Background="{DynamicResource {x:Static ui:TreeViewColors.BackgroundTextBrushKey}}">X</Button>
+            <Button Background="{DynamicResource {x:Static ui:TreeViewColors.BackgroundBrushKey}}">X</Button>
+            <Button Background="{DynamicResource VsBrush.EnvironmentBackgroundGradient}">X</Button>
+        </StackPanel>
+        <model:ReflectorControl x:Name="reflectorControl" Grid.Row="1"/>
+    </Grid>
+</UserControl>
