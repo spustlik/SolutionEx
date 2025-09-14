@@ -354,10 +354,7 @@ namespace SolutionExtensions.ToolWindows
 
         private void ButtonMore_Click(object sender, RoutedEventArgs e)
         {
-            var ctx = (sender as Button).ContextMenu;
-            ctx.PlacementTarget = sender as Button;
-            ctx.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
-            ctx.IsOpen = true;
+            (sender as Button).OpenContextMenu();
         }
 
         private void AddConfig_Click(object sender, RoutedEventArgs e)

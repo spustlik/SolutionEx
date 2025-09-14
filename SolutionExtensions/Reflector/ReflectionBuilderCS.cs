@@ -1,16 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography;
 using System.Text;
 
+/*
+ * TODO: use some class structure of generated result (CODEDOM?)
+ * than:
+ *   - group namespaces
+ *   - smart usings
+ * TODO: add options:
+ * - skip COM/interop attributes
+ * - 
+ */
 namespace SolutionExtensions.Reflector
 {
     public class ReflectionBuilderCS
     {
+        public HashSet<Type> UsedTypes { get; } = new HashSet<Type>();
+        public void Clear()
+        {
+            UsedTypes.Clear();
+        }
+
         public virtual string GetTypeName(Type type, bool useShort = false)
         {
             int depth = 0;
@@ -30,7 +43,7 @@ namespace SolutionExtensions.Reflector
             string getTypeName(Type t, bool _useShort)
             {
                 depth++;
-                if (_useShort || t.Namespace == nameof(System))
+                if (_useShort || IsKnownTypeName(t))
                 {
                     return GetPrimitiveTypeName(t) ?? getGenTypeName(t);
                 }
@@ -39,7 +52,16 @@ namespace SolutionExtensions.Reflector
                 s += getGenTypeName(t);
                 return s;
             }
+            UsedTypes.Add(type);
             return getTypeName(type, useShort);
+        }
+
+        private static bool IsKnownTypeName(Type t)
+        {
+            return
+                t.Namespace == null || 
+                t.Namespace == nameof(System) || 
+                t.Namespace == nameof(System.Runtime.InteropServices);
         }
 
         public static string GetPrimitiveTypeName(Type t)
@@ -61,7 +83,7 @@ namespace SolutionExtensions.Reflector
             return null;
         }
 
-
+        
         class IndentableWriter
         {
             private int indent;
@@ -74,12 +96,13 @@ namespace SolutionExtensions.Reflector
                 if (s == null || !s.EndsWith("\n"))
                     s += "\n";
                 for (var i = 0; i < indent; i++)
-                    sb.Append("  ");
+                    sb.Append("\t");
                 sb.Append(s);
             }
         }
         public string BuildDeclaration(Type type)
         {
+            UsedTypes.Add(type);
             var w = new IndentableWriter();
             w.WriteLine($"namespace {type.Namespace}");
             w.WriteLine("{");
@@ -156,7 +179,7 @@ namespace SolutionExtensions.Reflector
         {
             foreach (var attr in attrs)
             {
-                var name = GetTypeName(attr.GetType());
+                var name = GetTypeName(attr.GetType(), useShort:true);
                 if (name.EndsWith(nameof(Attribute)))
                     name = name.Substring(0, name.Length - nameof(Attribute).Length);
                 var args = new List<(string, object)>();
@@ -169,7 +192,9 @@ namespace SolutionExtensions.Reflector
                         args.Add((pi.Name, pv));
                 }
                 var sargs = args.Select(x => x.Item1 + " = " + BuildLiteral(x.Item2));
-                //can be optimized to use constructor
+                //can be optimized to use constructor, attr.GetType().GetConstructors()
+                //if only 1, it is possible easy
+                //but how to map name of property to ctor arg?
                 w.WriteLine($"[{name}({String.Join(", ", sargs)})]");
             }
         }
@@ -270,7 +295,7 @@ namespace SolutionExtensions.Reflector
             var parts = new List<string>();
             var at = BuildAttributes(arg.GetCustomAttributes().ToArray());
             if (!string.IsNullOrEmpty(at))
-                parts.Add(at);
+                parts.Add(at.Replace("\n"," "));
             if (arg.IsIn)
                 parts.Add("in");
             if (arg.IsOut)

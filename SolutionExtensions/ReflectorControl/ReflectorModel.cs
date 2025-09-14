@@ -264,9 +264,19 @@ namespace SolutionExtensions
         }
         #endregion
     }
-    public class ReflectorVM
+    public class ReflectorVM : SimpleDataObject
     {
         public ObservableCollection<ReflectorNode> Children { get; } = new ObservableCollection<ReflectorNode>();
+
+        #region SelectedNode property
+        private ReflectorNode _selectedNode;
+        public ReflectorNode SelectedNode
+        {
+            get => _selectedNode;
+            set => Set(ref _selectedNode, value);
+        }
+        #endregion
+
     }
 
     public class ReflectorFactory
@@ -306,11 +316,12 @@ namespace SolutionExtensions
             node.IsSimpleType = node.ValueType == typeof(string) ||
                 node.ValueType.IsPrimitive ||
                 node.ValueType.IsEnum; //TODO: expand/generate enum to members
+            var isCOM = ReflectionCOM.IsCOMObjectType(node.ValueType);
             if (!node.IsSimpleType)
             {
-                node.CanExpandMethods = true;
-                node.CanExpandProperties = true;
-                node.CanExpandInterfaces = node.ValueType.GetInterfaces().Length > 0 || ReflectionCOM.IsCOMObjectType(node.ValueType);
+                node.CanExpandMethods = !isCOM;
+                node.CanExpandProperties = !isCOM;
+                node.CanExpandInterfaces = node.ValueType.GetInterfaces().Length > 0 || isCOM;
             }
         }
         public void ExpandMethods(ReflectorTypeNode parent)
@@ -318,7 +329,7 @@ namespace SolutionExtensions
             if (!parent.CanExpandMethods)
                 return;
             parent.CanExpandMethods = false;
-            foreach (var mi in parent.ValueType.GetMethods())
+            foreach (var mi in parent.ValueType.GetMethods().OrderBy(x=>x.Name))
             {
                 //if (mi.DeclaringType != parent.ValueType)
                 //    continue;
@@ -340,7 +351,7 @@ namespace SolutionExtensions
             if (!parent.CanExpandProperties)
                 return;
             parent.CanExpandProperties = false;
-            foreach (var pi in parent.ValueType.GetProperties())
+            foreach (var pi in parent.ValueType.GetProperties().OrderBy(x=>x.Name))
             {
                 //if (pi.DeclaringType != parent.ValueType)
                 //    continue;
@@ -427,6 +438,8 @@ namespace SolutionExtensions
 
             foreach (var x in interfaces.OrderBy(x => x.Type.FullName))
             {
+                if (parent.ValueType == x.Type)
+                    continue;
                 var node = new ReflectorInterface()
                 {
                     IsCOM = x.IsCOM,

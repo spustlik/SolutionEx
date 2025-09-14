@@ -13,12 +13,16 @@
              toolkit:Themes.UseVsTheme="True"
              d:Background="White"
              Loaded="UserControl_Loaded"
-             d:DesignHeight="264.817" d:DesignWidth="252.669">
+             d:DesignHeight="68.15" d:DesignWidth="324.002">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="{x:Static toolkit:ToolkitResourceKeys.ThemeResourcesUri}"/>
             </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="boolToVisi"/>
+            <model:EmptyConverter x:Key="notEmptyToVisi" Inner="{StaticResource boolToVisi}" Negate="True"/>
+            <model:EmptyConverter x:Key="emptyToVisi" Inner="{StaticResource boolToVisi}"/>
+            <model:EmptyConverter x:Key="notEmpty" Negate="True"/>
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
@@ -26,7 +30,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal">
+        <StackPanel Orientation="Horizontal" Margin="5,2" HorizontalAlignment="Stretch">
             <StackPanel.Resources>
                 <Style x:Key="btnStyle" TargetType="Button" 
                        BasedOn="{StaticResource {x:Static shell:VsResourceKeys.ButtonStyleKey}}">
@@ -37,15 +41,27 @@
                 <Style TargetType="Button" BasedOn="{StaticResource btnStyle}">
                 </Style>
             </StackPanel.Resources>
-            <Button Click="Zoom_Click">Zoom</Button>
-            <Button Click="DTE_Click">DTE</Button>
-            <Button Click="TW1_Click">Toolwindow1</Button>
-            <Button Content="Test" Click="Test_Click" />
-            <!--<Button Background="{DynamicResource {x:Static ui:TreeViewColors.BackgroundTextColorKey}}">X</Button>
-            <Button Background="{DynamicResource {x:Static ui:TreeViewColors.BackgroundColorKey}}">X</Button>-->
-            <Button Background="{DynamicResource {x:Static ui:TreeViewColors.BackgroundTextBrushKey}}">X</Button>
-            <Button Background="{DynamicResource {x:Static ui:TreeViewColors.BackgroundBrushKey}}">X</Button>
-            <Button Background="{DynamicResource VsBrush.EnvironmentBackgroundGradient}">X</Button>
+            <Button Content="🔍Zoom" Click="Zoom_Click"/>
+            <Button Content="🔦Inspect▾" Click="OpenMenu_Click">
+                <Button.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="DTE" Click="DumpDTE_Click"/>
+                        <MenuItem Header="Active document" Click="DumpAD_Click"/>
+                        <MenuItem Header="Active window" Click="DumpAW_Click"/>
+                    </ContextMenu>
+                </Button.ContextMenu>
+            </Button>
+            <Button Content="💡Generate▾" Click="OpenMenu_Click">
+                <Button.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="c# of selected" Click="GenerateCs_Click"
+                                  IsEnabled="{Binding ViewModel.SelectedNode,ElementName=reflectorControl, Converter={StaticResource notEmpty}}"
+                                  />
+                        <MenuItem Header="c# of expanded" Click="GenerateCsTree_Click"/>
+                    </ContextMenu>
+                </Button.ContextMenu>
+            </Button>
+            <Button Click="Test_Click" Content="(test)"/>
         </StackPanel>
         <model:ReflectorControl x:Name="reflectorControl" Grid.Row="1"/>
     </Grid>

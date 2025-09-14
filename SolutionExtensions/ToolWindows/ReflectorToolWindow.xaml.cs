@@ -1,21 +1,16 @@
 ﻿using EnvDTE;
 using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Text;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace SolutionExtensions.ToolWindows
 {
@@ -42,14 +37,33 @@ namespace SolutionExtensions.ToolWindows
             Package = ToolWindowPane.Package as SolutionExtensionsPackage;
         }
 
-        private void DTE_Click(object sender, RoutedEventArgs e)
+        private void SetRootObject(string caption, object obj)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            var dte = Package.GetService<DTE, DTE>();
-            SetRootObject("DTE", dte);
+            reflectorControl.ViewModel.Children.Clear();
+            reflectorControl.ViewModel.Children.Add(reflectorControl.Factory.CreateRoot(caption, obj));
         }
 
-        private void TW1_Click(object sender, RoutedEventArgs e)
+        private void Zoom_Click(object sender, RoutedEventArgs e)
+        {
+            var scale = LayoutTransform as ScaleTransform;
+            if (scale == null)
+                scale = new ScaleTransform() { ScaleX = 1, ScaleY = 1 };
+            var s = scale.ScaleX;
+            if (s == 1) s = 1.5; else if (s == 1.5) s = 2.0; else if (s == 2.0) s = 1.0;
+            LayoutTransform = new ScaleTransform(s, s);
+        }
+
+        private void Test_Click(object sender, RoutedEventArgs e)
+        {
+            var name = "VsFont.EnvironmentFontSize";
+            var r1 = TryFindResource(name);
+            var r2 = Application.Current.TryFindResource(name);
+            foreach (var key in Application.Current.Resources.Keys)
+            {
+                Package.AddToOutputPane($"{key}={Application.Current.Resources[key]}");
+            }
+        }
+        private void TestToolwindows()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             try
@@ -72,26 +86,158 @@ namespace SolutionExtensions.ToolWindows
             }
         }
 
-        private void SetRootObject(string caption, object obj)
+        private void OpenMenu_Click(object sender, RoutedEventArgs e)
         {
-            reflectorControl.ViewModel.Children.Clear();
-            reflectorControl.ViewModel.Children.Add(reflectorControl.Factory.CreateRoot(caption, obj));
+            (sender as Button).OpenContextMenu();
         }
 
-        private void Zoom_Click(object sender, RoutedEventArgs e)
+        private void GenerateCs_Click(object sender, RoutedEventArgs e)
         {
-            LayoutTransform = new ScaleTransform(2.0, 2.0);            
-        }
-
-        private void Test_Click(object sender, RoutedEventArgs e)
-        {
-            var name = "VsFont.EnvironmentFontSize";
-            var r1 = TryFindResource(name);
-            var r2 = Application.Current.TryFindResource(name);
-            foreach (var key in Application.Current.Resources.Keys)
+            var node = reflectorControl.ViewModel.SelectedNode;
+            if (node == null)
+                return;
+            try
             {
-                Package.AddToOutputPane($"{key}={Application.Current.Resources[key]}");
+                reflectorControl.Factory.Builder.Clear();
+                var usedTypes = reflectorControl.Factory.Builder.UsedTypes;
+                var doneTypes = new HashSet<Type>();
+                void makeDone(Type t)
+                {
+                    doneTypes.Add(t);
+                    usedTypes.Remove(t);
+                }
+                int counter = 1;
+                var s = reflectorControl.Factory.BuildNodeSource(node);
+                makeDone(usedTypes.First());
+                while (usedTypes.Count > 0)
+                {
+                    counter++;
+                    if (counter >= 100)
+                    {
+                        s += $"\n// MAXIMUM {counter} reached";
+                        break;
+                    }
+                    var t = usedTypes.First();
+                    var skip = doneTypes.Contains(t) ||
+                        doneTypes.Any(x => x.MetadataToken == t.MetadataToken) ||
+                        String.IsNullOrEmpty(t.Namespace) ||
+                        t.Namespace == nameof(System) ||
+                        t.Namespace.StartsWith(nameof(System) + ".");
+                    if (!skip)
+                        s += "\n" + reflectorControl.Factory.Builder.BuildDeclaration(t);
+                    makeDone(t);
+                }
+                if (s == null)
+                    return;
+                ProcessSource(s);
             }
+            catch (Exception ex)
+            {
+                this.ShowException(ex);
+            }
+        }
+        private void GenerateCsTree_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                reflectorControl.Factory.Builder.Clear();
+                var root = reflectorControl.ViewModel.Children.First();
+                string s = "";
+                void recurse(ReflectorNode node)
+                {
+                    if (!String.IsNullOrEmpty(s))
+                        s += "\n";
+                    s += reflectorControl.Factory.BuildNodeSource(node);
+                    foreach (var item in node.Children)
+                    {
+                        recurse(item);
+                    }
+                }
+                recurse(root);
+                ProcessSource(s);
+            }
+            catch (Exception ex)
+            {
+                this.ShowException(ex);
+            }
+        }
+        private void ProcessSource(string s)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var fn = Path.Combine(Path.GetTempPath(), "dump.cs");
+            if (File.Exists(fn))
+            {
+                var current = File.ReadAllText(fn);
+                s += "//-------\n" + current;
+            }
+            File.WriteAllText(fn, s);
+            var dte = Package.GetService<DTE, DTE>();
+            var found = dte.Documents.Cast<Document>().FirstOrDefault(d => d.FullName.Equals(fn, StringComparison.OrdinalIgnoreCase));
+            try
+            {
+                if (found != null)
+                {
+                    var sel = found.Selection as TextSelection;
+                    if (sel != null)
+                    {
+                        sel.MoveToAbsoluteOffset(1);
+                        return;
+                    }
+                }
+                dte.Documents.Open(fn);
+            }
+            catch (Exception ex)
+            {
+                this.ShowException(ex);
+            }
+        }
+
+        private void DumpObj(string formula, string name)
+        {
+            var dte = Package.GetService<DTE, DTE>();
+            var fb = new Formula.ReflectionBinder();
+            //not working, because it is needed to cast/queryIntf to com
+            try
+            {
+                var result = fb.Evaluate(new { dte }, formula);
+                SetRootObject(name, result);
+            }
+            catch (Exception ex)
+            {
+                this.ShowException(ex);
+            }
+        }
+
+        private void DumpObj(string name, Func<object> objFactory)
+        {
+            try
+            {
+                Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();
+                var obj = objFactory();
+                SetRootObject(name, obj);
+            }
+            catch (Exception ex)
+            {
+                this.ShowException(ex);
+            }
+        }
+        private void DumpDTE_Click(object sender, RoutedEventArgs e)
+        {
+            var dte = Package.GetService<DTE, DTE>();
+            DumpObj("DTE", () => dte);
+        }
+
+
+        private void DumpAD_Click(object sender, RoutedEventArgs e)
+        {
+            var dte = Package.GetService<DTE, DTE>();
+            DumpObj("Active document", () =>dte.ActiveDocument);
+        }
+
+        private void DumpAW_Click(object sender, RoutedEventArgs e)
+        {
+            var dte = Package.GetService<DTE, DTE>();
+            DumpObj("Active window", () => dte.ActiveWindow);
 
         }
     }

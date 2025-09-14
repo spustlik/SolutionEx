@@ -34,6 +34,18 @@ namespace SolutionExtensions
             var resKey = pi.GetValue(local) as string;
             return resKey;
         }
+
+        public static void OpenContextMenu(this FrameworkElement element)
+        {
+            var ctx = element.ContextMenu;
+            if (ctx == null)
+                return;
+            ctx.DataContext = element.DataContext;
+            ctx.PlacementTarget = element;
+            ctx.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+            ctx.IsOpen = true;
+        }
+
         static void _Resources()
         {
             

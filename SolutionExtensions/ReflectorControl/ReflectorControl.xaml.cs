@@ -22,6 +22,10 @@ namespace SolutionExtensions
             get => DataContext as ReflectorVM;
             set => DataContext = value;
         }
+        private void treeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            ViewModel.SelectedNode = (sender as TreeView).SelectedItem as ReflectorNode; ;
+        }
         public ReflectorFactory Factory { get; } = new ReflectorFactory();
 
         private void CallExpand<T>(object sender, Action<T> action) where T : class
@@ -78,21 +82,6 @@ namespace SolutionExtensions
             CallExpand<ReflectorValueNode>(sender, node => Factory.ExpandEnumerable(node));
         }
 
-        private void Generate_Click(object sender, RoutedEventArgs e)
-        {
-            var node = (sender as FrameworkElement).DataContext as ReflectorNode;
-            if (node == null) return;
-            var s = Factory.BuildNodeSource(node);
-            if (s == null)
-                return;
-            var fn = Path.Combine(Path.GetTempPath(), "dump.cs");
-            if (File.Exists(fn))
-            {
-                var current = File.ReadAllText(fn);
-                s += "//-------\n" + current;
-            }
-            File.WriteAllText(fn, s);
-            //TODO: if not opened in DTE, open
-        }
+
     }
 }
