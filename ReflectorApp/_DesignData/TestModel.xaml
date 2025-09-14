@@ -1,7 +1,0 @@
-﻿<local:TestModel
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:local="clr-namespace:Reflector"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Prop1="test prop"
-    >
-</local:TestModel>

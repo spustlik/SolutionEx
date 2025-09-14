@@ -56,9 +56,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Reflector\Reflector.csproj">
-      <Project>{254451a7-c5c8-49b0-81de-d1dc3e574d91}</Project>
-      <Name>Reflector</Name>
+    <ProjectReference Include="..\SolutionExtensions\SolutionExtensions.csproj">
+      <Project>{abc0b3a4-1a73-4607-ae47-223cd5ad3ee9}</Project>
+      <Name>SolutionExtensions</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />

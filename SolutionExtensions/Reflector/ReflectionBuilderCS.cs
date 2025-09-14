@@ -11,8 +11,7 @@ using System.Text;
  *   - group namespaces
  *   - smart usings
  * TODO: add options:
- * - skip COM/interop attributes
- * - 
+ * - skip COM/interop attributes, including method args attrs
  */
 namespace SolutionExtensions.Reflector
 {
@@ -59,8 +58,8 @@ namespace SolutionExtensions.Reflector
         private static bool IsKnownTypeName(Type t)
         {
             return
-                t.Namespace == null || 
-                t.Namespace == nameof(System) || 
+                t.Namespace == null ||
+                t.Namespace == nameof(System) ||
                 t.Namespace == nameof(System.Runtime.InteropServices);
         }
 
@@ -83,7 +82,7 @@ namespace SolutionExtensions.Reflector
             return null;
         }
 
-        
+
         class IndentableWriter
         {
             private int indent;
@@ -179,24 +178,60 @@ namespace SolutionExtensions.Reflector
         {
             foreach (var attr in attrs)
             {
-                var name = GetTypeName(attr.GetType(), useShort:true);
-                if (name.EndsWith(nameof(Attribute)))
-                    name = name.Substring(0, name.Length - nameof(Attribute).Length);
-                var args = new List<(string, object)>();
-                foreach (var pi in attr.GetType().GetProperties())
-                {
-                    if (pi.DeclaringType == typeof(Attribute))
-                        continue;
-                    var pv = pi.GetValue(attr);
-                    if (pv != null)
-                        args.Add((pi.Name, pv));
-                }
-                var sargs = args.Select(x => x.Item1 + " = " + BuildLiteral(x.Item2));
-                //can be optimized to use constructor, attr.GetType().GetConstructors()
-                //if only 1, it is possible easy
-                //but how to map name of property to ctor arg?
-                w.WriteLine($"[{name}({String.Join(", ", sargs)})]");
+                GenerateAttribuet(w, attr);
             }
+        }
+
+        class NamedParam
+        {
+            public string Name { get; set; }
+            public object Value { get; set; }
+        }
+        private void GenerateAttribuet(IndentableWriter w, object attr)
+        {
+            var name = GetTypeName(attr.GetType(), useShort: true);
+            if (name.EndsWith(nameof(Attribute)))
+                name = name.Substring(0, name.Length - nameof(Attribute).Length);
+            var args = new List<NamedParam>();
+            foreach (var pi in attr.GetType().GetProperties())
+            {
+                if (pi.DeclaringType == typeof(Attribute))
+                    continue;
+                var pv = pi.GetValue(attr);
+                if (pv != null)
+                    args.Add(new NamedParam() { Name = pi.Name, Value = pv });
+            }
+            //can be optimized to use constructor, attr.GetType().GetConstructors()
+            //if only 1, it is possible easy
+            //but how to map name of property to ctor arg?
+            var sargs = args.Select(x => x.Name + " = " + BuildLiteral(x.Value));
+            var ctors = attr.GetType().GetConstructors();
+            foreach (var ctor in ctors)
+            {
+                if (ConstructorMatches(ctor, args))
+                {
+                    sargs = args.Select(x => BuildLiteral(x.Value));
+                    break;
+                }
+            }
+            w.WriteLine($"[{name}({String.Join(", ", sargs)})]");
+        }
+
+        private bool ConstructorMatches(ConstructorInfo ctor, List<NamedParam> args)
+        {
+            var parameters = ctor.GetParameters();
+            if (parameters.Length != args.Count)
+                return false;
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                var param = parameters[i];
+                var arg = args[i];
+                if (!param.Name.Equals(arg.Name, StringComparison.InvariantCultureIgnoreCase))
+                    return false;
+                if (arg.Value != null && !param.ParameterType.IsAssignableFrom(arg.Value.GetType()))
+                    return false;
+            }
+            return true;
         }
 
         public string BuildLiteral(object value, bool niceNumbers = true)
@@ -295,7 +330,7 @@ namespace SolutionExtensions.Reflector
             var parts = new List<string>();
             var at = BuildAttributes(arg.GetCustomAttributes().ToArray());
             if (!string.IsNullOrEmpty(at))
-                parts.Add(at.Replace("\n"," "));
+                parts.Add(at.Replace("\n", " "));
             if (arg.IsIn)
                 parts.Add("in");
             if (arg.IsOut)
