@@ -69,10 +69,14 @@
     <Compile Include="Formula\Syntax.cs" />
     <Compile Include="Formula\SyntaxTree.cs" />
     <Compile Include="Formula\Tokenizer.cs" />
+    <Compile Include="OleExtensions.cs" />
     <Compile Include="ReflectorControl\ReflectorControl.xaml.cs">
       <DependentUpon>ReflectorControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="ReflectorControl\ReflectorModel.cs" />
+    <Compile Include="ReflectorControl\ReflectorNodeBuilder.cs" />
+    <Compile Include="ReflectorControl\ReflectorTextBuilder.cs" />
+    <Compile Include="ReflectorControl\ReflectorXmlBuilder.cs" />
     <Compile Include="Reflector\ReflectionBuilderCS.cs" />
     <Compile Include="Reflector\ReflectionCOM.cs" />
     <Compile Include="Extensions\ReflectionDumper.cs" />

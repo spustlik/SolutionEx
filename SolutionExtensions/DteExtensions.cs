@@ -1,5 +1,6 @@
 ﻿using EnvDTE;
 using EnvDTE80;
+using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Threading;
@@ -8,6 +9,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace SolutionExtensions
@@ -135,7 +137,7 @@ namespace SolutionExtensions
             //var command = GetCommandByName(dte2, "SolutionExtensions.MyCommand");
             // Assign shortcut if not already present
             var bindings = ((object[])command.Bindings).Cast<string>().ToList();
-            if (clear) 
+            if (clear)
                 bindings.Clear();
             //what about "Text Editor::Ctrl+E, Ctrl+E" ?
             if (!shortCut.Contains("::"))
@@ -182,6 +184,7 @@ namespace SolutionExtensions
                 yield return item.FileNames[(short)i];
             }
         }
+
 
         static void addFile(DTE dte, string fn)
         {

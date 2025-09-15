@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace SolutionExtensions.Reflector
@@ -85,6 +87,19 @@ namespace SolutionExtensions.Reflector
                 type = type.BaseType;
             }
             return null;
+        }
+
+        private static Dictionary<Type, Func<object, object>> _converters = new Dictionary<Type, Func<object, object>>();
+        public static object CastToType(object obj, Type type)
+        {
+            if(!_converters.TryGetValue(type, out var fn))
+            {
+                var body = Expression.Convert(Expression.Constant(obj), type);
+                var expr = Expression.Lambda<Func<object, object>>(body, Expression.Parameter(typeof(object), "obj"));
+                fn = expr.Compile();
+                _converters[type] = fn;
+            }
+            return fn(obj);
         }
     }
 }

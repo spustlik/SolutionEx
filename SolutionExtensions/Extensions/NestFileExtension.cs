@@ -149,17 +149,21 @@ namespace SolutionExtensions.Extensions
 
         private bool UnNest(UIHierarchyItem item)
         {
+            var p = item.Collection.Parent as EnvDTE.ProjectItem;
+            var p2 = (item.Collection.Parent as UIHierarchyItem).Object as EnvDTE.ProjectItem;
             var parent = (item as dynamic).Collection.Parent.Object; //project or folder, COM
             Log($"item: {item.Name} {GetFileName(item)} parent: {parent.Name}"); 
             var items = item.UIHierarchyItems.Cast<UIHierarchyItem>().ToArray();
             foreach (var sub in items)
             {
-                var subfn = GetFileName(sub);
+                var subfn = sub.Name;
                 Log($"  subitem: {sub.Name} {subfn}"); ///sub.Object is COM
                 //(sub.Object as dynamic).ProjectItems.Remove(); // neexistuje sub.Collection.Remove(); 
-                (sub.Object as dynamic).Remove(); //tohle funguje, ale zustane hierarchy
+                (sub.Object as EnvDTE.ProjectItem)?.Remove(); //tohle funguje, ale zustane hierarchy
                 // item.Collection.Parent.Object.ProjectItems.AddFromFile(sub.Object.FileNames(0));
-                parent.ProjectItems.AddFromFile(subfn); //pokud se neprida, odstrani se z projektu, ale porad je jako subitem
+                //parent.ProjectItems.AddFromFile(subfn); //pokud se neprida, odstrani se z projektu, ale porad je jako subitem
+                //sub.P
+                p.ProjectItems.AddFromFile(subfn);
             }
             return true;
         }

@@ -54,13 +54,19 @@ namespace SolutionExtensions.Reflector
         }
         public static object QueryInterface(object comObject, Type interfaceType)
         {
-            var iunknown = Marshal.GetIUnknownForObject(comObject);
             var iid = interfaceType.GUID;
+            return QueryInterface(comObject, iid);
+        }
+
+        public static object QueryInterface(object comObject, Guid iid)
+        {
+            var iunknown = Marshal.GetIUnknownForObject(comObject);
             var hr = Marshal.QueryInterface(iunknown, ref iid, out var ipointer);
             if (hr == 0 && ipointer != IntPtr.Zero)
                 return Marshal.GetObjectForIUnknown(ipointer);
             return null;
         }
+
         public static T QueryInterface<T>(object comObject) where T : class
         {
             return QueryInterface(comObject, typeof(T)) as T;

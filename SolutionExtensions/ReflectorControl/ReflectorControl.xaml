@@ -18,6 +18,7 @@
             <conv:EmptyConverter x:Key="emptyToVisi" Inner="{StaticResource boolToVisi}"/>
             <conv:EmptyConverter x:Key="notEmpty" Negate="True"/>
             <PathGeometry x:Key="TreeArrow" Figures="M0,0 L0,6 L6,0 z"/>
+            <!--TODO: vs colors-->
             <SolidColorBrush x:Key="TreeViewItem.TreeArrow.Static.Stroke" Color="#FF818181"/>
             <SolidColorBrush x:Key="TreeViewItem.TreeArrow.Static.Fill" Color="#FFFFFFFF"/>
             <SolidColorBrush x:Key="TreeViewItem.TreeArrow.MouseOver.Stroke" Color="#FF27C7F7"/>
@@ -74,6 +75,8 @@
                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                 <!--<Setter Property="Background" Value="Transparent"/>-->
                 <Setter Property="Foreground" Value="{DynamicResource {x:Static ui:TreeViewColors.BackgroundTextBrushKey}}"/>
+                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="TreeViewItem">
@@ -236,6 +239,7 @@
                             <TextBlock Visibility="{Binding PropertyModifiers, Converter={StaticResource notEmptyToVisi}}">
                                 <Run Text="{Binding PropertyModifiers}" Style="{StaticResource codeRun}"/>
                             </TextBlock>
+                            <TextBlock Text="{Binding ValueSimpleText}"/>
                         </StackPanel>
                     </ContentControl.ToolTip>
                     <Grid>
@@ -313,10 +317,17 @@
                         <ContentControl Style="{StaticResource icon}" 
                                         Content="{Binding Index, StringFormat={}[{0}]}"
                                         Background="#4040ff40"/>
-                        <Canvas Style="{StaticResource canvasValue}">
+                        <Canvas Style="{StaticResource canvasValue}" 
+                                Grid.Column="1" Grid.ColumnSpan="2">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding ValueSimpleText}"/>
+                                <TextBlock Text="{Binding ValueSimpleText}" Padding="0,0,0,5"/>
                                 <TextBlock Text="{Binding ValueTypeName}" FontWeight="Bold"/>
+
+                                <TextBlock Padding="5,0,0,0" Visibility="{Binding ItemDefaultValue, Converter={StaticResource notEmptyToVisi}}">
+                                    <Run Text="{Binding ItemDefaultName}" FontWeight="Bold"/>
+                                    <Run Text=" = "/>
+                                    <Run Text="{Binding ItemDefaultValue}"/>
+                                </TextBlock>
                             </StackPanel>
                         </Canvas>
                     </Grid>

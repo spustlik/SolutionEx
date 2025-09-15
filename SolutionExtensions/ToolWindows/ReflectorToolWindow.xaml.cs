@@ -2,7 +2,6 @@
 using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.Text;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -120,11 +119,12 @@ namespace SolutionExtensions.ToolWindows
                     var t = usedTypes.First();
                     var skip = doneTypes.Contains(t) ||
                         doneTypes.Any(x => x.MetadataToken == t.MetadataToken) ||
+                        doneTypes.Any(x => x.GUID == t.GUID) ||
                         String.IsNullOrEmpty(t.Namespace) ||
                         t.Namespace == nameof(System) ||
                         t.Namespace.StartsWith(nameof(System) + ".");
                     if (!skip)
-                        s += "\n" + reflectorControl.Factory.Builder.BuildDeclaration(t);
+                        s += $"\n// MetadataToken={t.MetadataToken}\n" + reflectorControl.Factory.Builder.BuildDeclaration(t);
                     makeDone(t);
                 }
                 if (s == null)
@@ -231,14 +231,89 @@ namespace SolutionExtensions.ToolWindows
         private void DumpAD_Click(object sender, RoutedEventArgs e)
         {
             var dte = Package.GetService<DTE, DTE>();
-            DumpObj("Active document", () =>dte.ActiveDocument);
+            DumpObj("Active document", () => dte.ActiveDocument);
         }
 
         private void DumpAW_Click(object sender, RoutedEventArgs e)
         {
             var dte = Package.GetService<DTE, DTE>();
+
+            //aw is always self
             DumpObj("Active window", () => dte.ActiveWindow);
 
         }
+
+        private void DumpTest_Click(object sender, RoutedEventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            try
+            {
+                var dte = Package.GetService<DTE, DTE>();
+                var svc = dte.GetOLEServiceProvider(true);
+                var shell = svc.QueryService<SVsShell>() as IVsShell;
+                var packages = shell.GetPackages().ToArray();
+                var found = packages.FirstOrDefault(p => p.GetType().GUID == typeof(SolutionExtensionsPackage).GUID);
+                if (found != null)
+                {
+                    DumpObj("found self", () => found);
+                }
+                else
+                {
+                    DumpObj("Packages", () => packages);
+                }
+            }
+            catch (Exception ex)
+            {
+                this.ShowException(ex);
+            }
+        }
+
+        private void GenerateXmlTree_Click(object sender, RoutedEventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            try
+            {
+                var x = reflectorControl.Factory.BuildNodeXml(reflectorControl.ViewModel);
+                var fn = Path.Combine(Path.GetTempPath(), "tree.xml");
+                x.Save(fn);
+                var dte = Package.GetService<DTE, DTE>();
+                dte.Documents.Open(fn);
+            }
+            catch (Exception ex)
+            {
+                this.ShowException(ex);
+            }
+        }
+
+        private void GenerateText_Click(object sender, RoutedEventArgs e)
+        {
+            var node = reflectorControl.ViewModel.SelectedNode;
+            if (node == null)
+                return;
+            var s = reflectorControl.Factory.BuilderText.Build(node);
+            if (String.IsNullOrEmpty(s))
+                return;
+            Clipboard.SetText(s);
+        }
+
+        private void Clear_Click(object sender, RoutedEventArgs e)
+        {
+            var node = reflectorControl.ViewModel.SelectedNode;
+            if (node == null)
+                return;
+            reflectorControl.Factory.ClearChildren(node);
+        }
+
+        private void ContextMenu_Opening(object sender, ContextMenuEventArgs e)
+        {
+            var dataCtx = (e.OriginalSource as FrameworkElement)?.DataContext;
+            var mnu = reflectorControl.ContextMenu;
+            if (mnu != null && dataCtx is ReflectorNode node)
+            {
+                mnu.DataContext = dataCtx;
+                reflectorControl.ViewModel.SelectedNode = node;
+            }
+        }
+
     }
 }

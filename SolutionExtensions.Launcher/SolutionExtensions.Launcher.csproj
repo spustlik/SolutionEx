@@ -78,10 +78,16 @@
     <Compile Include="..\SolutionExtensions\Launcher\RunningComObjects.cs">
       <Link>RunningComObjects.cs</Link>
     </Compile>
+    <Compile Include="..\SolutionExtensions\OleExtensions.cs">
+      <Link>OleExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\SolutionExtensions\Reflector\ReflectionCOM.cs">
+      <Link>ReflectionCOM.cs</Link>
+    </Compile>
     <Compile Include="ExtensionRunner.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServiceProiderObj.cs" />
+    <Compile Include="ServiceProviderDelegate.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

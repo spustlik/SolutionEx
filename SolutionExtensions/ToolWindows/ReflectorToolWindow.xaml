@@ -23,6 +23,8 @@
             <model:EmptyConverter x:Key="notEmptyToVisi" Inner="{StaticResource boolToVisi}" Negate="True"/>
             <model:EmptyConverter x:Key="emptyToVisi" Inner="{StaticResource boolToVisi}"/>
             <model:EmptyConverter x:Key="notEmpty" Negate="True"/>
+            <Style TargetType="ContextMenu" BasedOn="{StaticResource {x:Static shell:VsResourceKeys.ContextMenuStyleKey}}">
+            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
@@ -48,21 +50,33 @@
                         <MenuItem Header="DTE" Click="DumpDTE_Click"/>
                         <MenuItem Header="Active document" Click="DumpAD_Click"/>
                         <MenuItem Header="Active window" Click="DumpAW_Click"/>
+                        <MenuItem Header="test" Click="DumpTest_Click"/>
                     </ContextMenu>
                 </Button.ContextMenu>
             </Button>
             <Button Content="💡Generate▾" Click="OpenMenu_Click">
                 <Button.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="c# of selected" Click="GenerateCs_Click"
-                                  IsEnabled="{Binding ViewModel.SelectedNode,ElementName=reflectorControl, Converter={StaticResource notEmpty}}"
-                                  />
+                        <MenuItem Header="Copy values" Click="GenerateText_Click" IsEnabled="{Binding ViewModel.SelectedNode,ElementName=reflectorControl, Converter={StaticResource notEmpty}}"/>
+                        <Separator/>
+                        <MenuItem Header="c# of selected" Click="GenerateCs_Click" IsEnabled="{Binding ViewModel.SelectedNode,ElementName=reflectorControl, Converter={StaticResource notEmpty}}"/>
                         <MenuItem Header="c# of expanded" Click="GenerateCsTree_Click"/>
+                        <MenuItem Header="XML of expanded" Click="GenerateXmlTree_Click"/>
+                        <Separator/>
+                        <MenuItem Header="Clear" Click="Clear_Click" IsEnabled="{Binding ViewModel.SelectedNode,ElementName=reflectorControl, Converter={StaticResource notEmpty}}"/>
                     </ContextMenu>
                 </Button.ContextMenu>
             </Button>
-            <Button Click="Test_Click" Content="(test)"/>
         </StackPanel>
-        <model:ReflectorControl x:Name="reflectorControl" Grid.Row="1"/>
+        <model:ReflectorControl x:Name="reflectorControl" Grid.Row="1"
+                                ContextMenuOpening="ContextMenu_Opening">
+            <model:ReflectorControl.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Copy values" Click="GenerateText_Click" IsEnabled="{Binding ViewModel.SelectedNode,ElementName=reflectorControl, Converter={StaticResource notEmpty}}"/>
+                    <Separator/>
+                    <MenuItem Header="Clear" Click="Clear_Click" IsEnabled="{Binding ViewModel.SelectedNode,ElementName=reflectorControl, Converter={StaticResource notEmpty}}"/>
+                </ContextMenu>
+            </model:ReflectorControl.ContextMenu>
+        </model:ReflectorControl>
     </Grid>
 </UserControl>

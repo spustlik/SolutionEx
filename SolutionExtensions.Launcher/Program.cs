@@ -1,8 +1,11 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.Shell.Interop;
+using SolutionExtensions.Reflector;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 
@@ -85,6 +88,27 @@ namespace SolutionExtensions.Launcher
             }
             //instantiate dte from moniker
             Console.WriteLine($"{LauncherProcess.PREPARE}: Getting running DTE from ${cmd.MonikerName}");
+            var dte = GetDTE(cmd);
+            IServiceProvider serviceProvider = null;
+            try
+            {
+                serviceProvider = GetServiceProvider(cmd.PackageId, dte);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("WARNING: " + ex.Message);
+            }
+            //run extension
+            Console.WriteLine($"{LauncherProcess.RUN}: Running extension");
+            //to simplify code, which will break
+            var runner = new ExtensionRunner(type, method, cmd.BreakDebugger);
+            runner.Run(dte, serviceProvider);
+            Console.WriteLine($"{LauncherProcess.DONE}");
+        }
+
+        private static EnvDTE.DTE GetDTE(Arguments cmd)
+        {
+            //Marshal.GetActiveObject() //needs progid, not moniker
             var rot = new RunningComObjects();
             var dteCom = rot.GetRunningComObject(cmd.MonikerName);
             if (dteCom == null)
@@ -92,25 +116,32 @@ namespace SolutionExtensions.Launcher
             var dte = dteCom as EnvDTE.DTE;
             if (dte == null)
                 throw new ApplicationException($"Moniker COM is not DTE");
-            var package = GetPackage(cmd.PackageId, dte, rot);
-            //run extension
-            Console.WriteLine($"{LauncherProcess.RUN}: Running extension");
-            //to simplify code which will break
-            var runner = new ExtensionRunner(type, method, cmd.BreakDebugger);
-            runner.Run(dte, package);
-            Console.WriteLine($"{LauncherProcess.DONE}");
+            return dte;
         }
 
-        private static IServiceProvider GetPackage(string id, EnvDTE.DTE dte, RunningComObjects rot)
+        private static IServiceProvider GetServiceProvider(string id, EnvDTE.DTE dte)
         {
-            //sharing obj not working:, see ExtensionDebugger.GetPackageId
-            var sp = dte as IServiceProvider;
-            if (sp == null)
+            var svc = dte.GetOLEServiceProvider(throwIfNotFound: true);
+            var sp = new ServiceProviderDelegate((type =>
             {
-                //6D5140C1-7436-11CE-8034-00AA006009FA
-                //var fsp = dte as System.Windows.Forms.IOleServiceProvider;
-            }
+                return svc.QueryService(type.GUID);
+            }));
             return sp;
+            /*
+            var shell = svc.QueryService<SVsShell>() as IVsShell;
+            if (shell == null) throw new Exception($"Cannot get VSShell from DTE");
+            var packages = shell.GetPackages().ToArray();
+            var guid = new Guid(id);
+
+            //not working, all objects are COM
+            //var found = packages.FirstOrDefault(p => p.GetType().GUID == guid);
+            //not working either
+            var found = packages.Select(x => ReflectionCOM.QueryInterface(x, guid)).FirstOrDefault(x => x != null);               
+            if (found == null) throw new Exception($"Cannot find package {guid}");
+            var sp = found as IServiceProvider;
+            if (sp == null) throw new Exception($"Package is not IServiceProvider");
+            return sp;
+            */
         }
 
         enum ActionEnum

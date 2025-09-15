@@ -63,6 +63,21 @@ Your extension is just compiled assembly and should be in your solution.
 
 ### Todo
  * [ ] how to find package argument obj in Launcher from DTE ?
+    * probably not posible, without registering assembly to allow marshalling (usage from another process)
+    * for same reson IServiceProvider cannot be used (marshalling)
  * [ ] how to add exe to vsix ?
  * [ ] add images to doc
  * [ ] nest file is not unnesting
+ * [ ] custom variables in cfg
+ * [ ] VS colors on treeview expader icon
+ * [ ] use [ComDefaultInterface] in reflector factory
+
+ #### Nest item notes
+ - - dte.Solution.Projects[?] as EnvDTE.Project
+   - .ProjectItems[?] as EnvDTE.ProjectItem
+   - .Name=src
+   - not interesting .Object as VSLangProj.VSProjectItem--
+   - .ProjectItems[0] as EnvDTE.ProjectItem
+   - .Name=nested
+   //no REmove/Delete on ProjectItems
+ 

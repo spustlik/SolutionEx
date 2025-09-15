@@ -1,11 +1,16 @@
-﻿using SolutionExtensions;
+﻿using Microsoft.VisualStudio.VCProjectEngine;
+using SolutionExtensions;
 using SolutionExtensions.Reflector;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Windows.Forms;
+using System.Xml.Linq;
 
 namespace SolutionExtensions
 {
@@ -29,6 +34,25 @@ namespace SolutionExtensions
         {
             get => _error;
             set => Set(ref _error, value);
+        }
+        #endregion
+
+        //bound to IsSelected of TreeViewItem, set to select
+        #region IsSelected property
+        private bool _isSelected;
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set => Set(ref _isSelected, value);
+        }
+        #endregion
+        //bound to IsExpanded
+        #region IsExpanded property
+        private bool _isExpanded;
+        public bool IsExpanded
+        {
+            get => _isExpanded;
+            set => Set(ref _isExpanded, value);
         }
         #endregion
 
@@ -211,6 +235,25 @@ namespace SolutionExtensions
             set => Set(ref _index, value);
         }
         #endregion
+
+        #region ItemDefaultName property
+        private string _itemDefaultName;
+        public string ItemDefaultName
+        {
+            get => _itemDefaultName;
+            set => Set(ref _itemDefaultName, value);
+        }
+        #endregion
+
+        #region ItemDefaultValue property
+        private string _itemDefaultValue;
+        public string ItemDefaultValue
+        {
+            get => _itemDefaultValue;
+            set => Set(ref _itemDefaultValue, value);
+        }
+        #endregion
+
     }
     public class ReflectorMethod : ReflectorNode
     {
@@ -268,28 +311,44 @@ namespace SolutionExtensions
     {
         public ObservableCollection<ReflectorNode> Children { get; } = new ObservableCollection<ReflectorNode>();
 
+        //set from TV event, or you canuse it to select node
         #region SelectedNode property
         private ReflectorNode _selectedNode;
         public ReflectorNode SelectedNode
         {
             get => _selectedNode;
-            set => Set(ref _selectedNode, value);
+            set
+            {
+                if (value != null) 
+                    value.IsSelected = true;
+                else 
+                    _selectedNode.IsSelected = false;
+                Set(ref _selectedNode, value);
+            }
         }
         #endregion
 
     }
-
     public class ReflectorFactory
     {
-        public ReflectionCOM COM { get; } = new ReflectionCOM();
-        public ReflectionBuilderCS Builder { get; } = new ReflectionBuilderCS();
+        public ReflectionCOM COM { get; }
+        public ReflectionBuilderCS Builder { get; }
+        public ReflectorXmlBuilder BuilderXml { get; }
+        public ReflectorTextBuilder BuilderText { get; }
+        public ReflectorFactory()
+        {
+            COM = new ReflectionCOM();
+            Builder = new ReflectionBuilderCS();
+            BuilderXml = new ReflectorXmlBuilder(Builder);
+            BuilderText = new ReflectorTextBuilder(Builder);
+        }
         public ReflectorRoot CreateRoot(string rootType, object value)
         {
             var root = new ReflectorRoot() { RootType = rootType };
             SetValue(root, value);
             return root;
         }
-        private void SetValue(ReflectorValueNode node, object value)
+        private void SetValue(ReflectorValueNode node, object value, Type valueType = null)
         {
             node.Value = value;
             if (value == null)
@@ -299,7 +358,7 @@ namespace SolutionExtensions
                 return;
             }
             node.IsNull = false;
-            SetValueType(node, value);
+            SetValueType(node, valueType ?? value.GetType());
             if (!node.IsSimpleType)
             {
                 node.CanExpandEnumerable = node.Value is IEnumerable;
@@ -309,9 +368,9 @@ namespace SolutionExtensions
                 node.ValueSimpleText = Builder.BuildLiteral(value);
             }
         }
-        private void SetValueType(ReflectorTypeNode node, object value)
+        private void SetValueType(ReflectorTypeNode node, Type valueType)
         {
-            node.ValueType = value.GetType();
+            node.ValueType = valueType;
             node.ValueTypeName = Builder.GetTypeName(node.ValueType);
             node.IsSimpleType = node.ValueType == typeof(string) ||
                 node.ValueType.IsPrimitive ||
@@ -319,8 +378,8 @@ namespace SolutionExtensions
             var isCOM = ReflectionCOM.IsCOMObjectType(node.ValueType);
             if (!node.IsSimpleType)
             {
-                node.CanExpandMethods = !isCOM;
-                node.CanExpandProperties = !isCOM;
+                node.CanExpandMethods = !isCOM && node.ValueType.GetMethods().Length > 0;
+                node.CanExpandProperties = !isCOM && node.ValueType.GetProperties().Length > 0;
                 node.CanExpandInterfaces = node.ValueType.GetInterfaces().Length > 0 || isCOM;
             }
         }
@@ -329,7 +388,7 @@ namespace SolutionExtensions
             if (!parent.CanExpandMethods)
                 return;
             parent.CanExpandMethods = false;
-            foreach (var mi in parent.ValueType.GetMethods().OrderBy(x=>x.Name))
+            foreach (var mi in parent.ValueType.GetMethods().OrderBy(x => x.Name))
             {
                 //if (mi.DeclaringType != parent.ValueType)
                 //    continue;
@@ -351,7 +410,7 @@ namespace SolutionExtensions
             if (!parent.CanExpandProperties)
                 return;
             parent.CanExpandProperties = false;
-            foreach (var pi in parent.ValueType.GetProperties().OrderBy(x=>x.Name))
+            foreach (var pi in parent.ValueType.GetProperties().OrderBy(x => x.Name))
             {
                 //if (pi.DeclaringType != parent.ValueType)
                 //    continue;
@@ -398,13 +457,40 @@ namespace SolutionExtensions
             int index = 0;
             try
             {
+                Type realItemType = null;
+                PropertyInfo realDefProperty = null;
+                if (parent is ReflectorPropertyValue pv)
+                {
+                    var parentType = pv.PropertyType;
+                    var defMember = parentType.GetCustomAttribute<DefaultMemberAttribute>();
+                    if (defMember != null)
+                    {
+                        var mi = parentType.GetMethod(defMember.MemberName);
+                        if (mi != null)// && mi.GetParameters().Length == 1)
+                        {
+                            realItemType = mi.ReturnType;
+                            defMember = realItemType.GetCustomAttribute<DefaultMemberAttribute>();
+                            if (defMember != null)
+                                realDefProperty = realItemType.GetProperty(defMember.MemberName);
+                        }
+                    }
+                }
                 foreach (var item in parent.Value as IEnumerable)
                 {
                     var node = new ReflectorEnumItem()
                     {
                         Index = index++,
                     };
-                    SetValue(node, item);
+                    var obj = item;
+                    //if (realItemType != null)
+                    //    obj = ReflectionHelper.Cast(obj, realItemType);
+                    SetValue(node, obj, realItemType);
+                    if (realItemType != null)
+                    {
+                        node.CanExpandInterfaces = true;
+                        node.ItemDefaultName = realDefProperty.Name;
+                        node.ItemDefaultValue = realDefProperty.GetValue(obj) + "";
+                    }
                     parent.Children.Add(node);
                 }
             }
@@ -462,25 +548,40 @@ namespace SolutionExtensions
             }
             node.Error += ex.Message;
         }
+        public void ClearChildren(ReflectorNode node)
+        {
+            node.Children.Clear();
+            node.CanExpandEnumerable = true;
+            node.CanExpandInterfaces = true;
+            node.CanExpandMethods = true;
+            node.CanExpandProperties = true;
+        }
         public string BuildNodeSource(ReflectorNode node)
         {
-            if (node is ReflectorPropertyValue propNode)
+            switch (node)
             {
-                //property with value ->class of value type
-                if (propNode.ValueType != null)
-                    return Builder.BuildDeclaration(propNode.ValueType);
-                else
-                    //property without value - property type, no:containing class (pi.declaringtype)
-                    return Builder.BuildDeclaration(propNode.PropertyInfo.PropertyType);
+                case ReflectorPropertyValue propNode:
+                    //property with value ->class of value type
+                    if (propNode.ValueType != null)
+                        return Builder.BuildDeclaration(propNode.ValueType);
+                    else
+                        //property without value - property type, no:containing class (pi.declaringtype)
+                        return Builder.BuildDeclaration(propNode.PropertyInfo.PropertyType);
+                case ReflectorMethod methodNode:
+                    return Builder.BuildDeclaration(methodNode.MethodInfo.DeclaringType);
+                case ReflectorTypeNode typeNode:
+                    return Builder.BuildDeclaration(typeNode.ValueType);
+                default:
+                    return null;
             }
-            //method -> containing class
-            if (node is ReflectorMethod methodNode)
-                return Builder.BuildDeclaration(methodNode.MethodInfo.DeclaringType);
-            //enum item->class of value
-            //interface->full intf
-            if (node is ReflectorTypeNode typeNode)
-                return Builder.BuildDeclaration(typeNode.ValueType);
-            return null;
         }
+        public XElement BuildNodeXml(ReflectorVM vm)
+        {
+            var rootNode = vm.Children.OfType<ReflectorRoot>().FirstOrDefault();
+            if (rootNode == null)
+                throw new InvalidOperationException("Empty tree");
+            return BuilderXml.Build(rootNode);
+        }
+
     }
 }

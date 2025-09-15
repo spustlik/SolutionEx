@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SolutionExtensions.Launcher
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SolutionExtensionsTests", "SolutionExtensionsTests\SolutionExtensionsTests.csproj", "{5E2E4923-E520-43EC-95B6-0EBCD8FC8A20}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.VisualStudio.Interop", "C:\Temp\_VS\Microsoft.VisualStudio.Interop\Microsoft.VisualStudio.Interop.csproj", "{4DA67D2A-E261-82B7-3541-BE1425546991}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -76,6 +78,18 @@ Global
 		{5E2E4923-E520-43EC-95B6-0EBCD8FC8A20}.Release|arm64.Build.0 = Release|Any CPU
 		{5E2E4923-E520-43EC-95B6-0EBCD8FC8A20}.Release|x86.ActiveCfg = Release|Any CPU
 		{5E2E4923-E520-43EC-95B6-0EBCD8FC8A20}.Release|x86.Build.0 = Release|Any CPU
+		{4DA67D2A-E261-82B7-3541-BE1425546991}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DA67D2A-E261-82B7-3541-BE1425546991}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4DA67D2A-E261-82B7-3541-BE1425546991}.Debug|arm64.ActiveCfg = Debug|Any CPU
+		{4DA67D2A-E261-82B7-3541-BE1425546991}.Debug|arm64.Build.0 = Debug|Any CPU
+		{4DA67D2A-E261-82B7-3541-BE1425546991}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4DA67D2A-E261-82B7-3541-BE1425546991}.Debug|x86.Build.0 = Debug|Any CPU
+		{4DA67D2A-E261-82B7-3541-BE1425546991}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DA67D2A-E261-82B7-3541-BE1425546991}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4DA67D2A-E261-82B7-3541-BE1425546991}.Release|arm64.ActiveCfg = Release|Any CPU
+		{4DA67D2A-E261-82B7-3541-BE1425546991}.Release|arm64.Build.0 = Release|Any CPU
+		{4DA67D2A-E261-82B7-3541-BE1425546991}.Release|x86.ActiveCfg = Release|Any CPU
+		{4DA67D2A-E261-82B7-3541-BE1425546991}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

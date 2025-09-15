@@ -1,5 +1,4 @@
 ﻿using EnvDTE;
-using Microsoft.VisualStudio.Shell;
 using System;
 using System.IO;
 using System.Linq;
@@ -39,13 +38,13 @@ namespace SolutionExtensions
         }
 
 
-        public static void RunExtension(Type type, MethodInfo method, DTE dte, IServiceProvider package)
+        public static void RunExtension(Type type, MethodInfo method, DTE dte, IServiceProvider serviceProvider)
         {
             //var (method, type) = FindExtensionMethod(assembly, className, throwIfNotFound: true);
             var parameters = new object[method.GetParameters().Length];
             parameters[0] = dte;
             if (parameters.Length > 1)
-                parameters[1] = package; //can be used as IServiceProvider, etc.
+                parameters[1] = serviceProvider;
             var instance = method.IsStatic ? null : Activator.CreateInstance(type);
             try
             {

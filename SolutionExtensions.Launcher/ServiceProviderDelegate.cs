@@ -4,11 +4,11 @@ using System.Runtime.InteropServices;
 namespace SolutionExtensions.Launcher
 {
         
-    public class ServiceProiderObj : IServiceProvider
+    public class ServiceProviderDelegate : IServiceProvider
     {
         private readonly Func<Type, object> provide;
 
-        public ServiceProiderObj(Func<Type, object> provide)
+        public ServiceProviderDelegate(Func<Type, object> provide)
         {
             this.provide = provide;
         }
