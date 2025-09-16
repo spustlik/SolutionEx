@@ -24,6 +24,7 @@ Your extension is just compiled assembly and should be in your solution.
 * compile it
 * Use `Show...` menu item, it will show new tool menu with list of extensions
 ![List of extensions](images/extlist.png "List of extensions")
+* config of extensions is saved next to solution file (.extensions.cfg) and can be added to solution
 * add your new extension, pick dll, choose class name, change title, add shortcut if you want
 * execute your extension using `Run` button or using `Debug`
 * commit and share with others in team
@@ -52,9 +53,6 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * 1.0 - initial version
 
 ### Ideas
-* publish from cli
-    * https://learn.microsoft.com/en-us/visualstudio/extensibility/walkthrough-publishing-a-visual-studio-extension?view=vs-2022
-    * https://learn.microsoft.com/en-us/visualstudio/extensibility/walkthrough-publishing-a-visual-studio-extension-via-command-line?view=vs-2022
 * Add new extension project using wizard
 * remove Community.Toolkit and solve theming by another way
 * extension `Run` method with another type of parameters like Document, ProjectItem, etc.
@@ -79,28 +77,8 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
     * but can work only for methods reflection
 * Mono.Cecil
     * referenced only one dll, not whole package
-* Nest file extension
-    * Cannot find how to un-nest item, there are missing methods for that
-```c#
-    var project = dte.Solution.Projects[0] as EnvDTE.Project;
-    var item = project.ProjectItems[0] as EnvDTE.ProjectItem;
-    var srcFile = item.Name;
-    // not interesting : .Object as VSLangProj.VSProjectItem)
-    var nestedItem = item.ProjectItems[0] as EnvDTE.ProjectItem;
-    var file2 = nestedItem.Name;
-    //how to remove it?
-    //no Remove() on ProjectItems
-```
- 
 
 ### Todo
- * [ ] VS colors on treeview expader icon
- * [ ] how to add exe to vsix ?
- * [ ] add images to doc
- - use publishManifest.json `assets[]`
- * [ ] how to find package argument obj in Launcher from DTE ?
-    * probably not posible, without registering assembly to allow marshalling (usage from another process)
-    * for same reson IServiceProvider cannot be used (marshalling)
  * [ ] custom variables in cfg like $(MyTemplates)=$(SolutionDir)/MyTemplates
  * [ ] nest file is not unnesting
  * [ ] some support of events 

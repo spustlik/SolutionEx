@@ -61,6 +61,7 @@
     <Compile Include="Commands\RunExtensionCommand.cs" />
     <Compile Include="Converters\EmptyConverter.cs" />
     <Compile Include="DteExtensions.cs" />
+    <Compile Include="Extensions\CreateGUID.cs" />
     <Compile Include="Extensions\Dumper.cs" />
     <Compile Include="Extensions\DumpExtensionMore.cs" />
     <Compile Include="Extensions\DumpExtension.cs" />
@@ -156,6 +157,7 @@
     <Content Include="Images\menu.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="notes.md" />
     <Content Include="SolutionExtensions.Launcher.Merged.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
