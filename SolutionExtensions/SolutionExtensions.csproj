@@ -73,6 +73,7 @@
     <Compile Include="ReflectorControl\ReflectorControl.xaml.cs">
       <DependentUpon>ReflectorControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ReflectorControl\ReflectorFactory.cs" />
     <Compile Include="ReflectorControl\ReflectorModel.cs" />
     <Compile Include="ReflectorControl\ReflectorNodeBuilder.cs" />
     <Compile Include="ReflectorControl\ReflectorTextBuilder.cs" />

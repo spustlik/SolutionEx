@@ -7,7 +7,8 @@
              xmlns:local="clr-namespace:SolutionExtensions"
              xmlns:ui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
              xmlns:conv="clr-namespace:SolutionExtensions"
-             mc:Ignorable="d" 
+             xmlns:cmt="uri:comments"
+             mc:Ignorable="d cmt" 
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignData /_DesignData/ReflectorRoot.xaml}"    
              >
@@ -18,15 +19,18 @@
             <conv:EmptyConverter x:Key="emptyToVisi" Inner="{StaticResource boolToVisi}"/>
             <conv:EmptyConverter x:Key="notEmpty" Negate="True"/>
             <PathGeometry x:Key="TreeArrow" Figures="M0,0 L0,6 L6,0 z"/>
-            <!--TODO: vs colors-->
-            <SolidColorBrush x:Key="TreeViewItem.TreeArrow.Static.Stroke" Color="#FF818181"/>
-            <SolidColorBrush x:Key="TreeViewItem.TreeArrow.Static.Fill" Color="#FFFFFFFF"/>
-            <SolidColorBrush x:Key="TreeViewItem.TreeArrow.MouseOver.Stroke" Color="#FF27C7F7"/>
-            <SolidColorBrush x:Key="TreeViewItem.TreeArrow.MouseOver.Fill" Color="#FFCCEEFB"/>
-            <SolidColorBrush x:Key="TreeViewItem.TreeArrow.Static.Checked.Stroke" Color="#FF262626"/>
-            <SolidColorBrush x:Key="TreeViewItem.TreeArrow.Static.Checked.Fill" Color="#FF595959"/>
-            <SolidColorBrush x:Key="TreeViewItem.TreeArrow.MouseOver.Checked.Stroke" Color="#FF1CC4F7"/>
-            <SolidColorBrush x:Key="TreeViewItem.TreeArrow.MouseOver.Checked.Fill" Color="#FF82DFFB"/>
+            <!--https://learn.microsoft.com/en-us/visualstudio/extensibility/ux-guidelines/shared-colors-for-visual-studio?view=vs-2022-->
+            <SolidColorBrush x:Key="TreeViewItem.TreeArrow.Static.Stroke" Color="{DynamicResource {x:Static ui:TreeViewColors.GlyphColorKey}}"/>
+            <SolidColorBrush x:Key="TreeViewItem.TreeArrow.Static.Fill" Color="{DynamicResource {x:Static ui:TreeViewColors.BackgroundColorKey}}"/>
+            <!-- called as hover state -->
+            <SolidColorBrush x:Key="TreeViewItem.TreeArrow.MouseOver.Stroke" Color="{DynamicResource {x:Static ui:TreeViewColors.GlyphMouseOverColorKey}}"/>
+            <SolidColorBrush x:Key="TreeViewItem.TreeArrow.MouseOver.Fill" Color="{DynamicResource {x:Static ui:TreeViewColors.BackgroundColorKey}}"/>
+            <!-- called as drag over state-->
+            <SolidColorBrush x:Key="TreeViewItem.TreeArrow.Static.Checked.Stroke" Color="{DynamicResource {x:Static ui:TreeViewColors.DragOverItemGlyphColorKey}}"/>
+            <SolidColorBrush x:Key="TreeViewItem.TreeArrow.Static.Checked.Fill" Color="{DynamicResource {x:Static ui:TreeViewColors.DragOverItemColorKey}}"/>
+            <!-- called as selected,focused state-->
+            <SolidColorBrush x:Key="TreeViewItem.TreeArrow.MouseOver.Checked.Stroke" Color="{DynamicResource {x:Static ui:TreeViewColors.SelectedItemActiveGlyphColorKey}}"/>
+            <SolidColorBrush x:Key="TreeViewItem.TreeArrow.MouseOver.Checked.Fill" Color="{DynamicResource {x:Static ui:TreeViewColors.SelectedItemActiveColorKey}}"/>
             <Style x:Key="expanderStyle" TargetType="{x:Type ToggleButton}">
                 <Setter Property="Focusable" Value="False"/>
                 <Setter Property="Width" Value="16"/>

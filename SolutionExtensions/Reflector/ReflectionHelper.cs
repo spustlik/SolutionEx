@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace SolutionExtensions.Reflector
 {
@@ -100,6 +101,12 @@ namespace SolutionExtensions.Reflector
                 _converters[type] = fn;
             }
             return fn(obj);
+        }
+
+        public static Type GetDefaultInterface(Type type)
+        {
+            var at = type.GetCustomAttribute<ComDefaultInterfaceAttribute>();
+            return at?.Value;
         }
     }
 }

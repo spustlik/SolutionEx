@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace SolutionExtensions.ToolWindows
 {
@@ -232,15 +233,8 @@ namespace SolutionExtensions.ToolWindows
         {
             var dte = Package.GetService<DTE, DTE>();
             DumpObj("Active document", () => dte.ActiveDocument);
-        }
-
-        private void DumpAW_Click(object sender, RoutedEventArgs e)
-        {
-            var dte = Package.GetService<DTE, DTE>();
-
             //aw is always self
-            DumpObj("Active window", () => dte.ActiveWindow);
-
+            //DumpObj("Active window", () => dte.ActiveWindow);
         }
 
         private void DumpTest_Click(object sender, RoutedEventArgs e)
@@ -294,8 +288,10 @@ namespace SolutionExtensions.ToolWindows
             if (String.IsNullOrEmpty(s))
                 return;
             Clipboard.SetText(s);
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var dte = Package.GetService<DTE, DTE>();
+            dte.SetStatusBar("Copied to clipboard", highlight:true);
         }
-
         private void Clear_Click(object sender, RoutedEventArgs e)
         {
             var node = reflectorControl.ViewModel.SelectedNode;

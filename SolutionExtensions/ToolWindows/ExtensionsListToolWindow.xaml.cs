@@ -123,14 +123,14 @@ namespace SolutionExtensions.ToolWindows
             ViewModel.Model = Package.Model;
             ViewModel.Model.Extensions.OnCollectionItemChanged(null, ViewModelExtensions_PropertyChanged);
             ViewModel.Model.Extensions.CollectionChanged += ViewModelExtensions_CollectionChanged;
-            try
-            {
-                ExtensionManager.LoadFile(ViewModel.Model, true);
-            }
-            catch (Exception)
-            {
-                //ignore
-            }
+            //try
+            //{
+            //    ExtensionManager.LoadFile(ViewModel.Model, true);
+            //}
+            //catch (Exception)
+            //{
+            //    //ignore
+            //}
         }
 
         private void AddItem_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -192,7 +192,14 @@ namespace SolutionExtensions.ToolWindows
         }
         private void Load_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            ExtensionManager.LoadFile(ViewModel.Model, false);
+            try
+            {
+                ExtensionManager.LoadFile(ViewModel.Model);
+            }
+            catch (Exception ex)
+            {
+                this.ShowException(ex);
+            }
         }
         private void SyncToDte_Click(object sender, RoutedEventArgs e)
         {

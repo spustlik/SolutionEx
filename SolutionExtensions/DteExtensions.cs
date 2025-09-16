@@ -1,16 +1,14 @@
 ﻿using EnvDTE;
 using EnvDTE80;
-using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.Threading;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 
 namespace SolutionExtensions
 {
@@ -111,6 +109,31 @@ namespace SolutionExtensions
             if (!msg.EndsWith("\n"))
                 msg += "\n";
             outputPane.OutputString(msg);
+        }
+
+        public static void SetStatusBar(this DTE dte, string text, TimeSpan clearAfter = default, bool highlight = false)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            //var dte2 = dte as DTE2;
+            var sb = dte.StatusBar;
+            sb.Text = text;
+            if (text == null)
+            {
+                sb.Highlight(false);
+                sb.Animate(false, null);
+                return;
+            }
+            if (highlight)
+                sb.Highlight(true);
+            sb.Animate(true, vsStatusAnimation.vsStatusAnimationGeneral);
+            if (clearAfter == default) return;
+            var timer = new DispatcherTimer(DispatcherPriority.ContextIdle);
+            timer.Interval = clearAfter;
+            timer.Tick += (_, a) =>
+            {
+                timer.Stop();
+                dte.SetStatusBar(null);
+            };
         }
         public static async Task SwitchToUiThreadAsync(this AsyncPackage package)
         {

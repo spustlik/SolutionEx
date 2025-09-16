@@ -1,7 +1,7 @@
 ﻿# Solution extensions
 Extension to Visual Studio to allow programmers to very simply create own extensions **in solution scope**.
 It is highly inspired by VSCommands (by Vlasov Studio), but uses another approach. 
-Your extension has real source file with intellisense and allows debugging.
+Your extension has real source file with intellisense and allows somehow debugging.
 Config of extensions (path, title, shortcut) is stored in file in solution scope, so shared in team.
 
 ## Writing extension
@@ -23,6 +23,20 @@ Your extension is just compiled assembly and should be in your solution.
 * add your new extension, pick dll, choose class name, change title, add shortcut if you want
 * execute your extension using `Run` button or using `Debug`
 * commit and share with others in team
+* WARNING: `package` argument is null when debugging, `AsyncPackage` : `Package`: `IServiceProvider` else
+* You can use DTE Inspector to inspect DTE objects
+
+## DTE Inspector
+* visualizes DTE object as tree, expands using buttons on demand
+* uses reflection and special COM objects reflection
+* `[{i}]` - implementing interfaces, including COM interfaces (_see note below_)
+* `[m()]` - method of interface or reflected type
+* `[.p]` - properties of interface or properties with value of reflected object
+* `[e]` - enumerates items, if 0, nothing happens
+* you can generate XML with expanded nodes, csharp source, or copy text to clipboard
+* some functions are in context menu
+_note:_ COM interface is late-bound and uses another approach, so interface GUID must be known to get it. Inspector is using ALL types loaded in current AppDomain (it is OK, Visual Studio has loaded all used interfaces) and asks COM object if it is implementing each of them.
+
 
 ### Internal extensions
 * there are some internal extensions, which you can use directly or only for inspiration
@@ -60,24 +74,34 @@ Your extension is just compiled assembly and should be in your solution.
     * but can work only for methods reflection
 * Mono.Cecil
     * referenced only one dll, not whole package
+* Nest file extension
+    * Cannot find how to un-nest item, there are missing methods for that
+```c#
+    var project = dte.Solution.Projects[0] as EnvDTE.Project;
+    var item = project.ProjectItems[0] as EnvDTE.ProjectItem;
+    var srcFile = item.Name;
+    // not interesting : .Object as VSLangProj.VSProjectItem)
+    var nestedItem = item.ProjectItems[0] as EnvDTE.ProjectItem;
+    var file2 = nestedItem.Name;
+    //how to remove it?
+    //no Remove() on ProjectItems
+```
+ 
 
 ### Todo
+ * [ ] VS colors on treeview expader icon
+ * [ ] how to add exe to vsix ?
+ * [ ] add images to doc
  * [ ] how to find package argument obj in Launcher from DTE ?
     * probably not posible, without registering assembly to allow marshalling (usage from another process)
     * for same reson IServiceProvider cannot be used (marshalling)
- * [ ] how to add exe to vsix ?
- * [ ] add images to doc
+ * [ ] custom variables in cfg like $(MyTemplates)=$(SolutionDir)/MyTemplates
  * [ ] nest file is not unnesting
- * [ ] custom variables in cfg
- * [ ] VS colors on treeview expader icon
- * [ ] use [ComDefaultInterface] in reflector factory
-
- #### Nest item notes
- - - dte.Solution.Projects[?] as EnvDTE.Project
-   - .ProjectItems[?] as EnvDTE.ProjectItem
-   - .Name=src
-   - not interesting .Object as VSLangProj.VSProjectItem--
-   - .ProjectItems[0] as EnvDTE.ProjectItem
-   - .Name=nested
-   //no REmove/Delete on ProjectItems
+ * [ ] some support of events 
+    - in extension, some event handlers will be added
+    - extension must not be destroyed
+    - but can be destroyed when runs again or in new version
+    - optionaly exec something like Destroy() method
+    - add autoRun to extension options?
+    - that extensions should be destroyed on solution unload
  

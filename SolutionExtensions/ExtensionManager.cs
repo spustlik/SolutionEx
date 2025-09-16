@@ -7,9 +7,6 @@ using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
-using System.Windows.Forms;
 
 namespace SolutionExtensions
 {
@@ -30,10 +27,6 @@ namespace SolutionExtensions
                 return;
             var cmdSvc = (package as IServiceProvider).GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
 
-            //runcommand is using index of item, so it must be synced
-            //sync title,shortcut to commandX
-
-            //Shortcut is on command
             var extCommands = GetExtCommands(dte);
             for (int i = 0; i < extCommands.Count; i++)
             {
@@ -90,22 +83,19 @@ namespace SolutionExtensions
         /// <summary>
         /// loads cfg file
         /// </summary>
-        /// <returns>true if any extension loaded</returns>
-        public bool LoadFile(ExtensionsModel target, bool skipIfNoSolution)
+        /// <returns>true if loaded</returns>
+        public bool LoadFile(ExtensionsModel target)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var dte = this.package.GetService<DTE, DTE>();
             if (dte.Solution == null)
-            {
-                if (skipIfNoSolution)
-                    return false;
-                throw new InvalidOperationException("No solution loaded");
-            }
+                return false;
             var cfgFilePath = GetCfgFilePath();
             if (!File.Exists(cfgFilePath))
                 return false;
             LoadFromFile(target, cfgFilePath);
-            return target.Extensions.Count > 0; ;
+            //return target.Extensions.Count > 0;
+            return true;
         }
 
         public void SaveFile(ExtensionsModel source)

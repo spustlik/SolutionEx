@@ -49,7 +49,6 @@
                     <ContextMenu>
                         <MenuItem Header="DTE" Click="DumpDTE_Click"/>
                         <MenuItem Header="Active document" Click="DumpAD_Click"/>
-                        <MenuItem Header="Active window" Click="DumpAW_Click"/>
                         <MenuItem Header="test" Click="DumpTest_Click"/>
                     </ContextMenu>
                 </Button.ContextMenu>
@@ -57,7 +56,7 @@
             <Button Content="💡Generate▾" Click="OpenMenu_Click">
                 <Button.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Copy values" Click="GenerateText_Click" IsEnabled="{Binding ViewModel.SelectedNode,ElementName=reflectorControl, Converter={StaticResource notEmpty}}"/>
+                        <MenuItem Header="Copy text" Click="GenerateText_Click" IsEnabled="{Binding ViewModel.SelectedNode,ElementName=reflectorControl, Converter={StaticResource notEmpty}}"/>
                         <Separator/>
                         <MenuItem Header="c# of selected" Click="GenerateCs_Click" IsEnabled="{Binding ViewModel.SelectedNode,ElementName=reflectorControl, Converter={StaticResource notEmpty}}"/>
                         <MenuItem Header="c# of expanded" Click="GenerateCsTree_Click"/>
@@ -72,7 +71,7 @@
                                 ContextMenuOpening="ContextMenu_Opening">
             <model:ReflectorControl.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Copy values" Click="GenerateText_Click" IsEnabled="{Binding ViewModel.SelectedNode,ElementName=reflectorControl, Converter={StaticResource notEmpty}}"/>
+                    <MenuItem Header="Copy text" Click="GenerateText_Click" IsEnabled="{Binding ViewModel.SelectedNode,ElementName=reflectorControl, Converter={StaticResource notEmpty}}"/>
                     <Separator/>
                     <MenuItem Header="Clear" Click="Clear_Click" IsEnabled="{Binding ViewModel.SelectedNode,ElementName=reflectorControl, Converter={StaticResource notEmpty}}"/>
                 </ContextMenu>

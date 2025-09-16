@@ -62,7 +62,7 @@ namespace SolutionExtensions
             Model = new ExtensionsModel();
             // err: AddToOutputPane("Started",true);
             dte.Events.SolutionEvents.Opened += this.OnSolutionOpened;
-
+            dte.Events.SolutionEvents.AfterClosing += OnSolutionAfterClosing;
             this.RegisterToolWindows();
             await CommandBase.InitializeAsync<CommandShow>(this);
             var tasks = new List<Task>();
@@ -71,7 +71,11 @@ namespace SolutionExtensions
                 tasks.Add(CommandBase.InitializeAsync(this, new RunExtensionCommand(CommandIds.Command_Extension1 + i, i)));
             }
             await Task.WhenAll(tasks);
-            SyncWithDte(throwErrors: false);
+            if (dte.Solution != null)
+            {
+                ExtensionManager.LoadFile(Model);
+                ExtensionManager.SyncToDte(Model);
+            }
             dte.Events.DTEEvents.OnStartupComplete += DTEEvents_OnStartupComplete;
         }
 
@@ -80,20 +84,11 @@ namespace SolutionExtensions
             AddToOutputPane($"---Started at {DateTime.Now}", clear: true);
         }
 
-        private void SyncWithDte(bool throwErrors = true)
+
+        void OnSolutionAfterClosing()
         {
-            try
-            {
-                if (ExtensionManager.LoadFile(Model, true))
-                {
-                    ExtensionManager.SyncToDte(Model);
-                }
-            }
-            catch (Exception)
-            {
-                if (throwErrors)
-                    throw;
-            }
+            Log($"Solution closing");
+            Model.Extensions.Clear();
         }
 
         void OnSolutionOpened()
@@ -102,7 +97,9 @@ namespace SolutionExtensions
             Log($"Solution opened: {dte.Solution.FullName}");
             try
             {
-                SyncWithDte();
+                Model.Extensions.Clear();
+                ExtensionManager.LoadFile(Model);
+                ExtensionManager.SyncToDte(Model);
             }
             catch (Exception ex)
             {
@@ -118,7 +115,7 @@ namespace SolutionExtensions
         }
 
         public void AddToOutputPaneThreadSafe(string msg)
-        {            
+        {
             _ = Task.Factory.StartNew(async () =>
             {
                 await JoinableTaskFactory.SwitchToMainThreadAsync(DisposalToken);
