@@ -13,8 +13,8 @@ namespace SolutionExtensions
         protected override string BuildEnum(ReflectorEnumItem node)
         {
             var s = $"[{node.Index}]";
-            if (node.ItemDefaultName != null)
-                s += $" {node.ItemDefaultName}={node.ItemDefaultValue}";
+            if (!string.IsNullOrEmpty(node.ItemText))
+                s += $" {node.ItemText}";
             s += $" {node.ValueTypeName}";
             if (node.ValueSimpleText != null)
                 s += $" {node.ValueSimpleText}";
@@ -35,7 +35,7 @@ namespace SolutionExtensions
         {
             return node.HasValue ?
                 $"{node.PropertyName} = {node.Value}" :
-                $"{node.PropertyName}: {node.ValueType.FullName}";
+                $"{node.PropertyName}: {node.ValueType?.FullName ??"(null)"}";
         }
 
         protected override string BuildRoot(ReflectorRoot node)

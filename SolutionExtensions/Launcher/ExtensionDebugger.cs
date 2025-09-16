@@ -20,11 +20,7 @@ namespace SolutionExtensions
             var monikerName = GetMonikerName(dte);
             var packageId = GetPackageId(dte, package);
 
-            //TODO: how to add exe to vsix?
-            var path = Path.GetDirectoryName(typeof(SolutionExtensionsPackage).Assembly.Location);
-            var launcherExe = Path.Combine(path, "SolutionExtensions.Launcher.merged.exe");
-            //for debugging purposes, it can be called directly to \bin\debug\SolutionExtensions.Launcher.exe
-            launcherExe = @"D:\GitHub\SolutionEx\SolutionExtensions.Launcher\bin\Debug\SolutionExtensions.Launcher.exe";
+            string launcherExe = GetLauncherExe(dte, package);
 
             var output = new System.Text.StringBuilder();
             bool waiting = false;
@@ -58,6 +54,21 @@ namespace SolutionExtensions
             //caller must verify than there is an breakpoint
         }
 
+        private static string GetLauncherExe(DTE dte, SolutionExtensionsPackage package)
+        {            
+            //added as Asset to extension manifest
+            var path = Path.GetDirectoryName(typeof(SolutionExtensionsPackage).Assembly.Location);
+            var launcherExe = Path.Combine(path, "SolutionExtensions.Launcher.merged.exe");
+            //warn about references, so it is merged to one exe
+#if DEBUG
+            //for debugging purposes, it can be called directly to just compiled version
+            // cannot test existence of some cfg file, because build deletes all
+            var alt = @"D:\GitHub\SolutionEx\SolutionExtensions.Launcher\bin\Debug\SolutionExtensions.Launcher.exe";
+            if (File.Exists(alt))
+                launcherExe = alt;
+#endif
+            return launcherExe;
+        }
 
         private static EnvDTE.Process FindDTEProcess(Debugger5 dbg, int id)
         {

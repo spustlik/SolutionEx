@@ -4,6 +4,9 @@ It is highly inspired by VSCommands (by Vlasov Studio), but uses another approac
 Your extension has real source file with intellisense and allows somehow debugging.
 Config of extensions (path, title, shortcut) is stored in file in solution scope, so shared in team.
 
+You can find new menu in `Extensions` -> `Solution Extensions` -> 
+![Menu](images/menu.png "Menu")
+
 ## Writing extension
 Your extension is just compiled assembly and should be in your solution. 
 * create new class library
@@ -19,7 +22,8 @@ Your extension is just compiled assembly and should be in your solution.
     }
 ```
 * compile it
-* Use menu `Extensions` -> `Solution Extensions` -> `Show`
+* Use `Show...` menu item, it will show new tool menu with list of extensions
+![List of extensions](images/extlist.png "List of extensions")
 * add your new extension, pick dll, choose class name, change title, add shortcut if you want
 * execute your extension using `Run` button or using `Debug`
 * commit and share with others in team
@@ -27,7 +31,8 @@ Your extension is just compiled assembly and should be in your solution.
 * You can use DTE Inspector to inspect DTE objects
 
 ## DTE Inspector
-* visualizes DTE object as tree, expands using buttons on demand
+![](images/dtereflection.png)
+* visualizes DTE objects as tree, you can expand nodes using buttons on demand
 * uses reflection and special COM objects reflection
 * `[{i}]` - implementing interfaces, including COM interfaces (_see note below_)
 * `[m()]` - method of interface or reflected type
@@ -92,6 +97,7 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
  * [ ] VS colors on treeview expader icon
  * [ ] how to add exe to vsix ?
  * [ ] add images to doc
+ - use publishManifest.json `assets[]`
  * [ ] how to find package argument obj in Launcher from DTE ?
     * probably not posible, without registering assembly to allow marshalling (usage from another process)
     * for same reson IServiceProvider cannot be used (marshalling)

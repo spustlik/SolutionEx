@@ -29,7 +29,7 @@ namespace SolutionExtensions.Reflector
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //ignore
             }

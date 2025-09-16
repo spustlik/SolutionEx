@@ -232,21 +232,12 @@ namespace SolutionExtensions
         }
         #endregion
 
-        #region ItemDefaultName property
-        private string _itemDefaultName;
-        public string ItemDefaultName
+        #region ItemText property
+        private string _itemText;
+        public string ItemText
         {
-            get => _itemDefaultName;
-            set => Set(ref _itemDefaultName, value);
-        }
-        #endregion
-
-        #region ItemDefaultValue property
-        private string _itemDefaultValue;
-        public string ItemDefaultValue
-        {
-            get => _itemDefaultValue;
-            set => Set(ref _itemDefaultValue, value);
+            get => _itemText;
+            set => Set(ref _itemText, value);
         }
         #endregion
 

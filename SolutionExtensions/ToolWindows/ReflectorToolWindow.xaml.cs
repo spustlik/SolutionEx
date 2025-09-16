@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Packaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -237,12 +238,28 @@ namespace SolutionExtensions.ToolWindows
             //DumpObj("Active window", () => dte.ActiveWindow);
         }
 
+        private void DumpEM_Click(object sender, RoutedEventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            try
+            {                
+                var obj = Package.GetService<SExtensionManager, SExtensionManager>();
+                DumpObj("Extension manager", () => obj);
+            }
+            catch (Exception ex)
+            {
+                this.ShowException(ex);
+            }
+        }
+
         private void DumpTest_Click(object sender, RoutedEventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             try
             {
                 var dte = Package.GetService<DTE, DTE>();
+                Package.GetService<SExtensionManager, SExtensionManager>();
+                //var em = Package.GetService< SExtensionManager,IExtensionMa >
                 var svc = dte.GetOLEServiceProvider(true);
                 var shell = svc.QueryService<SVsShell>() as IVsShell;
                 var packages = shell.GetPackages().ToArray();
@@ -290,7 +307,7 @@ namespace SolutionExtensions.ToolWindows
             Clipboard.SetText(s);
             ThreadHelper.ThrowIfNotOnUIThread();
             var dte = Package.GetService<DTE, DTE>();
-            dte.SetStatusBar("Copied to clipboard", highlight:true);
+            dte.SetStatusBar("Copied to clipboard", highlight: true, clearAfter: TimeSpan.FromSeconds(3));
         }
         private void Clear_Click(object sender, RoutedEventArgs e)
         {

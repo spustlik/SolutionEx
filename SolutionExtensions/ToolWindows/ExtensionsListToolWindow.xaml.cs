@@ -99,6 +99,8 @@ namespace SolutionExtensions.ToolWindows
                 _updateTimer = new DispatcherTimer(DispatcherPriority.Input);
                 _updateTimer.Tick += UpdateTimer_Tick;
             }
+            if (ExtensionManager.GetCfgFilePath() == null)
+                return;
             _updateTimer.Stop();
             _updateTimer.Interval = TimeSpan.FromSeconds(0.3);
             _updateTimer.Start();

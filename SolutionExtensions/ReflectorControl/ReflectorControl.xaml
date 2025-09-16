@@ -327,10 +327,9 @@
                                 <TextBlock Text="{Binding ValueSimpleText}" Padding="0,0,0,5"/>
                                 <TextBlock Text="{Binding ValueTypeName}" FontWeight="Bold"/>
 
-                                <TextBlock Padding="5,0,0,0" Visibility="{Binding ItemDefaultValue, Converter={StaticResource notEmptyToVisi}}">
-                                    <Run Text="{Binding ItemDefaultName}" FontWeight="Bold"/>
-                                    <Run Text=" = "/>
-                                    <Run Text="{Binding ItemDefaultValue}"/>
+                                <TextBlock Padding="5,0,0,0" 
+                                           Visibility="{Binding ItemText, Converter={StaticResource notEmptyToVisi}}"
+                                           Text="{Binding ItemText}">
                                 </TextBlock>
                             </StackPanel>
                         </Canvas>

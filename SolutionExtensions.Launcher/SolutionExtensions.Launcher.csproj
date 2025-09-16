@@ -84,6 +84,9 @@
     <Compile Include="..\SolutionExtensions\Reflector\ReflectionCOM.cs">
       <Link>ReflectionCOM.cs</Link>
     </Compile>
+    <Compile Include="..\SolutionExtensions\Reflector\ReflectionHelper.cs">
+      <Link>ReflectionHelper.cs</Link>
+    </Compile>
     <Compile Include="ExtensionRunner.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -1,4 +1,5 @@
-﻿using SolutionExtensions.Reflector;
+﻿using Microsoft.VisualStudio.Shell;
+using SolutionExtensions.Reflector;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -44,9 +45,9 @@ namespace SolutionExtensions
                 node.CanExpandEnumerable = node.Value is IEnumerable;
                 if (node.CanExpandEnumerable)
                 {
-                    var pi = valueType.GetProperty("Count");
+                    var pi = node.ValueType.GetProperty("Count");
                     if (pi != null)
-                        node.ValueSimpleText = pi.GetValue(node.Value).ToString();
+                        node.ValueSimpleText = $"(#{pi.GetValue(node.Value)} items)";
                 }
             }
             else
@@ -144,7 +145,7 @@ namespace SolutionExtensions
             try
             {
                 Type realItemType = null;
-                PropertyInfo realDefProperty = null;
+                var defProps = new List<PropertyInfo>();
                 if (parent is ReflectorPropertyValue pv)
                 {
                     var parentType = pv.PropertyType;
@@ -157,8 +158,18 @@ namespace SolutionExtensions
                             realItemType = mi.ReturnType;
                             defMember = realItemType.GetCustomAttribute<DefaultMemberAttribute>();
                             if (defMember != null)
-                                realDefProperty = realItemType.GetProperty(defMember.MemberName);
+                                defProps.Add(realItemType.GetProperty(defMember.MemberName));
                         }
+                    }
+                    var knownNames = new[] { "Name", "Value" };
+                    foreach (var n in knownNames)
+                    {
+                        if (defProps.Any(p => p.Name == n))
+                            continue;
+                        var pt = realItemType ?? pv.ValueType;
+                        var pi = pt.GetProperty(n);
+                        if (pi != null)
+                            defProps.Add(pi);
                     }
                 }
                 foreach (var item in parent.Value as IEnumerable)
@@ -174,8 +185,8 @@ namespace SolutionExtensions
                     if (realItemType != null)
                     {
                         node.CanExpandInterfaces = true;
-                        node.ItemDefaultName = realDefProperty.Name;
-                        node.ItemDefaultValue = realDefProperty.GetValue(obj) + "";
+                        var s = String.Join(", ", defProps.Select(pi => $"{pi.Name} = {pi.GetValue(obj)}"));
+                        node.ItemText = s;
                     }
                     parent.Children.Add(node);
                 }

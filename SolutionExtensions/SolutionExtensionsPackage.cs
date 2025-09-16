@@ -2,6 +2,7 @@
 using EnvDTE;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.TextManager.Interop;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -58,7 +59,7 @@ namespace SolutionExtensions
             // When initialized asynchronously, the current thread may be a background thread at this point.
             // Do any initialization that requires the UI thread after switching to the UI thread.
             dte = await this.GetServiceAsync<DTE, DTE>();
-            ExtensionManager = new ExtensionManager(this);
+            ExtensionManager = new ExtensionManager(this);            
             Model = new ExtensionsModel();
             // err: AddToOutputPane("Started",true);
             dte.Events.SolutionEvents.Opened += this.OnSolutionOpened;

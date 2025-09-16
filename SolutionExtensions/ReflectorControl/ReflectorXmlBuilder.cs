@@ -21,13 +21,12 @@ namespace SolutionExtensions
         }
         protected override XElement BuildEnum(ReflectorEnumItem node)
         {
-            var ele = new XElement("Item", 
+            var ele = new XElement("Item",
                 new XAttribute("Index", node.Index),
                 GetTypeAttr(node));
-            if (!String.IsNullOrEmpty(node.ItemDefaultName))
-                ele.Add(new XAttribute("_" + node.ItemDefaultName, node.ItemDefaultValue));                
+            if (!String.IsNullOrEmpty(node.ItemText))
+                ele.Add(new XAttribute("_text", node.ItemText));
             return ele;
-
         }
 
         protected override XElement BuildInterface(ReflectorInterface node)

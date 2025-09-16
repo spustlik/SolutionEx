@@ -116,7 +116,7 @@ namespace SolutionExtensions
             ThreadHelper.ThrowIfNotOnUIThread();
             //var dte2 = dte as DTE2;
             var sb = dte.StatusBar;
-            sb.Text = text;
+            sb.Text = text ?? "";
             if (text == null)
             {
                 sb.Highlight(false);
@@ -134,6 +134,7 @@ namespace SolutionExtensions
                 timer.Stop();
                 dte.SetStatusBar(null);
             };
+            timer.Start();
         }
         public static async Task SwitchToUiThreadAsync(this AsyncPackage package)
         {

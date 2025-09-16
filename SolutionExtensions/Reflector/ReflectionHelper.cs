@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -107,6 +108,10 @@ namespace SolutionExtensions.Reflector
         {
             var at = type.GetCustomAttribute<ComDefaultInterfaceAttribute>();
             return at?.Value;
+        }
+        public static bool IsAssemblyDebugBuild(this Assembly assembly)
+        {
+            return assembly.GetCustomAttributes(false).OfType<DebuggableAttribute>().Any(da => da.IsJITTrackingEnabled);
         }
     }
 }

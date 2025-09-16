@@ -17,7 +17,8 @@ namespace SolutionExtensions.Launcher
         {
             Console.OutputEncoding = Encoding.UTF8;
             var ver = typeof(Program).Assembly.GetName().Version;
-            Log($"Extension launcher v{ver}, processID={Process.GetCurrentProcess().Id}");
+            var cfg = typeof(Program).Assembly.IsAssemblyDebugBuild() ? "debug" : "relese";
+            Log($"Extension launcher v{ver}, ({cfg})");
             if (args.Length < 4)
             {
                 Console.WriteLine($"Needs 4 arguments");
