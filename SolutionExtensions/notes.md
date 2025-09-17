@@ -1,5 +1,5 @@
 ﻿### Nest file extension
-    * Cannot find how to un-nest item, there are missing methods for that
+* Cannot find how to un-nest item, there are missing methods for that
 ```c#
     var project = dte.Solution.Projects[0] as EnvDTE.Project;
     var item = project.ProjectItems[0] as EnvDTE.ProjectItem;
@@ -13,7 +13,8 @@
  
 
  ###  package argument 
-    * is out-of-process 
-    * is it somehow possible to find package argument obj in Launcher from DTE ?
-    * probably not posible, without registering assembly to allow marshalling (usage from another process)
-    * for same reson IServiceProvider cannot be used (marshalling)
+* is out-of-process 
+* is it somehow possible to find package argument obj in Launcher from DTE ?
+* probably not posible, without registering assembly to allow marshalling (usage from another process)
+* for same reson IServiceProvider cannot be used (marshalling)
+* try `[assembly: ComVisible(true)]` and GUID, than own serviceprovider?

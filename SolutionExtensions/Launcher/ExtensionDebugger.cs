@@ -55,7 +55,7 @@ namespace SolutionExtensions
         }
 
         private static string GetLauncherExe(DTE dte, SolutionExtensionsPackage package)
-        {            
+        {
             //added as Asset to extension manifest
             var path = Path.GetDirectoryName(typeof(SolutionExtensionsPackage).Assembly.Location);
             var launcherExe = Path.Combine(path, "SolutionExtensions.Launcher.merged.exe");
@@ -64,7 +64,7 @@ namespace SolutionExtensions
             //for debugging purposes, it can be called directly to just compiled version
             // cannot test existence of some cfg file, because build deletes all
             var alt = @"D:\GitHub\SolutionEx\SolutionExtensions.Launcher\bin\Debug\SolutionExtensions.Launcher.exe";
-            if (File.Exists(alt))
+            if (File.Exists(alt) && File.GetLastWriteTime(alt) > File.GetLastWriteTime(launcherExe))
                 launcherExe = alt;
 #endif
             return launcherExe;

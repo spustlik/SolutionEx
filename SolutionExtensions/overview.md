@@ -50,6 +50,8 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * there are some internal extensions, which you can use directly or only for inspiration
 * set dll path to $(SELF) and then pickup class name.
 * `DumpExtension`,`DumpExtensionMore` - dumps common props and collection to xml file
+* `Nest file` - nests file with same name but different extensions
+* `Create GUID` - just creates new GUID and copies into clipboard
 
 ### Version history
 * 1.0 - initial version
