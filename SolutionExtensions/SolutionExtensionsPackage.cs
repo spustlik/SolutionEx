@@ -129,22 +129,6 @@ namespace SolutionExtensions
             dte.AddToOutputPane(msg, this.GetType().Namespace, clear);
         }
 
-        public async Task ShowStatusBarErrorAsync(string message)
-        {
-            await JoinableTaskFactory.SwitchToMainThreadAsync(DisposalToken);
-            IVsStatusbar statusBar = await GetServiceAsync(typeof(SVsStatusbar)) as IVsStatusbar;
-            if (statusBar != null)
-            {
-                // Set the status bar text
-                //statusBar.SetText(message);
-                statusBar.SetColorText(message, 0xFF0000, 0);
-                // Optionally, you can flash the status bar to draw attention
-                statusBar.FreezeOutput(0); // Unfreeze if previously frozen
-                statusBar.FreezeOutput(1); // Freeze to highlight the message
-                await Task.Delay(2000);    // Keep it frozen for 2 seconds
-                statusBar.FreezeOutput(0); // Unfreeze again
-            }
-        }
         public void AddConfigToSolutionItem()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -153,7 +137,7 @@ namespace SolutionExtensions
             var cfgFilePath = ExtensionManager.GetCfgFilePath();
             if (!File.Exists(cfgFilePath))
             {
-                _ = ShowStatusBarErrorAsync($"Config not yet saved. Add some extensions");
+                _ = this.ShowStatusBarErrorAsync($"Config not yet saved. Add some extensions");
                 return;
             }
             var si = dte.Solution.FindSolutionFolder(addIfNotExists: true);

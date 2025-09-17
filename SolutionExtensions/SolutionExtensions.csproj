@@ -102,6 +102,9 @@
     <Compile Include="ToolWindows\ToolWindowPaneBase.cs" />
     <Compile Include="Commands\DataExtensions.cs" />
     <Compile Include="WpfExtensions.cs" />
+    <Compile Include="_DesignData\ColorWindow.xaml.cs">
+      <DependentUpon>ColorWindow.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="commands.t4">
@@ -190,6 +193,13 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="_DesignData\ColorWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <None Include="_DesignData\ColorWindowVM.xaml">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

@@ -7,6 +7,7 @@
              xmlns:model="clr-namespace:SolutionExtensions"
              xmlns:toolkit="clr-namespace:Community.VisualStudio.Toolkit;assembly=Community.VisualStudio.Toolkit"              
              xmlns:shell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"             
+             xmlns:ui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
              xmlns:cmt="uri:comments"
              toolkit:Themes.UseVsTheme="True"
              mc:Ignorable="d cmt" 
@@ -93,6 +94,7 @@
                     <Setter Property="IsEnabled" Value="{Binding SelectedItem, Converter={StaticResource notEmpty}}"/>
                 </Style>
             </StackPanel.Resources>
+            <Button Click="Develop_Click" Background="Transparent" Visibility="{Binding IsDebug, Converter={StaticResource boolToVisi}}">Debug version</Button>
             <Button Click="AddItem_Click" ToolTip="Add new extension">✚ Add</Button>
             <Button Click="Delete_Click" Style="{StaticResource btnSelectedStyle}" ToolTip="Delete selected extension">🗙 Delete</Button>
             <Button Click="Run_Click" Style="{StaticResource btnSelectedStyle}" ToolTip="Run selected extension">
@@ -146,6 +148,19 @@
             <Border Margin="3">
                 <TextBlock FontWeight="Bold">Selected item</TextBlock>
             </Border>
+            <StackPanel Visibility="{Binding IsDebug, Converter={StaticResource boolToVisi}}" Orientation="Horizontal">
+                <StackPanel.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="Width" Value="20"/>
+                        <Setter Property="Height" Value="20"/>
+                        <Setter Property="Margin" Value="0,0,5,0"/>
+                    </Style>
+                </StackPanel.Resources>
+                <Border Background="{StaticResource {x:Static ui:CommonDocumentColors.StatusBannerErrorTextBrushKey}}"/>
+                <Border Background="{StaticResource {x:Static ui:CommonDocumentColors.StatusBannerErrorBrushKey}}"/>
+                <Border Background="{StaticResource {x:Static ui:CommonDocumentColors.StatusBannerInfoTextBrushKey}}"/>
+                <Border Background="{StaticResource {x:Static ui:CommonDocumentColors.StatusBannerInfoBrushKey}}"/>
+            </StackPanel>
             <StackPanel Margin="10">
                 <TextBlock Foreground="Red" Padding="2" Visibility="{Binding ValidationMessage,Converter={StaticResource notEmptyToVisi}}"><Run>⚠</Run><Run Text="{Binding ValidationMessage}"></Run></TextBlock>
                 <Label Content="Title"/>

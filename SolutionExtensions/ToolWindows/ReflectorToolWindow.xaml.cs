@@ -242,7 +242,7 @@ namespace SolutionExtensions.ToolWindows
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             try
-            {                
+            {
                 var obj = Package.GetService<SExtensionManager, SExtensionManager>();
                 DumpObj("Extension manager", () => obj);
             }
@@ -306,8 +306,7 @@ namespace SolutionExtensions.ToolWindows
                 return;
             Clipboard.SetText(s);
             ThreadHelper.ThrowIfNotOnUIThread();
-            var dte = Package.GetService<DTE, DTE>();
-            dte.SetStatusBar("Copied to clipboard", highlight: true, clearAfter: TimeSpan.FromSeconds(3));
+            _ = Package.ShowStatusBarAsync("Copied to clipboard", isImportant: true);
         }
         private void Clear_Click(object sender, RoutedEventArgs e)
         {

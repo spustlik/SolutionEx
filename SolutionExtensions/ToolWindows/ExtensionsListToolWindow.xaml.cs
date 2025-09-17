@@ -1,6 +1,7 @@
 ﻿using EnvDTE;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.Win32;
+using SolutionExtensions._DesignData;
 using System;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -57,6 +58,15 @@ namespace SolutionExtensions.ToolWindows
         }
         #endregion
 
+        #region IsDebug property
+        private bool _isDebug;
+        public bool IsDebug
+        {
+            get => _isDebug;
+            set => Set(ref _isDebug, value);
+        }
+        #endregion
+
     }
 
     public partial class ExtensionsListToolWindow : UserControl
@@ -65,6 +75,9 @@ namespace SolutionExtensions.ToolWindows
         {
             InitializeComponent();
             this.DataContext = new VM();
+#if DEBUG
+            ViewModel.IsDebug = true;
+#endif
             ViewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
         private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -398,6 +411,18 @@ namespace SolutionExtensions.ToolWindows
             {
                 this.ShowException(ex);
             }
+        }
+
+        private void Develop_Click(object sender, RoutedEventArgs e)
+        {
+            var w = new ColorWindow();
+            w.Show();
+            //await this.Package.ShowStatusBarErrorAsync("Some error");
+            //await this.Package.ShowStatusBarAsync("Some text 1", isImportant:true);
+            //await this.Package.ShowStatusBarAsync("Some text 2", waitMs:5000);
+            //await this.Package.ShowStatusBarAsync("Some text 3");
+            //await Task.Delay(1000);
+            //await this.Package.ShowStatusBarAsync(null);
         }
     }
 }

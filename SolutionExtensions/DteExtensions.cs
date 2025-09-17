@@ -2,13 +2,13 @@
 using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Threading;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Threading;
 
 namespace SolutionExtensions
 {
@@ -111,30 +111,48 @@ namespace SolutionExtensions
             outputPane.OutputString(msg);
         }
 
-        public static void SetStatusBar(this DTE dte, string text, TimeSpan clearAfter = default, bool highlight = false)
+        public static Task ShowStatusBarErrorAsync(this AsyncPackage package, string message)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            //var dte2 = dte as DTE2;
-            var sb = dte.StatusBar;
-            sb.Text = text ?? "";
-            if (text == null)
+            return package.ShowStatusBarAsync(message, isError: true);
+        }
+        public static async Task ShowStatusBarAsync(
+            this AsyncPackage package,
+            string message,
+            bool isError = false,
+            bool isImportant = false,
+            int waitMs = 0)
+        {
+            await package.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
+            IVsStatusbar statusBar = await package.GetServiceAsync<SVsStatusbar, IVsStatusbar>();
+            if (statusBar == null) return;
+            var flash = isError || isImportant;
+            if (flash && waitMs == 0)
+                waitMs = 3000;
+            //nor coloring nor highlight is working in VS
+            uint? fcolor = null;
+            uint? bcolor = null;            
+            if (isError)
             {
-                sb.Highlight(false);
-                sb.Animate(false, null);
-                return;
+                //fcolor = (uint?)VSColorTheme.GetThemedColor(CommonDocumentColors.StatusBannerErrorTextColorKey).ToArgb();
+                //bcolor = (uint?)VSColorTheme.GetThemedColor(CommonDocumentColors.StatusBannerErrorColorKey).ToArgb();                
             }
-            if (highlight)
-                sb.Highlight(true);
-            sb.Animate(true, vsStatusAnimation.vsStatusAnimationGeneral);
-            if (clearAfter == default) return;
-            var timer = new DispatcherTimer(DispatcherPriority.ContextIdle);
-            timer.Interval = clearAfter;
-            timer.Tick += (_, a) =>
+            if (isImportant)
             {
-                timer.Stop();
-                dte.SetStatusBar(null);
-            };
-            timer.Start();
+                //fcolor = 0xFF8080FF;
+                //bcolor = 0xFF0000;
+            }
+            if (fcolor == null && bcolor == null)
+                statusBar.SetText(message);
+            else
+                statusBar.SetColorText(message, fcolor.GetValueOrDefault(), bcolor.GetValueOrDefault());
+
+            if (waitMs > 0)
+            {
+                statusBar.FreezeOutput(0); // Unfreeze if previously frozen
+                statusBar.FreezeOutput(1); // Freeze to highlight the message
+                await Task.Delay(waitMs);  // Keep it frozen for time
+                statusBar.FreezeOutput(0); // Unfreeze again
+            }
         }
         public static async Task SwitchToUiThreadAsync(this AsyncPackage package)
         {

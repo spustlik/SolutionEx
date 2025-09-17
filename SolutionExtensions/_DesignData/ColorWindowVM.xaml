@@ -1,0 +1,13 @@
+﻿<local:ColorWindowVM
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:local="clr-namespace:SolutionExtensions._DesignData"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+>
+    <local:ColorWindowVM.Colors>
+        <local:ColorModel x:Name="Red">
+            <local:ColorModel.Brush>
+                <SolidColorBrush Color="Red"/>
+            </local:ColorModel.Brush>
+        </local:ColorModel>
+    </local:ColorWindowVM.Colors>
+</local:ColorWindowVM>
