@@ -31,7 +31,7 @@ ECHO Merging Launcher
 cmd /c SolutionExtensions.Launcher\ilmerge.cmd %LAUNCHER% >>%LOG%
 
 :stepCL
-ECHO Copying Launcher %SRC%
+ECHO Copying Launcher
 copy /b %SRC%\libs\SolutionExtensions.Launcher.merged.exe %SRC%\SolutionExtensions>nul
 
 :stepBX
