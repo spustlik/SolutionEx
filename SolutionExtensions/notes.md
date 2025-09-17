@@ -1,4 +1,14 @@
-﻿### Nest file extension
+﻿# Todo
+ * [ ] nest file is not unnesting
+ * [ ] some support of events 
+    - in extension, some event handlers will be added
+    - extension must not be destroyed
+    - but can be destroyed when runs again or in new version
+    - optionaly exec something like Destroy() method
+    - add autoRun to extension options?
+    - that extensions should be destroyed on solution unload
+
+### Nest file extension
 * Cannot find how to un-nest item, there are missing methods for that
 ```c#
     var project = dte.Solution.Projects[0] as EnvDTE.Project;
@@ -18,3 +28,4 @@
 * probably not posible, without registering assembly to allow marshalling (usage from another process)
 * for same reson IServiceProvider cannot be used (marshalling)
 * try `[assembly: ComVisible(true)]` and GUID, than own serviceprovider?
+

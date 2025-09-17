@@ -1,13 +1,13 @@
 @ECHO OFF
 call %~dp0/_env.cmd
-if not .%VSInstallDir%==. goto :envOk
+if not "%VSInstallDir%"=="" goto :envOk
 	echo ERROR: missing _dev.cmd with VSInstallDir,PAT,ILMERGE variables
 	goto :eof
 :envOk
 
 SET MSBUILD="%VSInstallDir%\MSBuild\Current\Bin\msbuild.exe"
 SET VSIX="%VSInstallDir%\VSSDK\VisualStudioIntegration\Tools\Bin\VsixPublisher.exe"
-SET B=%MSBUILD% /t:Build /p:Configuration=Release -noConsoleLogger /logger:FileLogger,Microsoft.Build.Engine;logfile=build.log
+SET B=%MSBUILD% /t:Rebuild /p:Configuration=Release -noConsoleLogger /logger:FileLogger,Microsoft.Build.Engine;logfile=build.log
 
 rem SET all variables to allow skipping
 SET SRC=%~dp0

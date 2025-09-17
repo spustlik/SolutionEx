@@ -62,7 +62,8 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * extension `Run` method with another type of parameters like Document, ProjectItem, etc.
 * allow to use /bin/debug or /bin/release using /**/extensionName.dll
 * rebuild extension dll if not found
-
+* custom variables in cfg like $(MyTemplates)=$(SolutionDir)/MyTemplates*
+* some support of events / long running extensions
 
 #### Notes
 * Debugging
@@ -82,14 +83,4 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * Mono.Cecil
     * referenced only one dll, not whole package
 
-### Todo
- * [ ] custom variables in cfg like $(MyTemplates)=$(SolutionDir)/MyTemplates
- * [ ] nest file is not unnesting
- * [ ] some support of events 
-    - in extension, some event handlers will be added
-    - extension must not be destroyed
-    - but can be destroyed when runs again or in new version
-    - optionaly exec something like Destroy() method
-    - add autoRun to extension options?
-    - that extensions should be destroyed on solution unload
  
