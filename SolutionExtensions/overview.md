@@ -24,12 +24,14 @@ Your extension is just compiled assembly and should be in your solution.
 * compile it
 * Use `Show...` menu item, it will show new tool menu with list of extensions
 ![List of extensions](images/extlist.png "List of extensions")
-* config of extensions is saved next to solution file (.extensions.cfg) and can be added to solution
+* config of extensions is saved next to solution file (.extensions.cfg) and can be added to solution/source control, so it is loaded on other machines and allows to run extensions for others
 * add your new extension, pick dll, choose class name, change title, add shortcut if you want
-* execute your extension using `Run` button or using `Debug`
-* commit and share with others in team
+* execute your extension using `Run` button, or assigned key shortcut, or using `Debug`
+### More
+* add `[Description("caption")]` attribute to Run method or class to allow inspection of caption
+* commit and share with others in team, it is possible to share compiled assembly also
 * WARNING: `package` argument is null when debugging, `AsyncPackage` : `Package`: `IServiceProvider` else
-* You can use DTE Inspector to inspect DTE objects
+* You can use __DTE Inspector__ to inspect DTE objects
 
 ## DTE Inspector
 ![](images/dtereflection.png)
