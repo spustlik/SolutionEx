@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace SolutionExtensions
 {
@@ -22,11 +23,35 @@ namespace SolutionExtensions
             if (method == null)
             {
                 if (throwIfNotFound)
-                    throw new InvalidOperationException($"Class {className} does not have a valid Run method");
+                    throw new InvalidOperationException($"Class {className} does not have a valid Run method.\n{DumpType(type)}");
                 return (method: null, type);
             }
             return (method, type);
         }
+
+        private static string DumpType(Type type)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine($"Type {type.FullName} in {type.Assembly.Location}");
+            sb.AppendLine($"Methods:");
+            foreach (var mi in type.GetMethods()
+                .OrderBy(mi => IsRunMethod(mi))
+                .ThenBy(mi => mi.Name))
+            {
+                sb.Append($"{mi.Name}(");
+                var parameters = mi.GetParameters();
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    if (i != 0) sb.Append(", ");
+                    var pi = parameters[i];
+                    sb.Append($"{pi.ParameterType.FullName} {pi.Name}");
+                    sb.Append($"/* isDTE:{IsDTE(pi)} */");
+                }
+                sb.AppendLine($") (check:{IsRunMethod(mi)})");
+            }
+            return sb.ToString();
+        }
+
         public static bool IsExtensionClass(Type t)
         {
             return t.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly).Any(m => IsRunMethod(m));
@@ -34,9 +59,21 @@ namespace SolutionExtensions
 
         public static bool IsRunMethod(MethodInfo m)
         {
-            return m.Name == "Run" && m.GetParameters().Length >= 1 && typeof(DTE).IsAssignableFrom(m.GetParameters()[0].ParameterType);
+            return m.Name == "Run" &&
+                m.GetParameters().Length >= 1 &&
+                IsDTE(m.GetParameters()[0]);
         }
 
+        private static bool IsDTE(ParameterInfo pi)
+        {
+            if (typeof(DTE).IsAssignableFrom(pi.ParameterType))
+                return true;//not working when used in launcher, possible another envdte.dll (merged)
+            if (pi.ParameterType.GUID == typeof(DTE).GUID)
+                return true;
+            if (pi.ParameterType.GetInterfaces().Any(i => i.GUID == typeof(DTE).GUID))
+                return true;
+            return false;
+        }
 
         public static void RunExtension(Type type, MethodInfo method, DTE dte, IServiceProvider serviceProvider)
         {
