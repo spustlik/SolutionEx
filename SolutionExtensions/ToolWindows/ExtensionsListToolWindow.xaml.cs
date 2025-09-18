@@ -260,8 +260,12 @@ namespace SolutionExtensions.ToolWindows
 
         private bool BrowseDll()
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var dte = Package.GetService<DTE, DTE>();
             var item = this.ViewModel.SelectedItem;
             var dlg = new OpenFileDialog();
+            if (dte.Solution != null)
+                dlg.InitialDirectory = Path.GetDirectoryName(dte.Solution.FileName);
             dlg.Title = "Choose extension DLL";
             dlg.DefaultExt = ".dll";
             dlg.Filter = "DLL Files (*.dll)|*.dll|All Files (*.*)|*.*";

@@ -103,8 +103,10 @@ namespace SolutionExtensions
             ThreadHelper.ThrowIfNotOnUIThread();
             var dte = this.package.GetService<DTE, DTE>();
             if (dte.Solution == null)
-                throw new InvalidOperationException("No solution loaded");
+                throw new InvalidOperationException("No solution loaded");            
             var cfgFilePath = GetCfgFilePath();
+            if (!File.Exists(cfgFilePath) && source.Extensions.Count == 0)
+                return; //skip saving if not exists and no extension
             SaveToFile(source, cfgFilePath);
         }
         public void SaveToFile(ExtensionsModel source, string cfgFilePath)
