@@ -1,4 +1,5 @@
 ﻿using EnvDTE;
+using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
 using System;
 using System.Collections.Generic;
@@ -103,7 +104,7 @@ namespace SolutionExtensions
             ThreadHelper.ThrowIfNotOnUIThread();
             var dte = this.package.GetService<DTE, DTE>();
             if (dte.Solution == null)
-                throw new InvalidOperationException("No solution loaded");            
+                throw new InvalidOperationException("No solution loaded");
             var cfgFilePath = GetCfgFilePath();
             if (!File.Exists(cfgFilePath) && source.Extensions.Count == 0)
                 return; //skip saving if not exists and no extension
@@ -176,7 +177,7 @@ namespace SolutionExtensions
         {
             if (!String.IsNullOrEmpty(item.Title))
                 return;
-            var (method, type) = FindExtensionMethod(item, throwIfNotFound: false);
+            var (method, type) = FindExtensionMethod(item, throwIfNotFound: false, tryCompile: false);
             if (method == null)
                 return;
             var description =
@@ -185,10 +186,28 @@ namespace SolutionExtensions
             item.Title = description;
         }
 
-        private (MethodInfo method, Type type) FindExtensionMethod(ExtensionItem item, bool throwIfNotFound)
+        private (MethodInfo method, Type type) FindExtensionMethod(
+            ExtensionItem item, bool throwIfNotFound, bool tryCompile)
         {
+            if (tryCompile)
+                CompileIfNeeded(item);
             var assembly = LoadVersionedAssembly(GetRealPath(item.DllPath));
             return ExtensionObject.FindExtensionMethod(assembly, item.ClassName, throwIfNotFound);
+        }
+
+        private bool CompileIfNeeded(ExtensionItem item)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var dte = package.GetService<DTE, DTE>() as DTE2;
+            var path = Path.GetDirectoryName(item.DllPath);
+            var name = Path.GetFileNameWithoutExtension(item.DllPath);
+            var projects = dte.Solution.Projects.Cast<Project>().ToArray();
+            var proj = projects.FirstOrDefault(p => p.Name == name);
+            if (proj == null)
+                return false;
+            var cfg = dte.Solution.SolutionBuild.ActiveConfiguration.Name;
+            dte.Solution.SolutionBuild.BuildProject(cfg, proj.UniqueName, WaitForBuildToFinish: true);
+            return true;
         }
 
         private Assembly LoadVersionedAssembly(string dllPath)
@@ -243,7 +262,7 @@ namespace SolutionExtensions
         public void RunExtension(ExtensionItem extension)
         {
             var dte = package.GetService<DTE, DTE>();
-            var (method, type) = FindExtensionMethod(extension, true);
+            var (method, type) = FindExtensionMethod(extension, throwIfNotFound: true, tryCompile: true);
             ExtensionObject.RunExtension(type, method, dte, package);
         }
 

@@ -55,13 +55,13 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 
 ### Version history
 * 1.0 - initial version
+* 1.1 - of possible, extension is compiled
 
 ### Ideas
 * Add new extension project using wizard
 * remove Community.Toolkit and solve theming by another way
 * extension `Run` method with another type of parameters like Document, ProjectItem, etc.
 * allow to use /bin/debug or /bin/release using /**/extensionName.dll
-* rebuild extension dll if not found, or if needs rebuild
 * custom variables in cfg like $(MyTemplates)=$(SolutionDir)/MyTemplates*
 * some support of events / long running extensions
 * autorun and string parameters for extensions

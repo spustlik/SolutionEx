@@ -29,3 +29,8 @@
 * for same reson IServiceProvider cannot be used (marshalling)
 * try `[assembly: ComVisible(true)]` and GUID, than own serviceprovider?
 
+## events support
+* DTE events are very general
+* probably not possible using launcher, process cannot stop
+    * maybe wait for some signal/method from extension?
+    * 

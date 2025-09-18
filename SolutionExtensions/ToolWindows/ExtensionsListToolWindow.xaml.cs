@@ -190,7 +190,10 @@ namespace SolutionExtensions.ToolWindows
                 if (MessageBox.Show($"No breakpoint found.\n" +
                     $"There should be breakpoint in your extension to stop debugger there.\n" +
                     $"Or add System.Diagnostics.Debugger.Break(); to your code.\n" +
-                    $"Do you want to continue?", "Breakpoint missing", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                    $"Do you want to continue?", 
+                    "Breakpoint missing", 
+                    MessageBoxButton.YesNo, 
+                    MessageBoxImage.Hand) != MessageBoxResult.Yes)
                     return;
             }
             try
