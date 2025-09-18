@@ -72,7 +72,7 @@
     <Compile Include="Sample2.cs">
       <ResourceName>someResourceName</ResourceName>
     </Compile>
-    <Compile Include="Sample3.cs" />
+    <Compile Include="ExperimentEvents.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

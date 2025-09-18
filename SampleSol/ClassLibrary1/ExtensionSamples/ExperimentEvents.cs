@@ -15,6 +15,7 @@ namespace ExtensionSamples.Extra
     {
         public void Run(DTE dte)
         {
+            
             //dte.Events.SelectionEvents.OnChange += SelectionEvents_OnChange;
             dte.Events.TextEditorEvents.LineChanged += TextEditorEvents_LineChanged;
             //dte.Events.DocumentEvents.DocumentOpened
