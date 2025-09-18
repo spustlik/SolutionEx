@@ -64,7 +64,7 @@ namespace SolutionExtensions
             //for debugging purposes, it can be called directly to just compiled version
             // cannot test existence of some cfg file, because build deletes all
             var alt = @"D:\GitHub\SolutionEx\SolutionExtensions.Launcher\bin\Debug\SolutionExtensions.Launcher.exe";
-            if (File.Exists(alt) && File.GetLastWriteTime(alt) > File.GetLastWriteTime(launcherExe))
+            if (File.Exists(alt))
                 launcherExe = alt;
 #endif
             return launcherExe;
@@ -127,7 +127,8 @@ namespace SolutionExtensions
             var dte = package.GetService<DTE, DTE>();
             var fn = item.ClassName + ".Run";
             //* FunctionName="ExtensionSamples.Sample1.Run(DTE dte, IServiceProvider package)" 
-            return dte.Debugger.Breakpoints.OfType<Breakpoint>().Any(b => b.FunctionName.StartsWith(fn));
+            return dte.Debugger.Breakpoints
+                .OfType<Breakpoint>().Any(b => b.FunctionName.StartsWith(fn));
             // TODO: somehow instruct debugger to break in method
             //this is not enough - resolving debugger breakpoint
             //var function = type.FullName + "." + method.Name;

@@ -17,7 +17,7 @@ namespace SolutionExtensions.Launcher
         {
             Console.OutputEncoding = Encoding.UTF8;
             var ver = typeof(Program).Assembly.GetName().Version;
-            var cfg = typeof(Program).Assembly.IsAssemblyDebugBuild() ? "debug" : "relese";
+            var cfg = typeof(Program).Assembly.IsAssemblyDebugBuild() ? "debug" : "release";
             Log($"Extension launcher v{ver}, ({cfg})");
             if (args.Length < 4)
             {

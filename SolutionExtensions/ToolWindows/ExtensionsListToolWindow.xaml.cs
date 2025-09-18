@@ -271,6 +271,8 @@ namespace SolutionExtensions.ToolWindows
             dlg.Filter = "DLL Files (*.dll)|*.dll|All Files (*.*)|*.*";
             dlg.CheckFileExists = true;
             dlg.FileName = this.ViewModel.SelectedItem.DllPath;
+            //if (!string.IsNullOrEmpty(dlg.FileName))
+            //    dlg.InitialDirectory = Path.GetDirectoryName(dlg.FileName);
             if (dlg.ShowDialog() != true)
                 return false;
             ExtensionManager.SetDllPath(item, dlg.FileName);

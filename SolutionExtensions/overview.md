@@ -61,9 +61,10 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * remove Community.Toolkit and solve theming by another way
 * extension `Run` method with another type of parameters like Document, ProjectItem, etc.
 * allow to use /bin/debug or /bin/release using /**/extensionName.dll
-* rebuild extension dll if not found
+* rebuild extension dll if not found, or if needs rebuild
 * custom variables in cfg like $(MyTemplates)=$(SolutionDir)/MyTemplates*
 * some support of events / long running extensions
+* autorun and string parameters for extensions
 
 #### Notes
 * Debugging
@@ -71,11 +72,10 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
     * this process is attached to debugger from IDE
     * user should add breakpoint to his code, or call `Debugger.Break()`
 * Launcher
-    * execute extension in separate process - for debugging (or to allow reload assembly in future)
+    * execute extension in separate process - for debugging (or to allow reload assembly in future, and allow debugging)
     * Merged using ILMerge to one exe because referenced dlls are incompatible with vsix
     * merged exe is copied to lib folder and copyied with project
     * some classes from package are linked, not referenced
-    * how to add exe to vsix?
 * extension assembly
     * cannot be reloaded, so it is using copy dll to new path, change of assembly name (using Mono.Cecil)
     * it will not work if it is using some other re-compiled assembly
