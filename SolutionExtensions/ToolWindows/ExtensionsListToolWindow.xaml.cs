@@ -1,5 +1,5 @@
 ﻿using EnvDTE;
-using Microsoft.Internal.VisualStudio.Shell;
+using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.Win32;
 using SolutionExtensions._DesignData;
@@ -11,11 +11,9 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Threading;
 
 namespace SolutionExtensions.ToolWindows
 {
@@ -164,10 +162,12 @@ namespace SolutionExtensions.ToolWindows
             var item = (sender as FrameworkElement).DataContext as ExtensionItem ?? ViewModel.SelectedItem;
             if (item == null)
                 return;
+            if (!ExtensionManager.AskArgumentIfNeeded(item, out var argument))
+                return;
             try
             {
-                Package.Log($"Running extension '{item.Title}' from {Path.GetFileName(item.DllPath)},{item.ClassName}");
-                ExtensionManager.RunExtension(item);
+                Package.Log($"Running extension '{item.Title}' with argument '{argument}' from {Path.GetFileName(item.DllPath)},{item.ClassName}");
+                ExtensionManager.RunExtension(item, argument);
                 Package.Log($"Done.");
             }
             catch (Exception ex)
@@ -178,6 +178,7 @@ namespace SolutionExtensions.ToolWindows
                 this.ShowException(ex, "See output pane for details", title);
             }
         }
+
         private void Debug_Click(object sender, RoutedEventArgs e)
         {
             var item = ViewModel.SelectedItem;
@@ -194,9 +195,11 @@ namespace SolutionExtensions.ToolWindows
                     MessageBoxImage.Hand) != MessageBoxResult.Yes)
                     return;
             }
+            if (!ExtensionManager.AskArgumentIfNeeded(item, out var argument))
+                return;
             try
             {
-                ExtensionDebugger.RunExtension(item, Package, ExtensionManager);
+                ExtensionDebugger.RunExtension(item, argument, Package, ExtensionManager);
             }
             catch (Exception ex)
             {
@@ -407,14 +410,14 @@ namespace SolutionExtensions.ToolWindows
 
         private void Copy_Click(object sender, RoutedEventArgs e)
         {
-            if (ViewModel.SelectedItem == null)
+            var item = ViewModel.SelectedItem;
+            if (item == null)
                 return;
-            var src = ViewModel.SelectedItem;
-            var item = new ExtensionItem()
+            var copy = new ExtensionItem()
             {
-                Title = $"{src.Title} (copy)",
-                ClassName = src.ClassName,
-                DllPath = src.DllPath,
+                Title = $"{item.Title} (copy)",
+                ClassName = item.ClassName,
+                DllPath = item.DllPath,
                 //ShortCutKey=src.ShortCutKey
             };
             ViewModel.Model.Extensions.Add(item);
@@ -448,5 +451,12 @@ namespace SolutionExtensions.ToolWindows
             //await this.Package.ShowStatusBarAsync(null);
         }
 
+        private void ArgumentAsk_Click(object sender, RoutedEventArgs e)
+        {
+            var item = ViewModel.SelectedItem;
+            if (item == null)
+                return;
+            item.Argument = "?";
+        }
     }
 }

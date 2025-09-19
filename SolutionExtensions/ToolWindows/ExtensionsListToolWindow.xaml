@@ -83,7 +83,8 @@
             <Button Click="AddItem_Click" ToolTip="Add new extension">✚ Add</Button>
             <Button Click="Delete_Click" Style="{StaticResource btnSelectedStyle}" ToolTip="Delete selected extension">🗙 Delete</Button>
             <Button Click="Run_Click" Style="{StaticResource btnSelectedStyle}" ToolTip="Run selected extension">
-                <TextBlock Padding="5,0,0,0">▶ Run</TextBlock></Button>
+                <TextBlock Padding="5,0,0,0">▶ Run</TextBlock>
+            </Button>
             <Button Click="Debug_Click" Style="{StaticResource btnSelectedStyle}" ToolTip="Run selected extenion in debugger">⚡Debug</Button>
             <Button Click="ButtonDump_Click" ToolTip="Inspect DTE objects...">🔦DTE</Button>
             <Button Click="ButtonMore_Click">
@@ -129,6 +130,12 @@
                     <!-- copy from button -->
                     <Setter Property="VerticalContentAlignment" Value="Center"/>
                 </Style>
+                <Style TargetType="Button" BasedOn="{StaticResource {x:Static shell:VsResourceKeys.ButtonStyleKey}}">
+                    <Setter Property="Padding" Value="5,0"/>
+                    <Setter Property="MinWidth" Value="25"/>
+                    <Setter Property="MaxWidth" Value="0"/>
+                    <!--<Setter Property="Width" Value="0"/>-->
+                </Style>
             </StackPanel.Resources>
             <Border Margin="3">
                 <TextBlock FontWeight="Bold">Selected item</TextBlock>
@@ -155,12 +162,6 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Grid.Resources>
-                        <Style TargetType="Button">
-                            <Setter Property="Padding" Value="5,0"/>
-                            <Setter Property="MinWidth" Value="25"/>
-                        </Style>    
-                    </Grid.Resources>
                     <TextBox Text="{Binding SelectedItem.DllPath, UpdateSourceTrigger=PropertyChanged}"/>
                     <Button Grid.Column="1" Click="BrowseDll_Click">...</Button>
                     <Button Grid.Column="2" Click="SetSelf_Click" ToolTip="Internal extensions">⛨</Button>
@@ -168,7 +169,21 @@
                 <Label Content="Class Name"/>
                 <ComboBox IsEditable="True" IsTextSearchEnabled="True" DropDownOpened="PickClass_Opened" Text="{Binding SelectedItem.ClassName}" />
                 <Label Content="Argument"/>
-                <TextBox Text="{Binding SelectedItem.Argument, UpdateSourceTrigger=PropertyChanged}"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Text="{Binding SelectedItem.Argument, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Button Grid.Column="1" Click="ArgumentAsk_Click" ToolTip="Ask for argument when executing">
+                        <Border BorderBrush="{Binding Foreground, ElementName=text}" BorderThickness="1" >
+                            <StackPanel Orientation="Vertical">
+                                <Rectangle Height="3" Fill="{Binding Foreground,ElementName=text}"/>
+                                <TextBlock Text="?" Padding="4,0" x:Name="text" FontSize="9"/>
+                            </StackPanel>
+                        </Border>
+                    </Button>
+                </Grid>
             </StackPanel>
         </StackPanel>
     </Grid>

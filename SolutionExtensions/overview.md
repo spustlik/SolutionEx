@@ -30,10 +30,14 @@ Your extension is just compiled assembly and should be in your solution.
 ### More
 * add `[Description("caption")]` attribute to Run method or class to allow inspection of caption
 * add public non-static property called `Argument`, 
-and config argument value of extension to parametrize you run
+and config argument value of extension to parametrize your run
+* if argument starts with "?", user will be asked for it (with default value)
+* for questions you can also use `[Description]` attribute on `Argument` property
+
 ``` 
 public class MyExtension
 {
+    [Description("What is great?")]
     public string Argument { get; set; }
     [Description("My great extension")]
     public void Run(DTE dte)
@@ -73,6 +77,7 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * 1.2 - Argument support
 * 1.2.1 - package is IServiceProvider also in debug
 * 1.2.2 - Community.Toolkit removed
+* 1.2.3 - dialog for argument value
 
 ### Ideas
 * Add new extension project using wizard
@@ -80,7 +85,6 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * allow to use /bin/debug or /bin/release using /**/extensionName.dll
 * custom variables in cfg like $(MyTemplates)=$(SolutionDir)/MyTemplates*
 * some support of events / long running extensions, autorun
-* if argument is "?" ask user when running
 
 #### Notes
 * Debugging

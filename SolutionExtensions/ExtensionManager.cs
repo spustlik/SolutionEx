@@ -1,8 +1,10 @@
 ﻿using EnvDTE;
 using EnvDTE80;
+using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Internal;
 using SolutionExtensions.Extensions;
+using SolutionExtensions.Reflector;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -16,7 +18,7 @@ namespace SolutionExtensions
     public class ExtensionManager
     {
         public const string SELFKEY = "SELF";
-        public const string SELF = "$("+SELFKEY+")";
+        public const string SELF = "$(" + SELFKEY + ")";
         private SolutionExtensionsPackage package;
 
         public ExtensionManager(SolutionExtensionsPackage package)
@@ -170,9 +172,7 @@ namespace SolutionExtensions
             var (method, type) = FindExtensionMethod(item, throwIfNotFound: false, tryCompile: false);
             if (method == null)
                 return;
-            var description =
-                method.GetCustomAttribute<DescriptionAttribute>()?.Description ??
-                type.GetCustomAttribute<DescriptionAttribute>()?.Description;
+            var description = method.GetDescription() ?? type.GetDescription();
             item.Title = description;
         }
 
@@ -212,12 +212,29 @@ namespace SolutionExtensions
             var assembly = LoadVersionedAssembly(GetRealPath(dllPath));
             return ExtensionObject.GetExtensionClassNames(assembly);
         }
-
-        public void RunExtension(ExtensionItem item)
+        public bool AskArgumentIfNeeded(ExtensionItem item, out string argument)
+        {
+            argument = item.Argument;
+            if (argument.StartsWith("?"))
+            {
+                var (method, type) = FindExtensionMethod(item, throwIfNotFound: false, tryCompile: false);
+                var prompt = "Enter argument value";
+                if (type != null)
+                {
+                    var pi = ExtensionObject.FindArgumentProperty(type);
+                    prompt = pi.GetDescription() ?? prompt;
+                }
+                argument = argument.TrimStart('?');
+                if (!TextInputDialog.Show(item.Title, prompt, argument, out argument))
+                    return false;
+            }
+            return true;
+        }
+        public void RunExtension(ExtensionItem item, string argument)
         {
             var dte = package.GetService<DTE, DTE>();
             var (method, type) = FindExtensionMethod(item, throwIfNotFound: true, tryCompile: true);
-            ExtensionObject.RunExtension(type, method, dte, package, item.Argument);
+            ExtensionObject.RunExtension(type, method, dte, package, argument);
         }
 
         public bool IsDllPathInSolutionScope(ExtensionItem item)

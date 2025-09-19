@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.Shell.Services;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -205,23 +207,28 @@ namespace SolutionExtensions
             {
                 itemPropertyChanged(sender, new PropertyChangedEventArgs(propertyPrefix + e.PropertyName));
             }
+            void subscribe(IList list, bool add)
+            {
+                foreach (var pc in list.OfType<INotifyPropertyChanged>())
+                {
+                    if (add)
+                        pc.PropertyChanged += CollectionItem_Changed;
+                    else
+                        pc.PropertyChanged -= CollectionItem_Changed;
+                }
+            }
             void Collection_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
             {
                 if (e.Action == NotifyCollectionChangedAction.Move)
                     return; //not interesting
                 //Reset,Add,Remove,Replace:
                 if (e.OldItems != null)
-                {
-                    foreach (var pc in e.OldItems.OfType<INotifyPropertyChanged>())
-                        pc.PropertyChanged -= CollectionItem_Changed;
-                }
+                    subscribe(e.OldItems, false);
                 if (e.NewItems != null)
-                {
-                    foreach (var pc in e.NewItems.OfType<INotifyPropertyChanged>())
-                        pc.PropertyChanged += CollectionItem_Changed;
-                }
+                    subscribe(e.NewItems, true);
             }
             collection.CollectionChanged += Collection_CollectionChanged;
+            subscribe(collection, true);
         }
 
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
@@ -112,6 +113,11 @@ namespace SolutionExtensions.Reflector
         public static bool IsAssemblyDebugBuild(this Assembly assembly)
         {
             return assembly.GetCustomAttributes(false).OfType<DebuggableAttribute>().Any(da => da.IsJITTrackingEnabled);
+        }
+
+        public static string GetDescription(this MemberInfo mi)
+        {
+            return mi.GetCustomAttribute<DescriptionAttribute>()?.Description;
         }
     }
 }
