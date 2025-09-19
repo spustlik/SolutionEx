@@ -61,6 +61,7 @@
     <Compile Include="Commands\RunExtensionCommand.cs" />
     <Compile Include="Converters\EmptyConverter.cs" />
     <Compile Include="DteExtensions.cs" />
+    <Compile Include="Model\ExtensionsSerialization.cs" />
     <Compile Include="Extensions\CreateGUID.cs" />
     <Compile Include="Extensions\Dumper.cs" />
     <Compile Include="Extensions\DumpExtensionMore.cs" />
@@ -200,6 +201,9 @@
     <None Include="_DesignData\ColorWindowVM.xaml">
       <SubType>Designer</SubType>
     </None>
+    <Compile Include="_DesignData\ExtensionListToolWindowVM.cs">
+      <SubType>Designer</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

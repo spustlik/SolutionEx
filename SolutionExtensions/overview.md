@@ -29,6 +29,8 @@ Your extension is just compiled assembly and should be in your solution.
 * execute your extension using `Run` button, or assigned key shortcut, or using `Debug`
 ### More
 * add `[Description("caption")]` attribute to Run method or class to allow inspection of caption
+* add public non-static property called `Argument`, 
+and config argument value of extension to parametrize you run
 * commit and share with others in team, it is possible to share compiled assembly also
 * WARNING: `package` argument is null when debugging, `AsyncPackage` : `Package`: `IServiceProvider` else
 * You can use __DTE Inspector__ to inspect DTE objects
@@ -55,7 +57,8 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 
 ### Version history
 * 1.0 - initial version
-* 1.1 - of possible, extension is compiled
+* 1.1 - if possible, extension is compiled
+* 1.2 - Argument support
 
 ### Ideas
 * Add new extension project using wizard
@@ -63,8 +66,8 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * extension `Run` method with another type of parameters like Document, ProjectItem, etc.
 * allow to use /bin/debug or /bin/release using /**/extensionName.dll
 * custom variables in cfg like $(MyTemplates)=$(SolutionDir)/MyTemplates*
-* some support of events / long running extensions
-* autorun and string parameters for extensions
+* some support of events / long running extensions, autorun
+* if argument is "?" ask user when running
 
 #### Notes
 * Debugging

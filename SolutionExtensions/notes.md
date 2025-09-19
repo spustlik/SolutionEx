@@ -31,6 +31,10 @@
 
 ## events support
 * DTE events are very general
-* probably not possible using launcher, process cannot stop
+* launcher: process shouldn't stop
+    * test: can events go thru processes
     * maybe wait for some signal/method from extension?
+    * or just show dialog "Press OK to stop"
+* if solution changes, and extensions are re-loaded
+    * old extension instance "Destroy" must be called to remove events
     * 

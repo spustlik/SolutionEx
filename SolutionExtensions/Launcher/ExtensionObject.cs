@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Management.Instrumentation;
 using System.Reflection;
 using System.Text;
 
@@ -63,7 +64,10 @@ namespace SolutionExtensions
                 m.GetParameters().Length >= 1 &&
                 IsDTE(m.GetParameters()[0]);
         }
-
+        public static PropertyInfo FindArgumentProperty(Type type)
+        {
+            return type.GetProperty("Argument");
+        }
         private static bool IsDTE(ParameterInfo pi)
         {
             if (typeof(DTE).IsAssignableFrom(pi.ParameterType))
@@ -75,7 +79,7 @@ namespace SolutionExtensions
             return false;
         }
 
-        public static void RunExtension(Type type, MethodInfo method, DTE dte, IServiceProvider serviceProvider)
+        public static void RunExtension(Type type, MethodInfo method, DTE dte, IServiceProvider serviceProvider, string argument)
         {
             //var (method, type) = FindExtensionMethod(assembly, className, throwIfNotFound: true);
             var parameters = new object[method.GetParameters().Length];
@@ -83,6 +87,12 @@ namespace SolutionExtensions
             if (parameters.Length > 1)
                 parameters[1] = serviceProvider;
             var instance = method.IsStatic ? null : Activator.CreateInstance(type);
+            if (!string.IsNullOrEmpty(argument))
+            {
+                var pi = FindArgumentProperty(type) ?? throw new Exception($"Missing Argument property on '{type.Name}'");
+                var argValue = Convert.ChangeType(argument, pi.PropertyType);
+                pi.SetValue(instance, argValue);
+            }
             try
             {
                 method.Invoke(instance, parameters);

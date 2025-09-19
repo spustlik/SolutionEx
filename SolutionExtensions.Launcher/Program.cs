@@ -102,7 +102,7 @@ namespace SolutionExtensions.Launcher
             //run extension
             Console.WriteLine($"{LauncherProcess.RUN}: Running extension");
             //to simplify code, which will break
-            var runner = new ExtensionRunner(type, method, cmd.BreakDebugger);
+            var runner = new ExtensionRunner(type, method, cmd.Argument, cmd.BreakDebugger);
             runner.Run(dte, serviceProvider);
             Console.WriteLine($"{LauncherProcess.DONE}");
         }
@@ -158,6 +158,7 @@ namespace SolutionExtensions.Launcher
             public string ClassName;
             public string MonikerName;
             public string PackageId;
+            public string Argument;
             public bool WaitForDebugger;
             public bool BreakDebugger;
             public bool WaitForEnter;
@@ -179,13 +180,17 @@ namespace SolutionExtensions.Launcher
             {
                 r.Action = ActionEnum.DumpMonikers;
             }
-            if (strings.Length == 4)
+            if (strings.Length >= 4)
             {
                 r.DllPath = strings[0];
                 r.ClassName = strings[1];
                 r.MonikerName = strings[2];
                 r.PackageId = strings[3];
                 r.Action = ActionEnum.Run;
+            }
+            if (strings.Length > 4)
+            {
+                r.Argument = strings[4];
             }
             return r;
         }

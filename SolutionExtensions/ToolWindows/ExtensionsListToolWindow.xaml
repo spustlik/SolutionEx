@@ -8,12 +8,14 @@
              xmlns:toolkit="clr-namespace:Community.VisualStudio.Toolkit;assembly=Community.VisualStudio.Toolkit"              
              xmlns:shell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"             
              xmlns:ui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
+             xmlns:design="clr-namespace:SolutionExtensions._DesignData"
              xmlns:cmt="uri:comments"
              toolkit:Themes.UseVsTheme="True"
              mc:Ignorable="d cmt" 
              d:Background="White"
              Loaded="Control_Loaded"
-             d:DataContext="{d:DesignData /_DesignData/ExtensionListToolWindowVM.xaml}"
+             cmt:DataContext="{d:DesignData /_DesignData/ExtensionListToolWindowVM.xaml}"
+             d:DataContext="{d:DesignInstance design:ExtensionListVM}"
              d:DesignHeight="455.41" d:DesignWidth="399.916">
     <UserControl.Resources>
         <ResourceDictionary>
@@ -187,7 +189,8 @@
                 </Grid>
                 <Label Content="Class Name"/>
                 <ComboBox IsEditable="True" IsTextSearchEnabled="True" DropDownOpened="PickClass_Opened" Text="{Binding SelectedItem.ClassName}" />
-
+                <Label Content="Argument"/>
+                <TextBox Text="{Binding SelectedItem.Argument, UpdateSourceTrigger=PropertyChanged}"/>
             </StackPanel>
         </StackPanel>
     </Grid>

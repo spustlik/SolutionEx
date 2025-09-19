@@ -22,6 +22,7 @@ namespace SolutionExtensions.Launcher
             string className,
             string dteMonikerName,
             string packageId,
+            string argument,
             Action<string> onOutputData)
         {
             var args = new List<string>()
@@ -29,7 +30,8 @@ namespace SolutionExtensions.Launcher
                 $"\"{dllPath}\"",
                 className,
                 dteMonikerName,
-                packageId
+                packageId,
+                $"\"{argument.Replace("\"","\"\"")}\""
             };
             args.Add("/waitfordebugger");
             //args.Add("/break");

@@ -32,7 +32,7 @@ namespace ExtensionSamples.Extra
             var txt = edit.GetText(endPoint.CreateEditPoint());
             //logging to outputpane is slow, and maybe recursive
             var log = Path.Combine(Path.GetTempPath(), "_exlog.log");
-            File.AppendAllText(log, $"LineChanged at {doc.Name} {startPoint.Line}:{startPoint.LineCharOffset} - {endPoint.Line}:{endPoint.LineCharOffset} ('{txt}') received...");
+            File.AppendAllText(log, $"LineChanged at {doc.Name} {startPoint.Line}:{startPoint.LineCharOffset} - {endPoint.Line}:{endPoint.LineCharOffset} ('{txt}') received...\n");
             if (txt == "STOP")
             {
                 textDoc.DTE.Events.TextEditorEvents.LineChanged -= TextEditorEvents_LineChanged;

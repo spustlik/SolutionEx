@@ -52,5 +52,14 @@ namespace SolutionExtensions
         }
         #endregion
 
+        #region Argument property
+        private string _argument;
+        public string Argument
+        {
+            get => _argument;
+            set => Set(ref _argument, value);
+        }
+        #endregion
+
     }
 }

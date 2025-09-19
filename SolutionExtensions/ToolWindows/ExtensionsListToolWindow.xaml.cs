@@ -90,10 +90,14 @@ namespace SolutionExtensions.ToolWindows
         private void ViewModelExtensions_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             //Package.Log($"ViewModelExtensions_PropertyChanged: {e.PropertyName}");
+            var item = sender as ExtensionItem;
             if (e.PropertyName == nameof(ExtensionItem.ClassName))
             {
-                var item = sender as ExtensionItem;
                 ExtensionManager.SetItemTitleFromMethod(item);
+            }
+            if (e.PropertyName == nameof(ExtensionItem.Argument))
+            {
+                Validate();
             }
             ThrottleUpdateModel();
         }
@@ -190,9 +194,9 @@ namespace SolutionExtensions.ToolWindows
                 if (MessageBox.Show($"No breakpoint found.\n" +
                     $"There should be breakpoint in your extension to stop debugger there.\n" +
                     $"Or add System.Diagnostics.Debugger.Break(); to your code.\n" +
-                    $"Do you want to continue?", 
-                    "Breakpoint missing", 
-                    MessageBoxButton.YesNo, 
+                    $"Do you want to continue?",
+                    "Breakpoint missing",
+                    MessageBoxButton.YesNo,
                     MessageBoxImage.Hand) != MessageBoxResult.Yes)
                     return;
             }
@@ -306,9 +310,18 @@ namespace SolutionExtensions.ToolWindows
                 if (!ExtensionManager.IsDllPathSelf(item))
                     return $"Warning: DLL path is not in Solution (sub)folder";
             if (!ExtensionManager.IsDllExists(item))
-                return $"DLL file does not exist, maybe you must compile it?";
-            if (!ExtensionManager.IsClassValid(item))
-                return $"Class '{item.ClassName}' not found in DLL";
+                return $"DLL file does not exist, maybe you must compile it first?";
+
+            var check = ExtensionManager.CheckItemCode(item);
+            switch (check)
+            {
+                case ExtensionManager.CheckResult.ClassNotFound:
+                    return $"Class '{item.ClassName}' not found in DLL";
+                case ExtensionManager.CheckResult.RunMethodNotFound:
+                    return $"Class '{item.ClassName}' must have 'Run' method";
+                case ExtensionManager.CheckResult.ArgumentPropertyNotFound:
+                    return $"Class '{item.ClassName}' should have 'Argument' property";
+            }
             return null;
         }
 
@@ -409,6 +422,7 @@ namespace SolutionExtensions.ToolWindows
             ViewModel.SelectedItem = item;
         }
 
+#pragma warning disable VSTHRD100 // Avoid async void methods
         private async void ButtonDump_Click(object sender, RoutedEventArgs e)
         {
             var p = this.Package;
@@ -421,6 +435,7 @@ namespace SolutionExtensions.ToolWindows
                 this.ShowException(ex);
             }
         }
+#pragma warning restore VSTHRD100 // Avoid async void methods
 
         private void Develop_Click(object sender, RoutedEventArgs e)
         {

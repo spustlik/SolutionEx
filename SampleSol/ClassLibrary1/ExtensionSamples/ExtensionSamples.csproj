@@ -73,6 +73,7 @@
       <ResourceName>someResourceName</ResourceName>
     </Compile>
     <Compile Include="ExperimentEvents.cs" />
+    <Compile Include="Sample3.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

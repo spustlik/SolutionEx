@@ -174,7 +174,9 @@ namespace SolutionExtensions.ToolWindows
             }
             File.WriteAllText(fn, s);
             var dte = Package.GetService<DTE, DTE>();
+#pragma warning disable VSTHRD010
             var found = dte.Documents.Cast<Document>().FirstOrDefault(d => d.FullName.Equals(fn, StringComparison.OrdinalIgnoreCase));
+#pragma warning restore VSTHRD010
             try
             {
                 if (found != null)
@@ -233,8 +235,10 @@ namespace SolutionExtensions.ToolWindows
         private void DumpAD_Click(object sender, RoutedEventArgs e)
         {
             var dte = Package.GetService<DTE, DTE>();
+#pragma warning disable VSTHRD010
             DumpObj("Active document", () => dte.ActiveDocument);
-            //aw is always self
+#pragma warning restore VSTHRD010
+            //ActiveWindow is always this 
             //DumpObj("Active window", () => dte.ActiveWindow);
         }
 

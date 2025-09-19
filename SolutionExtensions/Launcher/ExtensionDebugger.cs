@@ -35,7 +35,7 @@ namespace SolutionExtensions
                     waiting = true;
                 package.AddToOutputPaneThreadSafe(line);
             }
-            var launcher = LauncherProcess.RunExtension(launcherExe, dllPath, item.ClassName, monikerName, packageId, launcherOutputData);
+            var launcher = LauncherProcess.RunExtension(launcherExe, dllPath, item.ClassName, monikerName, packageId, item.Argument, launcherOutputData);
 
             while (!launcher.HasExited)
             {

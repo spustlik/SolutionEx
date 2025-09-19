@@ -1,6 +1,8 @@
 ﻿using EnvDTE;
 using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Internal;
+using SolutionExtensions.Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -94,7 +96,12 @@ namespace SolutionExtensions
             var cfgFilePath = GetCfgFilePath();
             if (!File.Exists(cfgFilePath))
                 return false;
-            LoadFromFile(target, cfgFilePath);
+            ExtensionsSerialization.LoadFromFile(target, cfgFilePath);
+            foreach (var item in target.Extensions)
+            {
+                EnsureTitle(item);
+            }
+
             //return target.Extensions.Count > 0;
             return true;
         }
@@ -108,26 +115,8 @@ namespace SolutionExtensions
             var cfgFilePath = GetCfgFilePath();
             if (!File.Exists(cfgFilePath) && source.Extensions.Count == 0)
                 return; //skip saving if not exists and no extension
-            SaveToFile(source, cfgFilePath);
+            ExtensionsSerialization.SaveToFile(source, cfgFilePath);
         }
-        public void SaveToFile(ExtensionsModel source, string cfgFilePath)
-        {
-            using (var fs = new FileStream(cfgFilePath, FileMode.Create, FileAccess.Write))
-            {
-                using (var sw = new StreamWriter(fs))
-                {
-                    sw.WriteLine("# Solution extensions configuration file");
-                    sw.WriteLine("# format: [Title]|[ShortCutKey]|[ClassName]|DllPath");
-                    foreach (var ext in source.Extensions)
-                    {
-                        if (ext.Title == null && ext.DllPath == null && ext.ClassName == null)
-                            continue;
-                        sw.WriteLine($"{ext.Title}|{ext.ShortCutKey}|{ext.ClassName}|{ext.DllPath}");
-                    }
-                }
-            }
-        }
-
         public void SetDllPath(ExtensionItem item, string fileName)
         {
             if (!fileName.Contains('%') && !fileName.Contains("$("))
@@ -169,8 +158,7 @@ namespace SolutionExtensions
             return item.DllPath == "$(SELF)";
         }
 
-        //TODO:should return assembly of some SELF extension
-        private Lazy<Assembly> _selfAssembly = new Lazy<Assembly>(() => typeof(ExtensionManager).Assembly);
+        private Lazy<Assembly> _selfAssembly = new Lazy<Assembly>(() => typeof(CreateGUID).Assembly);
         public Assembly SelfAssembly => _selfAssembly.Value;
 
         public void SetItemTitleFromMethod(ExtensionItem item)
@@ -223,53 +211,11 @@ namespace SolutionExtensions
             return ExtensionObject.GetExtensionClassNames(assembly);
         }
 
-        private void LoadFromFile(ExtensionsModel target, string cfgFilePath)
-        {
-            using (var fs = new FileStream(cfgFilePath, FileMode.Open, FileAccess.Read))
-            {
-                using (var sr = new StreamReader(fs))
-                {
-                    target.Extensions.Clear();
-                    while (!sr.EndOfStream)
-                    {
-                        var line = sr.ReadLine().Trim();
-                        if (line.StartsWith("#") || string.IsNullOrWhiteSpace(line))
-                            continue;
-                        var item = LoadItem(line);
-                        if (item != null)
-                            target.Extensions.Add(item);
-                    }
-                }
-            }
-        }
-
-        private ExtensionItem LoadItem(string line)
-        {
-            var parts = line.Split('|');
-            if (parts.Length != 4)
-                return null;
-            var item = new ExtensionItem()
-            {
-                Title = parts[0],
-                ShortCutKey = parts[1],
-                ClassName = parts[2],
-                DllPath = parts[3]
-            };
-            EnsureTitle(item);
-            return item;
-        }
-
-        public void RunExtension(ExtensionItem extension)
+        public void RunExtension(ExtensionItem item)
         {
             var dte = package.GetService<DTE, DTE>();
-            var (method, type) = FindExtensionMethod(extension, throwIfNotFound: true, tryCompile: true);
-            ExtensionObject.RunExtension(type, method, dte, package);
-        }
-
-        public bool IsClassValid(ExtensionItem item)
-        {
-            var cls = FindExtensionClassesInDll(item.DllPath);
-            return cls.FirstOrDefault(c => c == item.ClassName) != null;
+            var (method, type) = FindExtensionMethod(item, throwIfNotFound: true, tryCompile: true);
+            ExtensionObject.RunExtension(type, method, dte, package, item.Argument);
         }
 
         public bool IsDllPathInSolutionScope(ExtensionItem item)
@@ -299,6 +245,28 @@ namespace SolutionExtensions
             return File.Exists(realDllPath);
         }
 
+        public enum CheckResult
+        {
+            Ok,
+            ClassNotFound,
+            RunMethodNotFound,
+            ArgumentPropertyNotFound,
+        }
+        public CheckResult CheckItemCode(ExtensionItem item)
+        {
+            var (method, type) = FindExtensionMethod(item, throwIfNotFound: false, tryCompile: false);
+            if (type == null)
+                return CheckResult.ClassNotFound;
+            if (method == null)
+                return CheckResult.RunMethodNotFound;
+            if (!string.IsNullOrEmpty(item.Argument))
+            {
+                var pi = ExtensionObject.FindArgumentProperty(type);
+                if (pi == null)
+                    return CheckResult.ArgumentPropertyNotFound;
+            }
+            return CheckResult.Ok;
+        }
     }
 
 }
