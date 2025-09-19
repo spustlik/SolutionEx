@@ -144,9 +144,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Community.VisualStudio.Toolkit.17">
-      <Version>17.0.533</Version>
-    </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.14.40265" ExcludeAssets="runtime" NoWarn="NU1604">
       <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -183,6 +180,9 @@
     <Page Include="ReflectorControl\ReflectorControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\VsColors.xaml">
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ToolWindows\ExtensionsListToolWindow.xaml">
       <SubType>Designer</SubType>

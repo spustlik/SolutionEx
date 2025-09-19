@@ -5,26 +5,22 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SolutionExtensions.ToolWindows"
              xmlns:model="clr-namespace:SolutionExtensions"
-             xmlns:toolkit="clr-namespace:Community.VisualStudio.Toolkit;assembly=Community.VisualStudio.Toolkit"              
              xmlns:shell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"             
              xmlns:ui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
              xmlns:cmt="uri:comments"
              mc:Ignorable="d cmt" 
-             toolkit:Themes.UseVsTheme="True"
              d:Background="White"
              Loaded="UserControl_Loaded"
              d:DesignHeight="68.15" d:DesignWidth="324.002">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="{x:Static toolkit:ToolkitResourceKeys.ThemeResourcesUri}"/>
+                <ResourceDictionary Source="/SolutionExtensions;component/Themes/VsColors.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="boolToVisi"/>
             <model:EmptyConverter x:Key="notEmptyToVisi" Inner="{StaticResource boolToVisi}" Negate="True"/>
             <model:EmptyConverter x:Key="emptyToVisi" Inner="{StaticResource boolToVisi}"/>
             <model:EmptyConverter x:Key="notEmpty" Negate="True"/>
-            <Style TargetType="ContextMenu" BasedOn="{StaticResource {x:Static shell:VsResourceKeys.ContextMenuStyleKey}}">
-            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>

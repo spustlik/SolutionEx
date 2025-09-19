@@ -1,8 +1,6 @@
-﻿using Community.VisualStudio.Toolkit;
-using EnvDTE;
+﻿using EnvDTE;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.TextManager.Interop;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -37,7 +35,7 @@ namespace SolutionExtensions
     [ProvideToolWindow(typeof(ToolWindows.ExtensionsListToolWindowPane))]
     [ProvideToolWindow(typeof(ToolWindows.ReflectorToolWindowPane))]
     [ComVisible(true)]
-    public sealed class SolutionExtensionsPackage : ToolkitPackage
+    public sealed class SolutionExtensionsPackage : AsyncPackage
     {
         /// <summary>
         /// SolutionExtensionsPackage GUID string.
@@ -64,7 +62,7 @@ namespace SolutionExtensions
             // err: AddToOutputPane("Started",true);
             dte.Events.SolutionEvents.Opened += this.OnSolutionOpened;
             dte.Events.SolutionEvents.AfterClosing += OnSolutionAfterClosing;
-            this.RegisterToolWindows();
+            //this.RegisterToolWindows();
             await CommandBase.InitializeAsync<CommandShow>(this);
             var tasks = new List<Task>();
             for (int i = 0; i <= CommandIds.Command_Extension50 - CommandIds.Command_Extension1; i++)

@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:toolkit="clr-namespace:Community.VisualStudio.Toolkit;assembly=Community.VisualStudio.Toolkit"              
              xmlns:local="clr-namespace:SolutionExtensions"
              xmlns:ui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
              xmlns:conv="clr-namespace:SolutionExtensions"
@@ -12,8 +11,12 @@
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignData /_DesignData/ReflectorRoot.xaml}"    
              >
+    <UserControl.Resources>
+        <ResourceDictionary Source="/SolutionExtensions;component/Themes/VsColors.xaml"/>
+    </UserControl.Resources>
     <Grid>
         <Grid.Resources>
+
             <BooleanToVisibilityConverter x:Key="boolToVisi"/>
             <conv:EmptyConverter x:Key="notEmptyToVisi" Inner="{StaticResource boolToVisi}" Negate="True"/>
             <conv:EmptyConverter x:Key="emptyToVisi" Inner="{StaticResource boolToVisi}"/>
@@ -167,14 +170,14 @@
                 </Setter>
             </Style>
             <ControlTemplate x:Key="addButtonsTemplate" TargetType="ContentControl" >
-                    <Grid HorizontalAlignment="Stretch">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" SharedSizeGroup="colButtons"/>
-                        </Grid.ColumnDefinitions>
-                        <ContentPresenter/>
-                        <ContentControl Grid.Column="1" Style="{StaticResource buttons}"/>
-                    </Grid>
+                <Grid HorizontalAlignment="Stretch">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="colButtons"/>
+                    </Grid.ColumnDefinitions>
+                    <ContentPresenter/>
+                    <ContentControl Grid.Column="1" Style="{StaticResource buttons}"/>
+                </Grid>
             </ControlTemplate>
             <Style x:Key="addButtons" TargetType="ContentControl" >
                 <Setter Property="Template" Value="{StaticResource addButtonsTemplate}"/>

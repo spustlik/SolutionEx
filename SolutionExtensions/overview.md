@@ -72,10 +72,10 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * 1.1 - if possible, extension is compiled
 * 1.2 - Argument support
 * 1.2.1 - package is IServiceProvider also in debug
+* 1.2.2 - Community.Toolkit removed
 
 ### Ideas
 * Add new extension project using wizard
-* remove Community.Toolkit and solve theming by another way
 * extension `Run` method with another type of parameters like Document, ProjectItem, etc.
 * allow to use /bin/debug or /bin/release using /**/extensionName.dll
 * custom variables in cfg like $(MyTemplates)=$(SolutionDir)/MyTemplates*

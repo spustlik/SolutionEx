@@ -5,35 +5,21 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SolutionExtensions.ToolWindows"             
              xmlns:model="clr-namespace:SolutionExtensions"
-             xmlns:toolkit="clr-namespace:Community.VisualStudio.Toolkit;assembly=Community.VisualStudio.Toolkit"              
              xmlns:shell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"             
              xmlns:ui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
              xmlns:design="clr-namespace:SolutionExtensions._DesignData"
              xmlns:cmt="uri:comments"
-             toolkit:Themes.UseVsTheme="True"
              mc:Ignorable="d cmt" 
              d:Background="White"
              Loaded="Control_Loaded"
              cmt:DataContext="{d:DesignData /_DesignData/ExtensionListToolWindowVM.xaml}"
              
-             d:DesignHeight="455.41" d:DesignWidth="399.916">
+             d:DesignHeight="455.41" d:DesignWidth="560.916">
     <UserControl.Resources>
-        <ResourceDictionary>
-            <!-- 
-            To customize a style provided by the toolkit, you need to make the resources 
-            available by including the resource dictionary from the toolkit:
-            -->
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="{x:Static toolkit:ToolkitResourceKeys.ThemeResourcesUri}"/>
-            </ResourceDictionary.MergedDictionaries>
-
-            <!--<Style TargetType="TextBox" BasedOn="{StaticResource {x:Static toolkit:ToolkitResourceKeys.TextBoxStyleKey}}">
-                <Setter Property="BorderBrush" Value="Red" />
-            </Style>-->
-
-            <!--<Style TargetType="Button" BasedOn="{StaticResource {x:Static shell:VsResourceKeys.ThemedDialogButtonStyleKey}}">
-                <Setter Property="Foreground" Value="Green" />
-            </Style>-->
+        <ResourceDictionary Source="/SolutionExtensions;component/Themes/VsColors.xaml"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.Resources>
             <BooleanToVisibilityConverter x:Key="boolToVisi"/>
             <model:EmptyConverter x:Key="notEmptyToVisi" Inner="{StaticResource boolToVisi}" Negate="True"/>
             <model:EmptyConverter x:Key="emptyToVisi" Inner="{StaticResource boolToVisi}"/>
@@ -44,7 +30,6 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-
                     <Grid HorizontalAlignment="Stretch">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -73,9 +58,7 @@
                     </Border>
                 </Grid>
             </DataTemplate>
-        </ResourceDictionary>
-    </UserControl.Resources>
-    <Grid >
+        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -106,14 +89,14 @@
             <Button Click="ButtonMore_Click">
                 <Button.Content>💡More▾</Button.Content>
                 <Button.ContextMenu>
-                    <ContextMenu Style="{StaticResource {x:Static shell:VsResourceKeys.ContextMenuStyleKey}}">
-                        <MenuItem Header="📋 Copy extension" Click="Copy_Click"/>
+                    <ContextMenu>
+                        <MenuItem Header="📋 Create copy of extension" Click="Copy_Click"/>
                         <MenuItem Header="Add new extension project to solution" Click="AddProj_Click"/>
                         <MenuItem Header="Add config as solution item" Click="AddConfig_Click"/>
-                        <MenuItem Header="Check all" Click="CheckAll_Click"/>
+                        <MenuItem Header="Validate all extensions" Click="CheckAll_Click"/>
                         <Separator/>
                         <MenuItem Header="Reload" Click="Load_Click"/>
-                        <MenuItem Header="Sync to DTE" Click="SyncToDte_Click"/>
+                        <MenuItem Header="Sync to VS" Click="SyncToDte_Click"/>
                         <MenuItem Header="Save" Click="Save_Click"/>
                     </ContextMenu>
                 </Button.ContextMenu>
