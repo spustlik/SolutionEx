@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace SolutionExtensions
@@ -130,7 +132,7 @@ namespace SolutionExtensions
                 waitMs = 3000;
             //nor coloring nor highlight is working in VS
             uint? fcolor = null;
-            uint? bcolor = null;            
+            uint? bcolor = null;
             if (isError)
             {
                 //fcolor = (uint?)VSColorTheme.GetThemedColor(CommonDocumentColors.StatusBannerErrorTextColorKey).ToArgb();

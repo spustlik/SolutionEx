@@ -1,6 +1,6 @@
 ﻿# Solution extensions
-Extension for Visual Studio to allow programmers to very simply create own extensions **in solution scope**.
-It is highly inspired by VSCommands (by Vlasov Studio), but uses another approach. 
+Extension for Visual Studio to allow programmers to very simply create own extensions (or macros if you want another name) **in solution scope**.
+It is highly inspired by [Visual Commander](https://marketplace.visualstudio.com/items?itemName=SergeyVlasov.VisualCommander) (by Vlasov Studio), but uses another approach. 
 Your extension has real source file with intellisense and allows somehow debugging.
 Config of extensions (path, title, shortcut) is stored in file in solution scope, so shared in team.
 

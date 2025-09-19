@@ -45,6 +45,7 @@
                     <ContextMenu>
                         <MenuItem Header="DTE" Click="DumpDTE_Click"/>
                         <MenuItem Header="Active document" Click="DumpAD_Click"/>
+                        <MenuItem Header="VSShell" Click="DumpVSShell_Click"/>
                     </ContextMenu>
                 </Button.ContextMenu>
             </Button>

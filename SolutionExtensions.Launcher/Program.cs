@@ -90,20 +90,25 @@ namespace SolutionExtensions.Launcher
             //instantiate dte from moniker
             Console.WriteLine($"{LauncherProcess.PREPARE}: Getting running DTE from ${cmd.MonikerName}");
             var dte = GetDTE(cmd);
-            IServiceProvider serviceProvider = null;
+            object package = null;
             try
             {
-                serviceProvider = GetServiceProvider(cmd.PackageId, dte);
+                //package = FindPackage(cmd.PackageId, dte);
+                //if (package == null)
+                {
+                    //Console.WriteLine("WARNING: Package not get from DTE, trying serviceProvider");
+                    package = GetServiceProvider(cmd.PackageId, dte);
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("WARNING: " + ex.Message);
+                Console.WriteLine($"WARNING: {ex.Message}");
             }
             //run extension
             Console.WriteLine($"{LauncherProcess.RUN}: Running extension");
             //to simplify code, which will break
             var runner = new ExtensionRunner(type, method, cmd.Argument, cmd.BreakDebugger);
-            runner.Run(dte, serviceProvider);
+            runner.Run(dte, package);
             Console.WriteLine($"{LauncherProcess.DONE}");
         }
 
@@ -119,9 +124,29 @@ namespace SolutionExtensions.Launcher
                 throw new ApplicationException($"Moniker COM is not DTE");
             return dte;
         }
+        private static IVsPackage FindPackage(string id, EnvDTE.DTE dte)
+        {
+            //this is not working and will never 
+            //because IServiceProvider,nor AsyncPackage,Package is not COM interfaces
+            var svc = dte.GetOLEServiceProvider(throwIfNotFound: true);
+            var shell = svc.QueryService<SVsShell>() as IVsShell;
+            if (shell == null)
+                return null;
+            if (!Guid.TryParse(id, out var guid))
+                return null;
+            //var queryService = svc.QueryService<SVsPackageInfoQueryService>() as IVsPackageInfoQueryService;
+            //if (queryService == null)
+            //    return null;
+            //var info = queryService.GetPackageInfo(guid);
+            var package = shell.GetPackages()
+                .FirstOrDefault(p => p.GetType().GUID == guid);
+            var ap = shell.GetPackages().OfType<IServiceProvider>().ToArray();
+            return package;
+        }
 
         private static IServiceProvider GetServiceProvider(string id, EnvDTE.DTE dte)
         {
+
             var svc = dte.GetOLEServiceProvider(throwIfNotFound: true);
             var sp = new ServiceProviderOle(svc);
             return sp;

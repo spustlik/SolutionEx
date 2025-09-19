@@ -79,13 +79,13 @@ namespace SolutionExtensions
             return false;
         }
 
-        public static void RunExtension(Type type, MethodInfo method, DTE dte, IServiceProvider serviceProvider, string argument)
+        public static void RunExtension(Type type, MethodInfo method, DTE dte, object package, string argument)
         {
             //var (method, type) = FindExtensionMethod(assembly, className, throwIfNotFound: true);
             var parameters = new object[method.GetParameters().Length];
             parameters[0] = dte;
             if (parameters.Length > 1)
-                parameters[1] = serviceProvider;
+                parameters[1] = package;
             var instance = method.IsStatic ? null : Activator.CreateInstance(type);
             if (!string.IsNullOrEmpty(argument))
             {

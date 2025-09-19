@@ -19,11 +19,11 @@ namespace SolutionExtensions.Launcher
             this.breakDebugger = breakDebugger;
         }
 
-        public void Run(EnvDTE.DTE dte, IServiceProvider serviceProvider)
+        public void Run(EnvDTE.DTE dte, object package)
         {
             if (breakDebugger)
                 Debugger.Break();
-            ExtensionObject.RunExtension(type, method, dte, serviceProvider, argument);
+            ExtensionObject.RunExtension(type, method, dte, package, argument);
         }
     }
 }

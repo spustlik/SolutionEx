@@ -19,11 +19,16 @@ namespace SolutionExtensions.Reflector
             try
             {
                 var types = assembly.GetTypes();
-                foreach (var t in types)
+                foreach (var t in types.OrderBy(t => t.GUID))
                 {
                     if (!t.IsInterface || t.GUID == Guid.Empty)
                         continue;
-                    if (!knownInterfaces.ContainsKey(t.GUID))
+                    if (knownInterfaces.TryGetValue(t.GUID, out var exists))
+                    {
+                        if (GetPriority(t) > GetPriority(exists))
+                            knownInterfaces[t.GUID] = t;
+                    }
+                    else
                     {
                         knownInterfaces.Add(t.GUID, t);
                     }
@@ -34,6 +39,18 @@ namespace SolutionExtensions.Reflector
                 //ignore
             }
         }
+
+        private int GetPriority(Type t)
+        {
+            //for example SVsShell, IVsShell has same GUID
+            int p = 0;
+            if (t.GetCustomAttribute<ComVisibleAttribute>(false)?.Value == true)
+                p += 1;
+            if (t.GetCustomAttribute<ComImportAttribute>(false) != null)
+                p += 1;
+            return p;
+        }
+
         public void RegisterInterfacesFromAppDomain()
         {
             foreach (var a in AppDomain.CurrentDomain.GetAssemblies())

@@ -237,7 +237,7 @@ namespace SolutionExtensions.ToolWindows
             //DumpObj("Active window", () => dte.ActiveWindow);
         }
 
-        private void DumpEM_Click(object sender, RoutedEventArgs e)
+        void DumpEM_Click(object sender, RoutedEventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             try
@@ -250,8 +250,30 @@ namespace SolutionExtensions.ToolWindows
                 this.ShowException(ex);
             }
         }
+        private void DumpVSShell_Click(object sender, RoutedEventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            try
+            {
+                var shell = Package.GetService<SVsShell, IVsShell>();
+                var queryService = Package.GetService<SVsPackageInfoQueryService, IVsPackageInfoQueryService>();
+                var info = queryService.GetPackageInfo(Package.GetType().GUID);
+                var dump = new
+                {
+                    shell,
+                    queryService,
+                    info,
+                    packages = shell.GetPackages().ToArray(),
+                };
+                DumpObj("VsShell", () => dump);
+            }
+            catch (Exception ex)
+            {
+                this.ShowException(ex);
+            }
+        }
 
-        private void DumpTest_Click(object sender, RoutedEventArgs e)
+        void DumpTest_Click(object sender, RoutedEventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             try
