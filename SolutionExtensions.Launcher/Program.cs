@@ -123,10 +123,7 @@ namespace SolutionExtensions.Launcher
         private static IServiceProvider GetServiceProvider(string id, EnvDTE.DTE dte)
         {
             var svc = dte.GetOLEServiceProvider(throwIfNotFound: true);
-            var sp = new ServiceProviderDelegate((type =>
-            {
-                return svc.QueryService(type.GUID);
-            }));
+            var sp = new ServiceProviderOle(svc);
             return sp;
             /*
             var shell = svc.QueryService<SVsShell>() as IVsShell;

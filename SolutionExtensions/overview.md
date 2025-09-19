@@ -1,5 +1,5 @@
 ﻿# Solution extensions
-Extension to Visual Studio to allow programmers to very simply create own extensions **in solution scope**.
+Extension for Visual Studio to allow programmers to very simply create own extensions **in solution scope**.
 It is highly inspired by VSCommands (by Vlasov Studio), but uses another approach. 
 Your extension has real source file with intellisense and allows somehow debugging.
 Config of extensions (path, title, shortcut) is stored in file in solution scope, so shared in team.
@@ -31,8 +31,20 @@ Your extension is just compiled assembly and should be in your solution.
 * add `[Description("caption")]` attribute to Run method or class to allow inspection of caption
 * add public non-static property called `Argument`, 
 and config argument value of extension to parametrize you run
+``` 
+public class MyExtension
+{
+    public string Argument { get; set; }
+    [Description("My great extension")]
+    public void Run(DTE dte)
+    {
+        MessageBox.Show($"This is argument:{Argument}");
+    }
+}
+```
 * commit and share with others in team, it is possible to share compiled assembly also
-* WARNING: `package` argument is null when debugging, `AsyncPackage` : `Package`: `IServiceProvider` else
+* WARNING: `package` argument is IServiceProvider when debugging, 
+* else inherits from `AsyncPackage`, `Package`, and `IServiceProvider`
 * You can use __DTE Inspector__ to inspect DTE objects
 
 ## DTE Inspector
@@ -59,6 +71,7 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * 1.0 - initial version
 * 1.1 - if possible, extension is compiled
 * 1.2 - Argument support
+* 1.2.1 - package is IServiceProvider also in debug
 
 ### Ideas
 * Add new extension project using wizard

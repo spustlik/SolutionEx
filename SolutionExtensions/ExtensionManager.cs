@@ -15,6 +15,8 @@ namespace SolutionExtensions
 {
     public class ExtensionManager
     {
+        public const string SELFKEY = "SELF";
+        public const string SELF = "$("+SELFKEY+")";
         private SolutionExtensionsPackage package;
 
         public ExtensionManager(SolutionExtensionsPackage package)
@@ -139,7 +141,7 @@ namespace SolutionExtensions
                 switch (name)
                 {
                     case "SOLUTIONDIR": return Path.GetDirectoryName(GetSolutionFileName());
-                    case "SELF": return SelfAssembly.Location;
+                    case SELFKEY: return SelfAssembly.Location;
                     default: return null;
                 }
             }
@@ -155,7 +157,7 @@ namespace SolutionExtensions
         }
         public bool IsDllPathSelf(ExtensionItem item)
         {
-            return item.DllPath == "$(SELF)";
+            return item.DllPath == SELF;
         }
 
         private Lazy<Assembly> _selfAssembly = new Lazy<Assembly>(() => typeof(CreateGUID).Assembly);

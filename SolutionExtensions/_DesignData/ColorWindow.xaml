@@ -3,13 +3,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:SolutionExtensions._DesignData"
+             xmlns:local="clr-namespace:SolutionExtensions._DesignData" 
+             xmlns:platformui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Utilities"
              mc:Ignorable="d" 
+             Title="Visual Studio Colors"
              d:DataContext="{d:DesignData ColorWindowVM.xaml}"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.Resources>
-            <DataTemplate DataType="{x:Type local:ColorModel}">
+            <platformui:MaximumContrastConverter x:Key="contrast"/>
+            <DataTemplate x:Key="cmBox" DataType="{x:Type local:ColorModel}">
                 <Border Width="20" Height="20" Margin="3,3" Background="{Binding Brush}">
                     <Border.ToolTip>
                         <TextBlock>
@@ -24,9 +27,88 @@
                     </Border.ToolTip>
                 </Border>
             </DataTemplate>
-
+            <Style x:Key="boxes" TargetType="ItemsControl" >
+                <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Visible"/>
+                <Setter Property="ItemTemplate" Value="{StaticResource cmBox}"/>
+                <Setter Property="ItemsPanel">
+                    <Setter.Value>
+                        <ItemsPanelTemplate>
+                            <WrapPanel/>
+                        </ItemsPanelTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <DataTemplate x:Key="cmList" DataType="{x:Type local:ColorModel}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="30"/>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding Brush}"/>
+                    <Label Grid.Column="1" Content="{Binding Name}"/>
+                    <Label Grid.Column="2" Content="{Binding KeyType}"/>
+                    <Label Grid.Column="3" Content="{Binding DeclaringTypeName}"/>
+                </Grid>
+            </DataTemplate>
         </Grid.Resources>
         <TabControl>
+            <TabItem>
+                <TabItem.Header>
+                    <TextBlock>
+                        <Bold>All colors</Bold>
+                    </TextBlock>
+                </TabItem.Header>
+                <ScrollViewer>
+                    <ItemsControl ItemsSource="{Binding ColorGroups}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type local:ColorGroupModel}">
+                                <Expander>
+                                    <Expander.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Label Content="{Binding DeclaringTypeName}" Padding="0,0,5,0"/>
+                                            <Label Content="{Binding Name}" Padding="0,0,5,0"/>
+                                            <TextBox Text="{Binding Id,Mode=OneWay}" IsReadOnly="True"/>
+                                        </StackPanel>
+                                    </Expander.Header>
+                                    <ItemsControl ItemsSource="{Binding Items}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate DataType="{x:Type local:ColorTypesModel}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <StackPanel.Resources>
+                                                        <Style TargetType="Separator">
+                                                            <Setter Property="Width" Value="5"/>
+                                                            <Setter Property="Opacity" Value="0"/>
+                                                        </Style>
+                                                    </StackPanel.Resources>
+                                                    <Label Content="{Binding Name}" Width="200"/>
+                                                    <Separator/>
+                                                    <Border Background="{Binding BgColor}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Ellipse Margin="4" Fill="{Binding FgColor}" Width="20"/>
+                                                            <Label Foreground="{Binding BgColor, Converter={StaticResource contrast}}">Color</Label>
+                                                        </StackPanel>
+                                                    </Border>
+                                                    <Separator/>
+                                                    <Border Background="{Binding BgBrush}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Ellipse Margin="4" Fill="{Binding FgBrush}" Width="20"/>
+                                                            <Label Foreground="{Binding BgBrush, Converter={StaticResource contrast}}">Brush</Label>
+                                                        </StackPanel>
+                                                    </Border>
+                                                    <Separator/>
+                                                    <Label Content="{Binding TypeNames}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Expander>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </TabItem>
             <TabItem>
                 <TabItem.Header>
                     <TextBlock>
@@ -35,13 +117,7 @@
                         <Run FontSize="9">Microsoft.VisualStudio.Shell</Run>
                     </TextBlock>
                 </TabItem.Header>
-                <ItemsControl ItemsSource="{Binding Colors}" ScrollViewer.VerticalScrollBarVisibility="Visible">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
+                <ItemsControl ItemsSource="{Binding Colors}" Style="{StaticResource boxes}"/>
             </TabItem>
             <TabItem>
                 <TabItem.Header>
@@ -51,14 +127,14 @@
                         <Run FontSize="9">Microsoft.VisualStudio.PlatformUI</Run>
                     </TextBlock>
                 </TabItem.Header>
-                <ItemsControl ItemsSource="{Binding UIColors}" ScrollViewer.VerticalScrollBarVisibility="Visible">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
+                <ItemsControl ItemsSource="{Binding UIColors}" Style="{StaticResource boxes}"/>
             </TabItem>
         </TabControl>
+        <Grid HorizontalAlignment="Right">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Top" >
+                <Button Margin="5" Click="Refresh_Click">⟳Refresh</Button>
+                <Button Margin="5" Click="Zoom_Click">🔍Zoom</Button>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>

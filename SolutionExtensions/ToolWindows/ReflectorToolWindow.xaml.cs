@@ -46,12 +46,7 @@ namespace SolutionExtensions.ToolWindows
 
         private void Zoom_Click(object sender, RoutedEventArgs e)
         {
-            var scale = LayoutTransform as ScaleTransform;
-            if (scale == null)
-                scale = new ScaleTransform() { ScaleX = 1, ScaleY = 1 };
-            var s = scale.ScaleX;
-            if (s == 1) s = 1.5; else if (s == 1.5) s = 2.0; else if (s == 2.0) s = 1.0;
-            LayoutTransform = new ScaleTransform(s, s);
+            this.DoZoomerClick();
         }
 
         private void Test_Click(object sender, RoutedEventArgs e)

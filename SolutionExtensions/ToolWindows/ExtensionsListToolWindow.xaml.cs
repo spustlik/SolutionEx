@@ -1,4 +1,5 @@
 ﻿using EnvDTE;
+using Microsoft.Internal.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.Win32;
 using SolutionExtensions._DesignData;
@@ -95,10 +96,7 @@ namespace SolutionExtensions.ToolWindows
             {
                 ExtensionManager.SetItemTitleFromMethod(item);
             }
-            if (e.PropertyName == nameof(ExtensionItem.Argument))
-            {
-                Validate();
-            }
+            ThrottleValidate();
             ThrottleUpdateModel();
         }
 
@@ -108,27 +106,23 @@ namespace SolutionExtensions.ToolWindows
             ThrottleUpdateModel();
         }
 
-        private DispatcherTimer _updateTimer;
+        private ThrottleTimer _validator = new ThrottleTimer(TimeSpan.FromSeconds(0.3));
+        private void ThrottleValidate()
+        {
+            _validator.Invoke(() => Validate());
+        }
+        private ThrottleTimer _saver = new ThrottleTimer(TimeSpan.FromSeconds(0.3));
+
         private void ThrottleUpdateModel()
         {
-            if (_updateTimer == null)
-            {
-                _updateTimer = new DispatcherTimer(DispatcherPriority.Input);
-                _updateTimer.Tick += UpdateTimer_Tick;
-            }
             if (ExtensionManager.GetCfgFilePath() == null)
                 return;
-            _updateTimer.Stop();
-            _updateTimer.Interval = TimeSpan.FromSeconds(0.3);
-            _updateTimer.Start();
-        }
-
-        private void UpdateTimer_Tick(object sender, EventArgs e)
-        {
-            _updateTimer.Stop();
-            Package.Log("Saving");
-            ExtensionManager.SaveFile(ViewModel.Model);
-            SyncToDTE();
+            _saver.Invoke(() =>
+            {
+                Package.Log("Saving");
+                ExtensionManager.SaveFile(ViewModel.Model);
+                SyncToDTE();
+            });
         }
 
         public VM ViewModel => this.DataContext as VM;
@@ -285,8 +279,6 @@ namespace SolutionExtensions.ToolWindows
             ExtensionManager.SetDllPath(item, dlg.FileName);
             if (string.IsNullOrEmpty(item.ClassName))
                 item.ClassName = ExtensionManager.FindExtensionClassesInDll(item.DllPath).FirstOrDefault();
-            Validate();
-
             ExtensionManager.EnsureTitle(item);
             return true;
         }
@@ -350,6 +342,13 @@ namespace SolutionExtensions.ToolWindows
                 }.Contains(key);
         }
 
+        private void SetSelf_Click(object sender, RoutedEventArgs e)
+        {
+            var item = ViewModel.SelectedItem;
+            if (item == null)
+                return;
+            item.DllPath = ExtensionManager.SELF;
+        }
         private void AddProj_Click(object sender, RoutedEventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -448,5 +447,6 @@ namespace SolutionExtensions.ToolWindows
             //await Task.Delay(1000);
             //await this.Package.ShowStatusBarAsync(null);
         }
+
     }
 }

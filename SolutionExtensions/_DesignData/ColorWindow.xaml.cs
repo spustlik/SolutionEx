@@ -1,23 +1,10 @@
 ﻿using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
-using SolutionExtensions.ToolWindows;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace SolutionExtensions._DesignData
 {
@@ -30,19 +17,58 @@ namespace SolutionExtensions._DesignData
         {
             InitializeComponent();
             var vm = new ColorWindowVM();
-            AddColors(vm);
+            GetColors(vm);
             DataContext = vm;
         }
 
-        private void AddColors(ColorWindowVM vm)
+        private void Refresh_Click(object sender, RoutedEventArgs e)
+        {
+            GetColors(DataContext as ColorWindowVM);
+        }
+        private void GetColors(ColorWindowVM vm)
         {
             try
             {
+                vm.Colors.Clear();
+                vm.UIColors.Clear();
+                vm.ColorGroups.Clear();
+                vm.ReflectedColors.Clear();
                 AddVsColors(vm);
                 AddPlaformColors(vm);
+                AddColorGroups(vm);
+                AddVsColorsReflected(vm);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
+            }
+        }
+
+        private void AddColorGroups(ColorWindowVM vm)
+        {
+            var all = vm.Colors.Concat(vm.UIColors).ToList();
+            foreach (var gc in all.GroupBy(c => c.CategoryName ?? c.Category.ToString("B")))
+            {
+                var gm = new ColorGroupModel()
+                {
+                    Name = gc.Key,
+                    DeclaringTypeName = String.Join(",", gc.Select(c => c.DeclaringTypeName).Distinct()),
+                    Id = gc.First().Category.ToString(),
+                    //Items = g.OrderBy(c => c.Name).ThenBy(c => c.KeyType).ToArray()
+                };
+                gm.Items = gc
+                    .GroupBy(c => c.Name)
+                    .Select(gn => new ColorTypesModel()
+                    {
+                        Name = gn.Key,
+                        TypeNames = String.Join(",", gn.Select(c => c.KeyType)),
+                        FgColor = gn.FirstOrDefault(x => x.KeyType == ThemeResourceKeyType.ForegroundColor)?.Brush,
+                        BgColor = gn.FirstOrDefault(x => x.KeyType == ThemeResourceKeyType.BackgroundColor)?.Brush,
+                        FgBrush = gn.FirstOrDefault(x => x.KeyType == ThemeResourceKeyType.ForegroundBrush)?.Brush,
+                        BgBrush = gn.FirstOrDefault(x => x.KeyType == ThemeResourceKeyType.BackgroundBrush)?.Brush,
+                        Colors = gn.ToArray()
+                    })
+                    .ToArray();
+                vm.ColorGroups.Add(gm);
             }
         }
 
@@ -76,9 +102,12 @@ namespace SolutionExtensions._DesignData
         private void AddVsColors(ColorWindowVM vm)
         {
             //Microsoft.VisualStudio.Shell.VsColors;
+            //not working: guids are different
             //categories as fields public const string Printer = "{47724E70-AF55-48fb-A928-BB161C1D0C05}";
-            var categories = typeof(Microsoft.VisualStudio.Shell.Interop.FontsAndColorsCategory).GetFields()
-                .ToDictionary(fi => (fi.GetValue(null) +"").ToUpperInvariant(), fi => fi.Name);
+            //var categories = typeof(Microsoft.VisualStudio.Shell.Interop.FontsAndColorsCategory).GetFields()
+            //    .ToDictionary(fi => (fi.GetValue(null) + "").ToUpperInvariant(), fi => fi.Name);
+
+            var shell = ServiceProvider.GlobalProvider.GetService(typeof(SVsUIShell)) as IVsUIShell5;
             foreach (var pair in VsColors.GetCurrentThemedColorValues())
             {
                 var color = new ColorModel()
@@ -86,39 +115,40 @@ namespace SolutionExtensions._DesignData
                     Key = pair.Key,
                     DeclaringType = typeof(VsColors)
                 };
-                if (categories.TryGetValue(color.Category.ToString("B").ToUpperInvariant(), out var cat))
+                //color.CategoryName = color.Category.ToString("B");
+                var res = TryFindResource(pair.Key) as Brush;
+                color.Brush = res;
+                if (res == null)
                 {
-                    color.CategoryName = cat;
-                }
-                else color.CategoryName = color.Category.ToString("B");
-                var res = TryFindResource(pair.Key);                
-                if (res is Brush b)
-                    color.Brush = b;
-                else
-                {
-                    //var shell = ServiceProvider.GlobalProvider.GetService(typeof(SVsShell)) as IVsUIShell5;
-                    var shell = ServiceProvider.GlobalProvider.GetService(typeof(SVsUIShell)) as IVsUIShell5;
                     var c = VsColors.GetThemedWPFColor(shell, pair.Key);
                     color.Brush = new SolidColorBrush(c);
                 }
                 vm.Colors.Add(color);
             }
         }
-    }
-    public class ColorWindowVM : SimpleDataObject
-    {
-        public ObservableCollection<ColorModel> Colors { get; } = new ObservableCollection<ColorModel>();
-        public ObservableCollection<ColorModel> UIColors { get; } = new ObservableCollection<ColorModel>();
-    }
-    public class ColorModel : SimpleDataObject
-    {
-        public ThemeResourceKey Key { get; set; }
-        public ThemeResourceKeyType KeyType => Key.KeyType;
-        public string Name => Key.Name;
-        public Guid Category => Key.Category;
-        public string CategoryName { get; set; }
-        public Type DeclaringType { get; set; }
-        public string DeclaringTypeName => DeclaringType?.FullName;
-        public Brush Brush { get; set; }
+        public void AddVsColorsReflected(ColorWindowVM vm)
+        {
+            var colorProps = typeof(VsColors)
+                .GetProperties(System.Reflection.BindingFlags.Static)
+                .Where(pi => pi.PropertyType == typeof(object))
+                .ToArray();
+            foreach (var cp in colorProps)
+            {
+                var color = new ColorReflectedModel()
+                {
+                    Key = cp.GetValue(null),
+                    Name = cp.Name,
+                    DeclaringType = typeof(VsColors),
+                };
+                color.Brush = TryFindResource(color.Key) as Brush;
+                vm.ReflectedColors.Add(color);
+            }
+        }
+
+        private void Zoom_Click(object sender, RoutedEventArgs e)
+        {
+            this.DoZoomerClick();
+        }
+
     }
 }

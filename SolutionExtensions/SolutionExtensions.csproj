@@ -103,6 +103,7 @@
     <Compile Include="ToolWindows\ToolWindowPaneBase.cs" />
     <Compile Include="Commands\DataExtensions.cs" />
     <Compile Include="WpfExtensions.cs" />
+    <Compile Include="_DesignData\ColorModel.cs" />
     <Compile Include="_DesignData\ColorWindow.xaml.cs">
       <DependentUpon>ColorWindow.xaml</DependentUpon>
     </Compile>
@@ -187,9 +188,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <None Include="_DesignData\ExtensionListToolWindowVM.xaml">
-      <SubType>Designer</SubType>
-    </None>
     <Page Include="ToolWindows\ReflectorToolWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -198,12 +196,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <None Include="_DesignData\ColorWindowVM.xaml">
-      <SubType>Designer</SubType>
-    </None>
-    <Compile Include="_DesignData\ExtensionListToolWindowVM.cs">
-      <SubType>Designer</SubType>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

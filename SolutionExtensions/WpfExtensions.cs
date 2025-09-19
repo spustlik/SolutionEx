@@ -3,6 +3,8 @@ using Microsoft.VisualStudio.Shell;
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace SolutionExtensions
 {
@@ -46,9 +48,23 @@ namespace SolutionExtensions
             ctx.IsOpen = true;
         }
 
+        public static void DoZoomerClick(this FrameworkElement element)
+        {
+            if(element is Window wnd)
+            {
+                element = wnd.Content as FrameworkElement;
+            }
+            var scale = element.LayoutTransform as ScaleTransform;
+            if (scale == null)
+                scale = new ScaleTransform() { ScaleX = 1, ScaleY = 1 };
+            var s = scale.ScaleX;
+            if (s == 1) s = 1.5; else if (s == 1.5) s = 2.0; else if (s == 2.0) s = 1.0;
+            element.LayoutTransform = new ScaleTransform(s, s);
+        }
+
         static void _Resources()
         {
-            
+
             var _ = new[] {
                 VsResourceKeys.ButtonStyleKey,
                 VsResourceKeys.LabelEnvironment111PercentFontSizeStyleKey,
@@ -62,7 +78,35 @@ namespace SolutionExtensions
                 TreeViewColors.BackgroundColorKey,
             };
 
-            
+
+        }
+    }
+
+    /// <summary>
+    /// Executes action after timeout. If previous call is waiting, it is disposed.
+    /// </summary>
+    public class ThrottleTimer
+    {
+        private Action action;
+        private readonly DispatcherTimer timer;
+
+        public ThrottleTimer(TimeSpan timeout)
+        {
+            timer = new DispatcherTimer(DispatcherPriority.Input);
+            timer.Interval = timeout;
+            timer.Tick += Timer_Tick;
+        }
+        public void Invoke(Action action)
+        {
+            timer.Stop();
+            this.action = action;
+            timer.Start();
+
+        }
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            timer.Stop();
+            action();
         }
     }
 }
