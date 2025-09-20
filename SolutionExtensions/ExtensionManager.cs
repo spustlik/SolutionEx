@@ -19,6 +19,7 @@ namespace SolutionExtensions
     {
         public const string SELFKEY = "SELF";
         public const string SELF = "$(" + SELFKEY + ")";
+
         private SolutionExtensionsPackage package;
 
         public ExtensionManager(SolutionExtensionsPackage package)

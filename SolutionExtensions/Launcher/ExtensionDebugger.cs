@@ -11,7 +11,10 @@ namespace SolutionExtensions
 {
     public class ExtensionDebugger
     {
-        public static void RunExtension(ExtensionItem item, string argument, SolutionExtensionsPackage package, ExtensionManager extensionManager)
+        public static void RunExtension(ExtensionItem item, string argument,
+            SolutionExtensionsPackage package,
+            ExtensionManager extensionManager,
+            bool debug)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             //do not copy!
@@ -35,7 +38,7 @@ namespace SolutionExtensions
                     waiting = true;
                 package.AddToOutputPaneThreadSafe(line);
             }
-            var launcher = LauncherProcess.RunExtension(launcherExe, dllPath, item.ClassName, monikerName, packageId, argument, launcherOutputData);
+            var launcher = LauncherProcess.RunExtension(launcherExe, dllPath, item.ClassName, monikerName, packageId, argument, debug, launcherOutputData);
 
             while (!launcher.HasExited)
             {

@@ -23,6 +23,7 @@ namespace SolutionExtensions.Launcher
             string dteMonikerName,
             string packageId,
             string argument,
+            bool waitForDebugger,
             Action<string> onOutputData)
         {
             var args = new List<string>()
@@ -33,7 +34,8 @@ namespace SolutionExtensions.Launcher
                 packageId,
                 $"\"{argument.Replace("\"","\"\"")}\""
             };
-            args.Add("/waitfordebugger");
+            if (waitForDebugger)
+                args.Add("/waitfordebugger");
             //args.Add("/break");
             //args.Add("/waitforenter");
             var p = new Process();

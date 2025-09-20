@@ -61,5 +61,20 @@ namespace SolutionExtensions
         }
         #endregion
 
+        #region OutOfProcess property
+        private bool _outOfProcess;
+        public bool OutOfProcess
+        {
+            get => _outOfProcess;
+            set => Set(ref _outOfProcess, value);
+        }
+        #endregion
+
+        public IEnumerable<(string name, bool value, Action<bool> setter)> GetFlagInfo()
+        {
+            yield return (name: nameof(OutOfProcess), OutOfProcess, (v) => OutOfProcess = v); ;
+        }
+
+        public IEnumerable<string> GetFlags() => GetFlagInfo().Where(fi => fi.value).Select(fi => fi.name);
     }
 }
