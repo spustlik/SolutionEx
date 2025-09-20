@@ -47,6 +47,7 @@ namespace SolutionExtensions._DesignData
         public object Key { get; set; }
         public string Name { get; set; }
         public Type DeclaringType { get; set; }
+        public string DeclaringTypeName { get; set; }
         public Brush Brush { get; set; }
     }
 }

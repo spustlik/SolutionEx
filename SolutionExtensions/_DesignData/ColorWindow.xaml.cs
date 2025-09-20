@@ -106,6 +106,7 @@ namespace SolutionExtensions._DesignData
             //categories as fields public const string Printer = "{47724E70-AF55-48fb-A928-BB161C1D0C05}";
             //var categories = typeof(Microsoft.VisualStudio.Shell.Interop.FontsAndColorsCategory).GetFields()
             //    .ToDictionary(fi => (fi.GetValue(null) + "").ToUpperInvariant(), fi => fi.Name);
+            //"ErrorControlBorder", "2138d120-456d-425e-80b5-88d2401fca23"
 
             var shell = ServiceProvider.GlobalProvider.GetService(typeof(SVsUIShell)) as IVsUIShell5;
             foreach (var pair in VsColors.GetCurrentThemedColorValues())
@@ -129,7 +130,7 @@ namespace SolutionExtensions._DesignData
         public void AddVsColorsReflected(ColorWindowVM vm)
         {
             var colorProps = typeof(VsColors)
-                .GetProperties(System.Reflection.BindingFlags.Static)
+                .GetProperties(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.GetProperty)
                 .Where(pi => pi.PropertyType == typeof(object))
                 .ToArray();
             foreach (var cp in colorProps)
@@ -140,7 +141,12 @@ namespace SolutionExtensions._DesignData
                     Name = cp.Name,
                     DeclaringType = typeof(VsColors),
                 };
-                color.Brush = TryFindResource(color.Key) as Brush;
+                color.DeclaringTypeName = color.DeclaringType.FullName;
+                var res = TryFindResource(color.Key);
+                if (res is Brush b)
+                    color.Brush = b;
+                if (res is Color c)
+                    color.Brush = new SolidColorBrush(c);
                 vm.ReflectedColors.Add(color);
             }
         }

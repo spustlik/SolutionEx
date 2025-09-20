@@ -4,7 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SolutionExtensions._DesignData" 
-             xmlns:platformui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Utilities"
+             xmlns:platformui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Utilities" 
+             xmlns:conv="clr-namespace:SolutionExtensions"
              mc:Ignorable="d" 
              Title="Visual Studio Colors"
              d:DataContext="{d:DesignData ColorWindowVM.xaml}"
@@ -12,6 +13,11 @@
     <Grid>
         <Grid.Resources>
             <platformui:MaximumContrastConverter x:Key="contrast"/>
+            <BooleanToVisibilityConverter x:Key="boolToVisi"/>
+            <conv:EmptyConverter x:Key="notEmptyToVisi" Inner="{StaticResource boolToVisi}" Negate="True"/>
+            <conv:EmptyConverter x:Key="emptyToVisi" Inner="{StaticResource boolToVisi}"/>
+            <conv:EmptyConverter x:Key="notEmpty" Negate="True"/>
+
             <DataTemplate x:Key="cmBox" DataType="{x:Type local:ColorModel}">
                 <Border Width="20" Height="20" Margin="3,3" Background="{Binding Brush}">
                     <Border.ToolTip>
@@ -117,7 +123,40 @@
                         <Run FontSize="9">Microsoft.VisualStudio.Shell</Run>
                     </TextBlock>
                 </TabItem.Header>
-                <ItemsControl ItemsSource="{Binding Colors}" Style="{StaticResource boxes}"/>
+                <ScrollViewer>
+                    <ItemsControl ItemsSource="{Binding Colors}" Style="{StaticResource boxes}"/>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem>
+                <TabItem.Header>
+                    <TextBlock>
+                        <Bold>reflected VSColors list</Bold>
+                        <LineBreak/>
+                        <Run FontSize="9">Microsoft.VisualStudio.Shell</Run>
+                    </TextBlock>
+                </TabItem.Header>
+                <ScrollViewer>
+                    <ItemsControl ItemsSource="{Binding ReflectedColors}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type local:ColorReflectedModel}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="30"/>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="250"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding Brush}"/>
+                                    <Label Grid.Column="1" Content="{Binding Brush}"/>
+                                    <Label Grid.Column="2" Content="{Binding Key}"/>
+                                    <Label Grid.Column="3" Content="{Binding Name}"/>
+                                </Grid>
+                            </DataTemplate>
+
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
             </TabItem>
             <TabItem>
                 <TabItem.Header>
@@ -127,7 +166,9 @@
                         <Run FontSize="9">Microsoft.VisualStudio.PlatformUI</Run>
                     </TextBlock>
                 </TabItem.Header>
-                <ItemsControl ItemsSource="{Binding UIColors}" Style="{StaticResource boxes}"/>
+                <ScrollViewer>
+                    <ItemsControl ItemsSource="{Binding UIColors}" Style="{StaticResource boxes}"/>
+                </ScrollViewer>
             </TabItem>
         </TabControl>
         <Grid HorizontalAlignment="Right">
