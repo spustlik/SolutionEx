@@ -47,7 +47,10 @@
                         <MenuItem Header="Active document" Click="DumpAD_Click"/>
                         <MenuItem Header="VSShell" Click="DumpVSShell_Click"/>
                         <MenuItem Header="Debug" x:Name="debugMenuItem" Visibility="Collapsed">
-                            <MenuItem Header="Button style" Click="DebugButton_Style"/>
+                            <MenuItem Header="VS styles" Click="DumpVsStyles_Click"/>
+                            <MenuItem Header="Tool windows" Click="DumpToolWindows_Click"/>
+                            <MenuItem Header="Find package" Click="DumpPackage_Click"/>
+                            <MenuItem Header="Extension manager" Click="DumpEM_Click"/>
                         </MenuItem>
                     </ContextMenu>
                 </Button.ContextMenu>

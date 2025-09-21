@@ -39,39 +39,6 @@ namespace SolutionExtensions.ToolWindows
             this.DoZoomerClick();
         }
 
-        private void Test_Click(object sender, RoutedEventArgs e)
-        {
-            var name = "VsFont.EnvironmentFontSize";
-            var r1 = TryFindResource(name);
-            var r2 = Application.Current.TryFindResource(name);
-            foreach (var key in Application.Current.Resources.Keys)
-            {
-                Package.AddToOutputPane($"{key}={Application.Current.Resources[key]}");
-            }
-        }
-        private void TestToolwindows()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            try
-            {
-                var dte = Package.GetService<DTE, DTE>() as DTE2;
-                var caption = ExtensionsListToolWindowPane.CAPTION;
-                var guid = typeof(ExtensionsListToolWindowPane).GUID;
-                var w = dte.ToolWindows.GetToolWindow(caption);
-                if (w == null)
-                    w = dte.ToolWindows.GetToolWindow(guid.ToString("B"));
-                if (w == null)
-                    w = dte.ToolWindows.GetToolWindow(guid.ToString());
-                if (w == null)
-                    caption += "=null";
-                SetRootObject(caption, w);
-            }
-            catch (Exception ex)
-            {
-                this.ShowException(ex);
-            }
-        }
-
         private void OpenMenu_Click(object sender, RoutedEventArgs e)
         {
             (sender as Button).OpenContextMenu();
@@ -217,7 +184,7 @@ namespace SolutionExtensions.ToolWindows
                 Package.GetService<SExtensionManager, SExtensionManager>()
                 );
         }
-        private void DumpVSShell_Click(object sender, RoutedEventArgs e)
+        void DumpVSShell_Click(object sender, RoutedEventArgs e)
         {
             DumpObj("VsShell", () =>
             {
@@ -235,7 +202,7 @@ namespace SolutionExtensions.ToolWindows
             });
         }
 
-        void DumpTest_Click(object sender, RoutedEventArgs e)
+        void DumpPackage_Click(object sender, RoutedEventArgs e)
         {
             DumpObj("test package", () =>
             {
@@ -253,11 +220,29 @@ namespace SolutionExtensions.ToolWindows
                 };
             });
         }
-        private void DebugButton_Style(object sender, RoutedEventArgs e)
+
+        void DumpToolWindows_Click(object sender, RoutedEventArgs e)
+        {
+            DumpObj("Tool Windows", () =>
+            {
+                var dte = Package.GetService<DTE, DTE>() as DTE2;
+                var caption = ExtensionsListToolWindowPane.CAPTION;
+                var guid = typeof(ExtensionsListToolWindowPane).GUID;
+                var w = dte.ToolWindows.GetToolWindow(caption);
+                if (w == null)
+                    w = dte.ToolWindows.GetToolWindow(guid.ToString("B"));
+                if (w == null)
+                    w = dte.ToolWindows.GetToolWindow(guid.ToString());
+                if (w == null)
+                    caption += "=null";
+                return new { found = w, caption, guid };
+            });
+        }
+        private void DumpVsStyles_Click(object sender, RoutedEventArgs e)
         {
             DumpObj("VsStyles", () =>
             {
-                var s = FindResource(VsResourceKeys.ThemedDialogButtonStyleKey) as Style;
+                var s = FindResource(VsResourceKeys.ThemedDialogButtonStyleKey) as Style;                
                 return new
                 {
                     ThemedDialogButtonStyle = s
