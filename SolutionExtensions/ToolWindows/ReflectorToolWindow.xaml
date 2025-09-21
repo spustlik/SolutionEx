@@ -15,7 +15,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/SolutionExtensions;component/Themes/VsColors.xaml"/>
+                <ResourceDictionary Source="/SolutionExtensions;component/Themes/VsStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="boolToVisi"/>
             <model:EmptyConverter x:Key="notEmptyToVisi" Inner="{StaticResource boolToVisi}" Negate="True"/>
@@ -36,8 +36,8 @@
                     <Setter Property="Padding" Value="5,2,10,2"/>
                     <Setter Property="MinWidth" Value="0"/>
                 </Style>
-                <Style TargetType="Button" BasedOn="{StaticResource btnStyle}">
-                </Style>
+                <Style TargetType="Button" BasedOn="{StaticResource btnStyle}"/>
+
             </StackPanel.Resources>
             <Button Content="🔍Zoom" Click="Zoom_Click"/>
             <Button Content="🔦Inspect▾" Click="OpenMenu_Click">
@@ -46,6 +46,9 @@
                         <MenuItem Header="DTE" Click="DumpDTE_Click"/>
                         <MenuItem Header="Active document" Click="DumpAD_Click"/>
                         <MenuItem Header="VSShell" Click="DumpVSShell_Click"/>
+                        <MenuItem Header="Debug" x:Name="debugMenuItem" Visibility="Collapsed">
+                            <MenuItem Header="Button style" Click="DebugButton_Style"/>
+                        </MenuItem>
                     </ContextMenu>
                 </Button.ContextMenu>
             </Button>

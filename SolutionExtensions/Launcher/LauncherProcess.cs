@@ -32,7 +32,7 @@ namespace SolutionExtensions.Launcher
                 className,
                 dteMonikerName,
                 packageId,
-                $"\"{argument.Replace("\"","\"\"")}\""
+                $"\"{argument?.Replace("\"","\"\"")}\""
             };
             if (waitForDebugger)
                 args.Add("/waitfordebugger");

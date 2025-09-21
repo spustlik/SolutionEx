@@ -30,6 +30,9 @@ namespace SolutionExtensions.ToolWindows
         public ReflectorToolWindow()
         {
             InitializeComponent();
+#if DEBUG
+            debugMenuItem.Visibility = Visibility.Visible;
+#endif
         }
         ToolWindowPane ToolWindowPane => this.Tag as ToolWindowPane;
         SolutionExtensionsPackage Package;
@@ -220,40 +223,32 @@ namespace SolutionExtensions.ToolWindows
                 this.ShowException(ex);
             }
         }
+#pragma warning disable VSTHRD010
         private void DumpDTE_Click(object sender, RoutedEventArgs e)
         {
-            var dte = Package.GetService<DTE, DTE>();
-            DumpObj("DTE", () => dte);
+            DumpObj("DTE", () => Package.GetService<DTE, DTE>());
         }
-
 
         private void DumpAD_Click(object sender, RoutedEventArgs e)
         {
-            var dte = Package.GetService<DTE, DTE>();
-#pragma warning disable VSTHRD010
-            DumpObj("Active document", () => dte.ActiveDocument);
-#pragma warning restore VSTHRD010
+            DumpObj("Active document", () =>
+            {
+                var dte = Package.GetService<DTE, DTE>();
+                return dte.ActiveDocument;
+            });
             //ActiveWindow is always this 
             //DumpObj("Active window", () => dte.ActiveWindow);
         }
 
         void DumpEM_Click(object sender, RoutedEventArgs e)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            try
-            {
-                var obj = Package.GetService<SExtensionManager, SExtensionManager>();
-                DumpObj("Extension manager", () => obj);
-            }
-            catch (Exception ex)
-            {
-                this.ShowException(ex);
-            }
+            DumpObj("Extension manager", () =>
+                Package.GetService<SExtensionManager, SExtensionManager>()
+                );
         }
         private void DumpVSShell_Click(object sender, RoutedEventArgs e)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            try
+            DumpObj("VsShell", () =>
             {
                 var shell = Package.GetService<SVsShell, IVsShell>();
                 var queryService = Package.GetService<SVsPackageInfoQueryService, IVsPackageInfoQueryService>();
@@ -265,18 +260,13 @@ namespace SolutionExtensions.ToolWindows
                     info,
                     packages = shell.GetPackages().ToArray(),
                 };
-                DumpObj("VsShell", () => dump);
-            }
-            catch (Exception ex)
-            {
-                this.ShowException(ex);
-            }
+                return dump;
+            });
         }
 
         void DumpTest_Click(object sender, RoutedEventArgs e)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            try
+            DumpObj("test package", () =>
             {
                 var dte = Package.GetService<DTE, DTE>();
                 Package.GetService<SExtensionManager, SExtensionManager>();
@@ -285,20 +275,25 @@ namespace SolutionExtensions.ToolWindows
                 var shell = svc.QueryService<SVsShell>() as IVsShell;
                 var packages = shell.GetPackages().ToArray();
                 var found = packages.FirstOrDefault(p => p.GetType().GUID == typeof(SolutionExtensionsPackage).GUID);
-                if (found != null)
+                return new
                 {
-                    DumpObj("found self", () => found);
-                }
-                else
-                {
-                    DumpObj("Packages", () => packages);
-                }
-            }
-            catch (Exception ex)
-            {
-                this.ShowException(ex);
-            }
+                    found,
+                    packages
+                };
+            });
         }
+        private void DebugButton_Style(object sender, RoutedEventArgs e)
+        {
+            DumpObj("VsStyles", () =>
+            {
+                var s = FindResource(VsResourceKeys.ThemedDialogButtonStyleKey) as Style;
+                return new
+                {
+                    ThemedDialogButtonStyle = s
+                };
+            });
+        }
+#pragma warning restore VSTHRD010
 
         private void GenerateXmlTree_Click(object sender, RoutedEventArgs e)
         {

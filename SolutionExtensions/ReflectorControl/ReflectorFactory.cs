@@ -56,12 +56,13 @@ namespace SolutionExtensions
             }
         }
         private void SetValueType(ReflectorTypeNode node, Type valueType)
-        {
+        {            
             node.ValueType = valueType;
             node.ValueTypeName = Builder.GetTypeName(node.ValueType);
             node.IsSimpleType = node.ValueType == typeof(string) ||
                 node.ValueType.IsPrimitive ||
-                node.ValueType.IsEnum; //TODO: expand/generate enum to members
+                node.ValueType.IsEnum || //TODO: expand/generate enum to members
+                node.ValueType.IsValueType; //guid etc structs
             var isCOM = ReflectionCOM.IsCOMObjectType(node.ValueType);
             if (!node.IsSimpleType)
             {

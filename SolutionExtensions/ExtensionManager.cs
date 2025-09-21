@@ -173,7 +173,7 @@ namespace SolutionExtensions
             var (method, type) = FindExtensionMethod(item, throwIfNotFound: false, tryCompile: false);
             if (method == null)
                 return;
-            var description = method.GetDescription() ?? type.GetDescription();
+            var description = method.GetDescription() ?? type.GetDescription() ?? type.Name;
             item.Title = description;
         }
 
@@ -216,7 +216,7 @@ namespace SolutionExtensions
         public bool AskArgumentIfNeeded(ExtensionItem item, out string argument)
         {
             argument = item.Argument;
-            if (argument.StartsWith("?"))
+            if (argument!=null && argument.StartsWith("?"))
             {
                 var (method, type) = FindExtensionMethod(item, throwIfNotFound: false, tryCompile: false);
                 var prompt = "Enter argument value";

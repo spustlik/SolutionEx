@@ -1,31 +1,22 @@
 ﻿using EnvDTE;
-using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.Win32;
 using SolutionExtensions._DesignData;
 using System;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace SolutionExtensions.ToolWindows
 {
-    [Guid("D4B5F1E3-8F2A-4C6A-9D3E-2B1C6F7E8A9B")]
-    public class ExtensionsListToolWindowPane : ToolWindowPaneBase<ExtensionsListToolWindow>
-    {
-        public static string CAPTION = "Solution extensions";
-
-        public ExtensionsListToolWindowPane() : base(CAPTION, new ExtensionsListToolWindow())
-        {
-        }
-    }
 
     public class VM : SimpleDataObject
     {
@@ -166,8 +157,11 @@ namespace SolutionExtensions.ToolWindows
                 return;
             try
             {
-                Package.Log($"Running extension '{item.Title}' with argument '{argument}' from {Path.GetFileName(item.DllPath)},{item.ClassName}");
-                ExtensionManager.RunExtension(item, argument);
+                Package.Log($"Running extension '{item.Title}' with argument '{argument}' and flags {String.Join(",", item.GetFlags())} from {Path.GetFileName(item.DllPath)},{item.ClassName}");
+                if (item.OutOfProcess)
+                    ExtensionDebugger.RunExtension(item, argument, Package, ExtensionManager, false);
+                else
+                    ExtensionManager.RunExtension(item, argument);
                 Package.Log($"Done.");
             }
             catch (Exception ex)
@@ -199,7 +193,7 @@ namespace SolutionExtensions.ToolWindows
                 return;
             try
             {
-                ExtensionDebugger.RunExtension(item, argument, Package, ExtensionManager);
+                ExtensionDebugger.RunExtension(item, argument, Package, ExtensionManager, true);
             }
             catch (Exception ex)
             {
@@ -420,8 +414,8 @@ namespace SolutionExtensions.ToolWindows
                 DllPath = item.DllPath,
                 //ShortCutKey=src.ShortCutKey
             };
-            ViewModel.Model.Extensions.Add(item);
-            ViewModel.SelectedItem = item;
+            ViewModel.Model.Extensions.Add(copy);
+            ViewModel.SelectedItem = copy;
         }
 
 #pragma warning disable VSTHRD100 // Avoid async void methods
@@ -458,5 +452,101 @@ namespace SolutionExtensions.ToolWindows
                 return;
             item.Argument = "?";
         }
+
+        FrameworkElement movingElement;
+        FrameworkElement movingOverElement;
+        private void ExtensionItem_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            //to only mouse up without move
+            ExtensionItem_MouseMove(sender, e);
+        }
+        private void ExtensionItem_MouseMove(object sender, MouseEventArgs e)
+        {
+            void log(string s) => Debug.WriteLine(s);
+            try
+            {
+                var src = (sender as FrameworkElement);
+                if (src == null) return;
+                //if btn down
+                if (e.LeftButton == MouseButtonState.Pressed)
+                {
+                    //if not moving
+                    if (movingElement == null)
+                    {
+                        log($"Starting moving with {(src.DataContext as ExtensionItem).Title}");
+                        //start moving
+                        movingElement = src;
+                        movingElement.Opacity = 0.3;
+                        //capture mouse
+                        if (Mouse.Captured != movingElement)
+                            Mouse.Capture(movingElement);
+                        e.Handled = true;
+                        return;
+                    }
+                    else
+                    {
+                        //  else (moving)
+                        MoveAdorner.RemoveAll(movingOverElement);
+                        var hit = VisualTreeHelper.HitTest(this, e.GetPosition(this));
+                        var ele = hit?.VisualHit as FrameworkElement;
+                        //    identify underlaying item
+                        if (!(ele?.DataContext is ExtensionItem item))
+                            return;
+                        //log($"Moving over {item.Title}");
+                        movingOverElement = ele.FindAncestor<ListBoxItem>();
+                        if (item != movingElement.DataContext)
+                        {
+                            //replace adorners with new item
+                            MoveAdorner.AddOrUpdate(movingOverElement, e.GetPosition(movingOverElement));
+                        }
+                        e.Handled = true;
+                        return;
+                    }
+                }
+                else
+                {
+                    //else (btn is up, it can be out of list)
+                    //  if was moving 
+                    if (movingElement != null)
+                    {
+                        //stop moving
+                        if (movingOverElement != null)
+                        {
+                            var list = ViewModel.Model.Extensions;
+                            var srcItem = movingElement.DataContext as ExtensionItem;
+                            var dstItem = movingOverElement.DataContext as ExtensionItem;
+                            //remove adorners
+                            var a = MoveAdorner.RemoveAll(movingOverElement);
+                            if (a == null)
+                                log($"Adorner not found");
+                            movingOverElement = null;
+                            var moveBefore = a?.IsTop != false;//isTop =true means before, istop=false means after
+                            if (srcItem != null && dstItem != null)
+                            {
+                                log($"End of moving from {srcItem.Title} {(moveBefore ? "before" : "after")} {dstItem.Title}");
+                                list.Remove(srcItem);
+                                var i = list.IndexOf(dstItem);
+                                if (!moveBefore) i++;
+                                if (i >= list.Count || i < 0)
+                                    list.Add(srcItem);
+                                else
+                                    list.Insert(i, srcItem);
+                            }
+                        }
+                        movingElement.Opacity = 1;
+                        movingElement = null;
+                    }
+                    // release capture
+                    if (Mouse.Captured == movingElement)
+                        Mouse.Capture(null);
+                    e.Handled = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                log("ERROR:" + ex);
+            }
+        }
+
     }
 }

@@ -107,8 +107,8 @@ namespace SolutionExtensions.Launcher
             //run extension
             Console.WriteLine($"{LauncherProcess.RUN}: Running extension");
             //to simplify code, which will break
-            var runner = new ExtensionRunner(type, method, cmd.Argument, cmd.BreakDebugger);
-            runner.Run(dte, package);
+            var runner = new ExtensionRunner(type, method, dte, package, cmd.Argument, cmd.BreakDebugger, retryCount: 5);
+            runner.Run();
             Console.WriteLine($"{LauncherProcess.DONE}");
         }
 

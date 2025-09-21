@@ -50,7 +50,7 @@ namespace SolutionExtensions
 
         public static void DoZoomerClick(this FrameworkElement element)
         {
-            if(element is Window wnd)
+            if (element is Window wnd)
             {
                 element = wnd.Content as FrameworkElement;
             }
@@ -62,9 +62,32 @@ namespace SolutionExtensions
             element.LayoutTransform = new ScaleTransform(s, s);
         }
 
+        public static T FindAncestor<T>(this FrameworkElement element) where T : FrameworkElement
+        {
+            return element.FindAncestor(typeof(T)) as T;
+        }
+        public static FrameworkElement FindAncestor(this FrameworkElement element, Type ancestorType, int level = 1)
+        {
+            if (!(VisualTreeHelper.GetParent(element) is FrameworkElement p))
+                return null;
+            if (p.GetType().IsAssignableFrom(ancestorType))
+            {
+                if (level <= 1)
+                    return p;
+                return FindAncestor(p, ancestorType, level - 1);
+            }
+            return FindAncestor(p, ancestorType, level);
+        }
+        public static FrameworkElement FindAncestorOrSelf(this FrameworkElement element, Func<FrameworkElement,bool> predicate)
+        {
+            if (predicate(element))
+                return element;
+            if (!(VisualTreeHelper.GetParent(element) is FrameworkElement p))
+                return null;
+            return FindAncestorOrSelf(p, predicate);
+        }
         static void _Resources()
         {
-
             var _ = new[] {
                 VsResourceKeys.ButtonStyleKey,
                 VsResourceKeys.LabelEnvironment111PercentFontSizeStyleKey,
@@ -77,8 +100,6 @@ namespace SolutionExtensions
                 TreeViewColors.BackgroundTextColorKey,
                 TreeViewColors.BackgroundColorKey,
             };
-
-
         }
     }
 

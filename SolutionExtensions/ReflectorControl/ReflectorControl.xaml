@@ -12,7 +12,7 @@
              d:DataContext="{d:DesignData /_DesignData/ReflectorRoot.xaml}"    
              >
     <UserControl.Resources>
-        <ResourceDictionary Source="/SolutionExtensions;component/Themes/VsColors.xaml"/>
+        <ResourceDictionary Source="/SolutionExtensions;component/Themes/VsStyles.xaml"/>
     </UserControl.Resources>
     <Grid>
         <Grid.Resources>
@@ -152,11 +152,12 @@
                                         <!--<Setter Property="Background" Value="Transparent"/>-->
                                         <Setter Property="Background" Value="{DynamicResource {x:Static ui:ThemedDialogColors.ActionButtonBackgroundActiveBrushKey}}"/>
                                         <Setter Property="Foreground" Value="{DynamicResource {x:Static ui:ThemedDialogColors.ActionButtonTextBrushKey}}"/>
-                                        <Setter Property="Width" Value="20"/>
+                                        <Setter Property="Width" Value="22"/>
+                                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
                                         <Setter Property="FontFamily" Value="Courier New"/>
                                         <Setter Property="FontSize" Value="9"/>
                                         <Setter Property="Margin" Value="0,0,2,0"/>
-                                        <Setter Property="Padding" Value="2,0"/>
+                                        <Setter Property="Padding" Value="1,0"/>
                                     </Style>
                                 </StackPanel.Resources>
                                 <Button Content=".p" ToolTip="Expand properties" Visibility="{Binding CanExpandProperties, Converter={StaticResource boolToVisi}}" Click="ExpandProperties_Click"/>
@@ -258,20 +259,29 @@
                         <ContentControl Style="{StaticResource icon}" 
                                         Content="(p)"
                                         Background="#4080ff80"/>
-                        <TextBlock Grid.Column="1">
+                        <TextBlock Grid.Column="1" Margin="0,0,5,0">
                             <Run Text="{Binding PropertyName}" FontWeight="Bold"/>
                         </TextBlock>
                         <Canvas Style="{StaticResource canvasValue}">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Visibility="{Binding ValueSimpleText,Converter={StaticResource notEmptyToVisi}}" Margin="5,0,5,0">
-                                =<Run Text="{Binding ValueSimpleText}"/>
+                                <TextBlock Visibility="{Binding ValueSimpleText,Converter={StaticResource notEmptyToVisi}}" 
+                                           Margin="0,0,5,0">
+                                    <Run>=</Run>
+                                    <Run Text="{Binding ValueSimpleText}"/>
                                 </TextBlock>
                                 <TextBlock 
-                                    Visibility="{Binding IsNull,Converter={StaticResource boolToVisi}}" 
+                                    cmt:comment="tohle nekdy nefunguje..."
+                                    Visibility="{Binding IsNull,Converter={StaticResource boolToVisi}}"
                                     Opacity="0.4"
-                                    Margin="0,0,5,0">
-                                =<Run Text="(null)"/>
-                                </TextBlock>
+                                    Margin="0,0,5,0"
+                                    Text="=(null)"/>
+                                <TextBlock 
+                                    Visibility="{Binding IsNull,Converter={StaticResource boolToVisi}}"
+                                    Margin="0,0,5,0"
+                                    Text="{Binding PropertyTypeName}" Style="{StaticResource code}"/>
+                                <TextBlock Text="{Binding ValueTypeName}" 
+                                           Visibility="{Binding ValueSimpleText, Converter={StaticResource emptyToVisi}}" Style="{StaticResource code}"/>
+                                
                             </StackPanel>
                         </Canvas>
                     </Grid>
