@@ -75,7 +75,7 @@
     * ReflectorNodeBuilder 
     * ReflectorTextBuilder
     * ReflectorXmlBuilder
- * Themes - VsStyles.xaml
+ * Themes - VsStyles.xaml, TreeViewStyle.xaml 
  * ToolWindows
     * ExtensionsListToolWindow - WPF, ui, VSStyles.xaml, DTE, Package, Pane
         * [ ] todo: (not needed) refact VSStyles.xaml
@@ -88,10 +88,9 @@
  * DataExtensions - plain .net
  * OleExtensions - DTE
  * ExtensionManager - uses DTE,package
- * SolutionExtensionsPackage
+ * SolutionExtensionsPackage - VSIX
  * StringTemplates - plain .net
- * WpfExtensions - uses DTE, etc?
-    * [ ] TODO: refact
+ * WpfExtensions - WPF
 
 # mermaid tests
 ```mermaid

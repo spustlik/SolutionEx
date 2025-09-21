@@ -1,6 +1,4 @@
-﻿using Microsoft.VisualStudio.PlatformUI;
-using Microsoft.VisualStudio.Shell;
-using System;
+﻿using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -86,21 +84,21 @@ namespace SolutionExtensions
                 return null;
             return FindAncestorOrSelf(p, predicate);
         }
-        static void _Resources()
-        {
-            var _ = new[] {
-                VsResourceKeys.ButtonStyleKey,
-                VsResourceKeys.LabelEnvironment111PercentFontSizeStyleKey,
-                VsResourceKeys.ThemedDialogTreeViewItemStyleKey,
-                //...
-                CommonControlsColors.ButtonBorderBrushKey,
-                CommonControlsColors.ButtonBorderColorKey,
-                CommonControlsColors.ComboBoxBackgroundBrushKey,
-                //no treeview
-                TreeViewColors.BackgroundTextColorKey,
-                TreeViewColors.BackgroundColorKey,
-            };
-        }
+        //static void _Resources()
+        //{
+        //    var _ = new[] {
+        //        VsResourceKeys.ButtonStyleKey,
+        //        VsResourceKeys.LabelEnvironment111PercentFontSizeStyleKey,
+        //        VsResourceKeys.ThemedDialogTreeViewItemStyleKey,
+        //        //...
+        //        CommonControlsColors.ButtonBorderBrushKey,
+        //        CommonControlsColors.ButtonBorderColorKey,
+        //        CommonControlsColors.ComboBoxBackgroundBrushKey,
+        //        //no treeview
+        //        TreeViewColors.BackgroundTextColorKey,
+        //        TreeViewColors.BackgroundColorKey,
+        //    };
+        //}
     }
 
     /// <summary>
