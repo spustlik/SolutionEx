@@ -3,6 +3,7 @@ using EnvDTE100;
 using EnvDTE80;
 using EnvDTE90a;
 using Microsoft.VisualStudio.Shell;
+using Model;
 using SolutionExtensions.Reflector;
 using System;
 using System.Collections;
@@ -18,18 +19,20 @@ using VSLangProj;
 namespace SolutionExtensions.Extensions
 {
 #pragma warning disable VSTHRD010 // Invoke single-threaded types on Main thread
-    public class Dumper
+    public class DteToXml
     {
-        private readonly ReflectionXmlDumper reflectionDumper;
+        private readonly ReflectionBuilderXml reflectionDumper;
         private readonly Stopwatch watches = new Stopwatch();
 
-        public Dumper()
+        public DteToXml()
         {
-            reflectionDumper = new ReflectionXmlDumper(
-                    typeof(System.Globalization.CultureInfo),
-                    typeof(System.Threading.Thread),
-                    typeof(Task),
-                    typeof(Microsoft.VisualStudio.Threading.JoinableTaskFactory));
+            reflectionDumper = new ReflectionBuilderXml();
+            reflectionDumper.SkipTypes.AddRange(
+                typeof(System.Globalization.CultureInfo),
+                typeof(System.Threading.Thread),
+                typeof(Task),
+                typeof(Microsoft.VisualStudio.Threading.JoinableTaskFactory));
+            reflectionDumper.ComReflection.RegisterInterfacesFromAppDomain();
             /*
                         //Microsoft.VisualStudio.RpcContracts
                         reflectionDumper.ComReflection.RegisterInterfaces(typeof(Microsoft.VisualStudio.VisualStudioServices).Assembly);
@@ -38,7 +41,6 @@ namespace SolutionExtensions.Extensions
                         //Microsoft.VisualStudio.Shell.Framework
                         reflectionDumper.ComReflection.RegisterInterfaces(typeof(Microsoft.VisualStudio.Shell.AccountPickerOptions).Assembly);
             */
-            reflectionDumper.ComReflection.RegisterInterfacesFromAppDomain();
         }
         public XElement Dump(EnvDTE.DTE dte, AsyncPackage package, bool more)
         {

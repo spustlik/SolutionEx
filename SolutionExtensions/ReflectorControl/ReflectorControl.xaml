@@ -161,7 +161,7 @@
                                     Text="{Binding PropertyTypeName}" Style="{StaticResource code}"/>
                                 <TextBlock Text="{Binding ValueTypeName}" 
                                            Visibility="{Binding ValueSimpleText, Converter={StaticResource emptyToVisi}}" Style="{StaticResource code}"/>
-                                
+
                             </StackPanel>
                         </Canvas>
                     </Grid>
@@ -261,7 +261,20 @@
                   SelectedItemChanged="treeView_SelectedItemChanged"
                   ItemsSource="{Binding Children}" Grid.IsSharedSizeScope="True"
                   ItemContainerStyle="{StaticResource tvItemContainer}"
-                  BorderBrush="Transparent">
+                  BorderBrush="Transparent"
+                  ContextMenuOpening="ContextMenu_Opening">
+            <TreeView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Copy to clipboard" Click="GenerateText_Click" IsEnabled="{Binding ViewModel.SelectedNode,ElementName=reflectorControl, Converter={StaticResource notEmpty}}"/>
+                    <Separator/>
+                    <MenuItem Header="Generate" FontWeight="Bold" IsEnabled="false"/>
+                    <MenuItem Header="c# of selected" Click="GenerateCs_Click" IsEnabled="{Binding ViewModel.SelectedNode,ElementName=reflectorControl, Converter={StaticResource notEmpty}}"/>
+                    <MenuItem Header="c# of expanded" Click="GenerateCsTree_Click"/>
+                    <MenuItem Header="XML of expanded" Click="GenerateXmlTree_Click"/>
+                    <Separator/>
+                    <MenuItem Header="Clear" Click="Clear_Click" IsEnabled="{Binding ViewModel.SelectedNode,ElementName=reflectorControl, Converter={StaticResource notEmpty}}"/>
+                </ContextMenu>
+            </TreeView.ContextMenu>
         </TreeView>
     </Grid>
 </UserControl>

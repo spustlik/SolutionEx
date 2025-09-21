@@ -119,5 +119,21 @@ namespace SolutionExtensions.Reflector
         {
             return mi.GetCustomAttribute<DescriptionAttribute>()?.Description;
         }
+
+        public static bool IsImplementingInterface<T>(this MethodInfo m)
+        {
+            return m.IsImplementingInterface(typeof(T));
+        }
+        public static bool IsImplementingInterface(this MethodInfo m, Type interfaceType)
+        {
+            if (!m.DeclaringType.GetInterfaces().Any(i => interfaceType.MetadataToken == i.MetadataToken))
+                return false;
+            if (m.DeclaringType.IsInterface)
+                return true;
+            var im = m.DeclaringType.GetInterfaceMap(interfaceType);
+            //return im.TargetMethods.Contains(m);
+            return im.TargetMethods.Any(tm => tm.MetadataToken == m.MetadataToken);
+        }
+
     }
 }

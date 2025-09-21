@@ -26,6 +26,39 @@ namespace SolutionExtensions.ToolWindows
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
             Package = SolutionExtensionsPackage.GetFor(this);
+            reflectorControl.OnOpenDocument += ReflectorControl_OnOpenDocument;
+        }
+
+        private void ReflectorControl_OnOpenDocument(object sender, OpenDocumentEventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            try
+            {
+                var fn = Path.Combine(Path.GetTempPath(), Path.GetFileName(e.FileName));
+                if (e.Append)
+                    File.AppendAllText(fn, e.Content);
+                else
+                    File.WriteAllText(fn, e.Content);
+                var dte = Package.GetService<DTE, DTE>();
+#pragma warning disable VSTHRD010
+                var found = dte.Documents.Cast<Document>()
+                    .FirstOrDefault(d => d.FullName.Equals(fn, StringComparison.OrdinalIgnoreCase));
+#pragma warning restore VSTHRD010
+                if (found != null)
+                {
+                    var sel = found.Selection as TextSelection;
+                    if (sel != null)
+                    {
+                        sel.MoveToAbsoluteOffset(1);
+                        return;
+                    }
+                }
+                dte.Documents.Open(fn);
+            }
+            catch (Exception ex)
+            {
+                this.ShowException(ex);
+            }
         }
 
         private void SetRootObject(string caption, object obj)
@@ -44,109 +77,7 @@ namespace SolutionExtensions.ToolWindows
             (sender as Button).OpenContextMenu();
         }
 
-        private void GenerateCs_Click(object sender, RoutedEventArgs e)
-        {
-            var node = reflectorControl.ViewModel.SelectedNode;
-            if (node == null)
-                return;
-            try
-            {
-                reflectorControl.Factory.Builder.Clear();
-                var usedTypes = reflectorControl.Factory.Builder.UsedTypes;
-                var doneTypes = new HashSet<Type>();
-                void makeDone(Type t)
-                {
-                    doneTypes.Add(t);
-                    usedTypes.Remove(t);
-                }
-                int counter = 1;
-                var s = reflectorControl.Factory.BuildNodeSource(node);
-                makeDone(usedTypes.First());
-                while (usedTypes.Count > 0)
-                {
-                    counter++;
-                    if (counter >= 100)
-                    {
-                        s += $"\n// MAXIMUM {counter} reached";
-                        break;
-                    }
-                    var t = usedTypes.First();
-                    var skip = doneTypes.Contains(t) ||
-                        doneTypes.Any(x => x.MetadataToken == t.MetadataToken) ||
-                        doneTypes.Any(x => x.GUID == t.GUID) ||
-                        String.IsNullOrEmpty(t.Namespace) ||
-                        t.Namespace == nameof(System) ||
-                        t.Namespace.StartsWith(nameof(System) + ".");
-                    if (!skip)
-                        s += $"\n// MetadataToken={t.MetadataToken}\n" + reflectorControl.Factory.Builder.BuildDeclaration(t);
-                    makeDone(t);
-                }
-                if (s == null)
-                    return;
-                ProcessSource(s);
-            }
-            catch (Exception ex)
-            {
-                this.ShowException(ex);
-            }
-        }
-        private void GenerateCsTree_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                reflectorControl.Factory.Builder.Clear();
-                var root = reflectorControl.ViewModel.Children.First();
-                string s = "";
-                void recurse(ReflectorNode node)
-                {
-                    if (!String.IsNullOrEmpty(s))
-                        s += "\n";
-                    s += reflectorControl.Factory.BuildNodeSource(node);
-                    foreach (var item in node.Children)
-                    {
-                        recurse(item);
-                    }
-                }
-                recurse(root);
-                ProcessSource(s);
-            }
-            catch (Exception ex)
-            {
-                this.ShowException(ex);
-            }
-        }
-        private void ProcessSource(string s)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            var fn = Path.Combine(Path.GetTempPath(), "dump.cs");
-            if (File.Exists(fn))
-            {
-                var current = File.ReadAllText(fn);
-                s += "//-------\n" + current;
-            }
-            File.WriteAllText(fn, s);
-            var dte = Package.GetService<DTE, DTE>();
-#pragma warning disable VSTHRD010
-            var found = dte.Documents.Cast<Document>().FirstOrDefault(d => d.FullName.Equals(fn, StringComparison.OrdinalIgnoreCase));
-#pragma warning restore VSTHRD010
-            try
-            {
-                if (found != null)
-                {
-                    var sel = found.Selection as TextSelection;
-                    if (sel != null)
-                    {
-                        sel.MoveToAbsoluteOffset(1);
-                        return;
-                    }
-                }
-                dte.Documents.Open(fn);
-            }
-            catch (Exception ex)
-            {
-                this.ShowException(ex);
-            }
-        }
+        #region Dumpers
 
         private void DumpObj(string name, Func<object> objFactory)
         {
@@ -242,7 +173,7 @@ namespace SolutionExtensions.ToolWindows
         {
             DumpObj("VsStyles", () =>
             {
-                var s = FindResource(VsResourceKeys.ThemedDialogButtonStyleKey) as Style;                
+                var s = FindResource(VsResourceKeys.ThemedDialogButtonStyleKey) as Style;
                 return new
                 {
                     ThemedDialogButtonStyle = s
@@ -250,54 +181,8 @@ namespace SolutionExtensions.ToolWindows
             });
         }
 #pragma warning restore VSTHRD010
+        #endregion
 
-        private void GenerateXmlTree_Click(object sender, RoutedEventArgs e)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            try
-            {
-                var x = reflectorControl.Factory.BuildNodeXml(reflectorControl.ViewModel);
-                var fn = Path.Combine(Path.GetTempPath(), "tree.xml");
-                x.Save(fn);
-                var dte = Package.GetService<DTE, DTE>();
-                dte.Documents.Open(fn);
-            }
-            catch (Exception ex)
-            {
-                this.ShowException(ex);
-            }
-        }
-
-        private void GenerateText_Click(object sender, RoutedEventArgs e)
-        {
-            var node = reflectorControl.ViewModel.SelectedNode;
-            if (node == null)
-                return;
-            var s = reflectorControl.Factory.BuilderText.Build(node);
-            if (String.IsNullOrEmpty(s))
-                return;
-            Clipboard.SetText(s);
-            ThreadHelper.ThrowIfNotOnUIThread();
-            _ = Package.ShowStatusBarAsync("Copied to clipboard", isImportant: true);
-        }
-        private void Clear_Click(object sender, RoutedEventArgs e)
-        {
-            var node = reflectorControl.ViewModel.SelectedNode;
-            if (node == null)
-                return;
-            reflectorControl.Factory.ClearChildren(node);
-        }
-
-        private void ContextMenu_Opening(object sender, ContextMenuEventArgs e)
-        {
-            var dataCtx = (e.OriginalSource as FrameworkElement)?.DataContext;
-            var mnu = reflectorControl.ContextMenu;
-            if (mnu != null && dataCtx is ReflectorNode node)
-            {
-                mnu.DataContext = dataCtx;
-                reflectorControl.ViewModel.SelectedNode = node;
-            }
-        }
 
     }
 }

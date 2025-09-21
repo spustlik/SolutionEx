@@ -55,29 +55,7 @@
                     </ContextMenu>
                 </Button.ContextMenu>
             </Button>
-            <Button Content="💡Generate▾" Click="OpenMenu_Click">
-                <Button.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="Copy to clipboard" Click="GenerateText_Click" IsEnabled="{Binding ViewModel.SelectedNode,ElementName=reflectorControl, Converter={StaticResource notEmpty}}"/>
-                        <Separator/>
-                        <MenuItem Header="c# of selected" Click="GenerateCs_Click" IsEnabled="{Binding ViewModel.SelectedNode,ElementName=reflectorControl, Converter={StaticResource notEmpty}}"/>
-                        <MenuItem Header="c# of expanded" Click="GenerateCsTree_Click"/>
-                        <MenuItem Header="XML of expanded" Click="GenerateXmlTree_Click"/>
-                        <Separator/>
-                        <MenuItem Header="Clear" Click="Clear_Click" IsEnabled="{Binding ViewModel.SelectedNode,ElementName=reflectorControl, Converter={StaticResource notEmpty}}"/>
-                    </ContextMenu>
-                </Button.ContextMenu>
-            </Button>
         </StackPanel>
-        <model:ReflectorControl x:Name="reflectorControl" Grid.Row="1"
-                                ContextMenuOpening="ContextMenu_Opening">
-            <model:ReflectorControl.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Header="Copy to clipboard" Click="GenerateText_Click" IsEnabled="{Binding ViewModel.SelectedNode,ElementName=reflectorControl, Converter={StaticResource notEmpty}}"/>
-                    <Separator/>
-                    <MenuItem Header="Clear" Click="Clear_Click" IsEnabled="{Binding ViewModel.SelectedNode,ElementName=reflectorControl, Converter={StaticResource notEmpty}}"/>
-                </ContextMenu>
-            </model:ReflectorControl.ContextMenu>
-        </model:ReflectorControl>
+        <model:ReflectorControl x:Name="reflectorControl" Grid.Row="1"/>
     </Grid>
 </UserControl>

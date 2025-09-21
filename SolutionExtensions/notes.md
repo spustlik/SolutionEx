@@ -51,25 +51,20 @@
 * Launcher - DTE,Launcher
     * ExtensionDebugger - runs exe using DTE, LauncherProcess
         * [ ] TODO: merge?
-    * ExtensionObject - used also from Launcher
-        * needs DTE as parameter
+    * ExtensionObject - DTE, Launcher
     * LauncherProcess - just wrapper for running process
     * RunningComObjects - just COM extern wrapper to use ROT
-        * [ ] TODO: move to another place, ns?
 * Model - plain .net
     * ExtensionModel - using SimpleDataObject
     * ExtensionSerialization - using ExtensionModel 
     * SimpleDataObject
-    * [ ] todo: move to namespace?
 * Reflection - plain .net
-    * ReflectionBuilderCS, ReflectionXmlDumper
-        * [ ] TODO: rename and refact
+    * ReflectionBuilderCS, ReflectionBuilderXml
+        * [ ] TODO: refact, make better or remove, compare to DTE reflector
     * ReflectionCOM
     * ReflectionHelper
 * ReflectorControl - WPF
-    //* xaml - needs colors from PlatformUI and VSStyles.xaml
-    //* (TreeView) style with Stretch HorizontalAlignment
-    * cs - using ReflectorFactory
+    * [ ] todo: to really split use of WPF/DTE, refact and move UI toolbar to control?
     * ReflectorFactory
     * ReflectorModel 
     * ReflectorNodeBuilder 
@@ -79,11 +74,13 @@
  * ToolWindows
     * ExtensionsListToolWindow - WPF, ui, VSStyles.xaml, DTE, Package, Pane
         * [ ] todo: (not needed) refact VSStyles.xaml
+        * [ ] todo: to really split use of WPF/DTE, refact to use IExtensionManager
+        * [ ] TODO: not working (default?) styles button and label/textbox on item editor
     * ExtensionsListToolWindowPane
     * MoveAdorner,MoveCollectionHelper - just WPF, 
     * ReflectorToolWindow - shell, ui, VSstyles.xaml, DTE, ReflectorToolWindowPane
         * [ ] todo: (not needed) refact VSStyles.xaml
- * DteExtensions
+ * DteExtensions - DTE
  * DataExtensions - plain .net
  * OleExtensions - DTE
  * ExtensionManager - uses DTE,package

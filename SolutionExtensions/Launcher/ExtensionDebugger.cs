@@ -92,24 +92,7 @@ namespace SolutionExtensions
 
         private static string GetPackageId(DTE dte, SolutionExtensionsPackage package)
         {
-            var id = package.GetType().GUID.ToString("B");
-
-            //not working anything access to share object to another process
-            // so launcher is creating serviceprovider accessing DTE services
-
-            //var prop = dte.Solution.Properties.Item(packageId);
-            //prop.Value = package;
-            //var sp = package as IServiceProvider;
-            //var svc = new ServiceProiderObj(svcType => sp.GetService(svcType));
-            //var rot = new RunningComObjects();
-            //rot.RegisterComObject(svc, id + "_Moniker");
-            /*
-            dte.Globals[id] = package;
-            dte.Globals[id + "_ServiceProvider"] = svc;
-            */
-            //dte.Globals.VariablePersists[id] = true;
-            //not working properly - result is COM on client side, but not assignable to IServiceProvider
-            //see also Program.cs GetPackage
+            var id = package.GetType().GUID.ToString("B");            
             return id;
         }
 
@@ -117,12 +100,6 @@ namespace SolutionExtensions
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             if (process == null) process = System.Diagnostics.Process.GetCurrentProcess();
-            //VisualStudio.DTE.17.0:25176
-            //var comType = dte.GetType();//System.__ComObject
-            //string progId1 = comType.InvokeMember("ProgID", System.Reflection.BindingFlags.GetProperty, null, dte, null) as string;
-            //string clsid = comType.GUID.ToString();//0000
-            //string progId2 = dte.GetType().ToString(); // returns "System.__ComObject"
-            //string progId3 = System.Runtime.InteropServices.Marshal.GenerateProgIdForType(dte.GetType()); // throws error
             return $"VisualStudio.DTE.{dte.Version}:{process.Id}";
         }
 
@@ -130,25 +107,11 @@ namespace SolutionExtensions
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var dte = package.GetService<DTE, DTE>();
-            var fn = item.ClassName + ".Run";
+            var fn = $"{item.ClassName}.Run";
             //* FunctionName="ExtensionSamples.Sample1.Run(DTE dte, IServiceProvider package)" 
             return dte.Debugger.Breakpoints
                 .OfType<Breakpoint>().Any(b => b.FunctionName.StartsWith(fn));
             // TODO: somehow instruct debugger to break in method
-            //this is not enough - resolving debugger breakpoint
-            //var function = type.FullName + "." + method.Name;
-            //dte.Debugger.Breakpoints.Add(Function: function);
-            /*<Breakpoint 
-             * Name="Sample1.cs, line 17 character 13" 
-             * Language="C#" 
-             * File="D:\GitHub\SolutionEx\SampleSol\ClassLibrary1\ExtensionSamples\Sample1.cs" 
-             * FileLine="17" 
-             * FunctionName="ExtensionSamples.Sample1.Run(DTE dte, IServiceProvider package)" 
-             * FunctionLineOffset="3" 
-             * FunctionColumnOffset="1" 
-             * LocationType="dbgBreakpointLocationTypeFile" 
-             * Type="dbgBreakpointTypePending" />
-             * */
         }
     }
 }

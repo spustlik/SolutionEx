@@ -63,8 +63,7 @@
     <Compile Include="DteExtensions.cs" />
     <Compile Include="Model\ExtensionsSerialization.cs" />
     <Compile Include="Extensions\CreateGUID.cs" />
-    <Compile Include="Extensions\Dumper.cs" />
-    <Compile Include="Extensions\DumpExtensionMore.cs" />
+    <Compile Include="Extensions\DteToXml.cs" />
     <Compile Include="Extensions\DumpExtension.cs" />
     <Compile Include="Extensions\NestFileExtension.cs" />
     <Compile Include="OleExtensions.cs" />
@@ -78,7 +77,7 @@
     <Compile Include="ReflectorControl\ReflectorXmlBuilder.cs" />
     <Compile Include="Reflection\ReflectionBuilderCS.cs" />
     <Compile Include="Reflection\ReflectionCOM.cs" />
-    <Compile Include="Reflection\ReflectionXmlDumper.cs" />
+    <Compile Include="Reflection\ReflectionBuilderXml.cs" />
     <Compile Include="Reflection\ReflectionHelper.cs" />
     <Compile Include="Launcher\ExtensionObject.cs" />
     <Compile Include="Launcher\LauncherProcess.cs" />

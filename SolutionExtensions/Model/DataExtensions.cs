@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.VisualStudio.Language.Suggestions;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
@@ -31,5 +32,14 @@ namespace Model
                 collection.RemoveAt(collection.Count - 1);
         }
 
+        public static void AddRange<T>(this HashSet<T> set, IEnumerable<T> values)
+        {
+            foreach (var item in values)
+                set.Add(item);
+        }
+        public static void AddRange<T>(this HashSet<T> set, params T[] values)
+        {
+            set.AddRange(values);
+        }
     }
 }
