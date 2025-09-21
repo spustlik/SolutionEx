@@ -95,6 +95,7 @@
     <Compile Include="Model\ExtensionsModel.cs" />
     <Compile Include="ToolWindows\ExtensionsListToolWindowPane.cs" />
     <Compile Include="ToolWindows\MoveAdorner.cs" />
+    <Compile Include="ToolWindows\MoveCollectionHelper.cs" />
     <Compile Include="ToolWindows\ReflectorToolWindow.xaml.cs">
       <DependentUpon>ReflectorToolWindow.xaml</DependentUpon>
     </Compile>

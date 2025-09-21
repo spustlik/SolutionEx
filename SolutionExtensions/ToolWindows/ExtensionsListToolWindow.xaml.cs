@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.Win32;
 using Model;
 using SolutionExtensions._DesignData;
+using SolutionExtensions.WPF;
 using System;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -65,6 +66,7 @@ namespace SolutionExtensions.ToolWindows
         public VM ViewModel => this.DataContext as VM;
         private SolutionExtensionsPackage Package;
         private ExtensionManager ExtensionManager => this.Package.ExtensionManager;
+        private MoveCollectionHelper mover;
         public ExtensionsListToolWindow()
         {
             InitializeComponent();
@@ -81,6 +83,7 @@ namespace SolutionExtensions.ToolWindows
             ViewModel.Model = Package.Model;
             ViewModel.Model.Extensions.OnCollectionItemChanged(null, ViewModelExtensions_PropertyChanged);
             ViewModel.Model.Extensions.CollectionChanged += ViewModelExtensions_CollectionChanged;
+            mover = MoveCollectionHelper.Create(this, ViewModel.Model.Extensions);
         }
         private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
@@ -447,119 +450,22 @@ namespace SolutionExtensions.ToolWindows
             item.Argument = "?";
         }
 
-        Point start;
-        FrameworkElement movingElement;
-        FrameworkElement movingOverElement;
         private void ExtensionItem_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            ExtensionItem_MouseEvent(sender, e);
+            mover.ProcessMouseEvent(sender, e);
         }
         private void ExtensionItem_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            ExtensionItem_MouseEvent(sender, e);
+            mover.ProcessMouseEvent(sender, e);
         }
         private void ExtensionItem_MouseMove(object sender, MouseEventArgs e)
         {
-            ExtensionItem_MouseEvent(sender, e);
-        }
-        private void ExtensionItem_MouseEvent(object sender, MouseEventArgs e)
-        {
-            void log(string s) => Debug.WriteLine(s);
-            try
-            {
-                var src = (sender as FrameworkElement);
-                if (src == null) return;
-                if (e.RoutedEvent == MouseDownEvent)
-                {
-                    start = e.GetPosition(this);
-                    return;
-                }
-                //if btn down (MouseMoveEvent)
-                if (e.LeftButton == MouseButtonState.Pressed)
-                {
-                    //if not moving
-                    if (movingElement == null)
-                    {
-                        var pt = e.GetPosition(this);
-                        if (new Vector(start.X - pt.X, start.Y - pt.Y).Length < 5)
-                        {
-                            return;
-                        }
-                        
-                        log($"Starting moving with {(src.DataContext as ExtensionItem).Title}");
-                        //start moving
-                        movingElement = src;
-                        movingElement.Opacity = 0.3;
-                        //capture mouse
-                        if (Mouse.Captured != movingElement)
-                            Mouse.Capture(movingElement);
-                        e.Handled = true;
-                        return;
-                    }
-                    else
-                    {
-                        //  else (moving)
-                        MoveAdorner.RemoveAll(movingOverElement);
-                        var hit = VisualTreeHelper.HitTest(this, e.GetPosition(this));
-                        var ele = hit?.VisualHit as FrameworkElement;
-                        //    identify underlaying item
-                        if (!(ele?.DataContext is ExtensionItem item))
-                            return;
-                        //log($"Moving over {item.Title}");
-                        movingOverElement = ele.FindAncestor<ListBoxItem>();
-                        if (item != movingElement.DataContext)
-                        {
-                            //replace adorners with new item
-                            MoveAdorner.AddOrUpdate(movingOverElement, e.GetPosition(movingOverElement));
-                        }
-                        e.Handled = true;
-                        return;
-                    }
-                }
-                else
-                {
-                    //else (btn is up, it can be out of list)
-                    //  if was moving 
-                    if (movingElement != null)
-                    {
-                        //stop moving
-                        if (movingOverElement != null)
-                        {
-                            var list = ViewModel.Model.Extensions;
-                            var srcItem = movingElement.DataContext as ExtensionItem;
-                            var dstItem = movingOverElement.DataContext as ExtensionItem;
-                            //remove adorners
-                            var a = MoveAdorner.RemoveAll(movingOverElement);
-                            if (a == null)
-                                log($"Adorner not found");
-                            movingOverElement = null;
-                            var moveAfter = a?.IsTop != true;
-                            if (srcItem != null && dstItem != null && srcItem!=dstItem)
-                            {
-                                log($"End of moving from {srcItem.Title} {(moveAfter? "after" : "before")} {dstItem.Title}");
-                                list.Remove(srcItem);
-                                var i = list.IndexOf(dstItem);
-                                if (moveAfter) i++;
-                                if (i >= list.Count || i < 0)
-                                    list.Add(srcItem);
-                                else
-                                    list.Insert(i, srcItem);
-                            }
-                        }
-                        movingElement.Opacity = 1;
-                        movingElement = null;
-                    }
-                    // release capture
-                    if (Mouse.Captured == movingElement)
-                        Mouse.Capture(null);
-                    e.Handled = true;
-                }
-            }
-            catch (Exception ex)
-            {
-                log("ERROR:" + ex);
-            }
+            mover.ProcessMouseEvent(sender, e);
         }
 
+        private void MoverAttach_Loaded(object sender, RoutedEventArgs e)
+        {
+            mover.AttachToMouseEvents(sender as UIElement);
+        }
     }
 }

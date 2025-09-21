@@ -46,9 +46,10 @@
                       IsEnabled="true"
                       Background="Transparent"
                       IsHitTestVisible="True"
-                      MouseMove="ExtensionItem_MouseMove"
-                      MouseDown="ExtensionItem_MouseDown"
-                      MouseUp="ExtensionItem_MouseUp"
+                      Loaded="MoverAttach_Loaded"
+                      cmt:MouseMove="ExtensionItem_MouseMove"
+                      cmt:MouseDown="ExtensionItem_MouseDown"
+                      cmt:MouseUp="ExtensionItem_MouseUp"
                       >
                     <Grid HorizontalAlignment="Stretch" >
                         <Grid.ColumnDefinitions>

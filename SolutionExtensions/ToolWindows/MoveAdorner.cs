@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Media;
 
-namespace SolutionExtensions.ToolWindows
+namespace SolutionExtensions.WPF
 {
     public class MoveAdorner : Adorner
     {
@@ -46,7 +46,7 @@ namespace SolutionExtensions.ToolWindows
 
         protected override void OnRender(DrawingContext ctx)
         {
-            var rect = new Rect(this.AdornedElement.RenderSize);
+            var rect = new Rect(AdornedElement.RenderSize);
             var pen = new Pen(new SolidColorBrush(Colors.Red), 3.0);
             if (IsTop)
                 DrawInsertLine(ctx, pen, rect.TopLeft, rect.TopRight);
@@ -79,7 +79,5 @@ namespace SolutionExtensions.ToolWindows
             else
                 ctx.DrawLine(pen, pB, pBb);
         }
-
-
     }
 }

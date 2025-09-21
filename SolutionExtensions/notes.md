@@ -80,8 +80,7 @@
     * ExtensionsListToolWindow - WPF, ui, VSStyles.xaml, DTE, Package, Pane
         * [ ] todo: (not needed) refact VSStyles.xaml
     * ExtensionsListToolWindowPane
-    * MoveAdorner - just WPF, 
-        * [ ] TODO: refact D&D from ExtensionsListToolWindow  
+    * MoveAdorner,MoveCollectionHelper - just WPF, 
     * ReflectorToolWindow - shell, ui, VSstyles.xaml, DTE, ReflectorToolWindowPane
         * [ ] todo: (not needed) refact VSStyles.xaml
  * DteExtensions
