@@ -170,23 +170,20 @@ namespace SolutionExtensions
         {
             if (!String.IsNullOrEmpty(item.Title))
                 return;
-            var (method, type) = FindExtensionMethod(item, throwIfNotFound: false, tryCompile: false);
+            var (method, type) = FindExtensionMethod(item, throwIfNotFound: false);
             if (method == null)
                 return;
             var description = method.GetDescription() ?? type.GetDescription() ?? type.Name;
             item.Title = description;
         }
 
-        private (MethodInfo method, Type type) FindExtensionMethod(
-            ExtensionItem item, bool throwIfNotFound, bool tryCompile)
+        private (MethodInfo method, Type type) FindExtensionMethod(ExtensionItem item, bool throwIfNotFound)
         {
-            if (tryCompile)
-                CompileIfNeeded(item);
             var assembly = LoadVersionedAssembly(GetRealPath(item.DllPath));
             return ExtensionObject.FindExtensionMethod(assembly, item.ClassName, throwIfNotFound);
         }
 
-        private bool CompileIfNeeded(ExtensionItem item)
+        public bool CompileIfNeeded(ExtensionItem item)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var dte = package.GetService<DTE, DTE>() as DTE2;
@@ -218,7 +215,7 @@ namespace SolutionExtensions
             argument = item.Argument;
             if (argument!=null && argument.StartsWith("?"))
             {
-                var (method, type) = FindExtensionMethod(item, throwIfNotFound: false, tryCompile: false);
+                var (method, type) = FindExtensionMethod(item, throwIfNotFound: false);
                 var prompt = "Enter argument value";
                 if (type != null)
                 {
@@ -234,7 +231,7 @@ namespace SolutionExtensions
         public void RunExtension(ExtensionItem item, string argument)
         {
             var dte = package.GetService<DTE, DTE>();
-            var (method, type) = FindExtensionMethod(item, throwIfNotFound: true, tryCompile: true);
+            var (method, type) = FindExtensionMethod(item, throwIfNotFound: true);
             ExtensionObject.RunExtension(type, method, dte, package, argument);
         }
 
@@ -274,7 +271,7 @@ namespace SolutionExtensions
         }
         public CheckResult CheckItemCode(ExtensionItem item)
         {
-            var (method, type) = FindExtensionMethod(item, throwIfNotFound: false, tryCompile: false);
+            var (method, type) = FindExtensionMethod(item, throwIfNotFound: false);
             if (type == null)
                 return CheckResult.ClassNotFound;
             if (method == null)

@@ -47,7 +47,8 @@
                       Background="Transparent"
                       IsHitTestVisible="True"
                       MouseMove="ExtensionItem_MouseMove"
-                        MouseUp="ExtensionItem_MouseUp"
+                      MouseDown="ExtensionItem_MouseDown"
+                      MouseUp="ExtensionItem_MouseUp"
                       >
                     <Grid HorizontalAlignment="Stretch" >
                         <Grid.ColumnDefinitions>
@@ -147,6 +148,7 @@
                         <MenuItem Header="Reload" Click="Load_Click"/>
                         <MenuItem Header="Sync to VS" Click="SyncToDte_Click"/>
                         <MenuItem Header="Save" Click="Save_Click"/>
+                        
                     </ContextMenu>
                 </Button.ContextMenu>
             </Button>

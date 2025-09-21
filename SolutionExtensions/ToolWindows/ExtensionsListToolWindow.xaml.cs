@@ -158,6 +158,8 @@ namespace SolutionExtensions.ToolWindows
             try
             {
                 Package.Log($"Running extension '{item.Title}' with argument '{argument}' and flags {String.Join(",", item.GetFlags())} from {Path.GetFileName(item.DllPath)},{item.ClassName}");
+                if (ExtensionManager.CompileIfNeeded(item))
+                    Package.Log($"extension recompiled");
                 if (item.OutOfProcess)
                     ExtensionDebugger.RunExtension(item, argument, Package, ExtensionManager, false);
                 else
@@ -430,7 +432,7 @@ namespace SolutionExtensions.ToolWindows
             {
                 this.ShowException(ex);
             }
-        }
+        }        
 #pragma warning restore VSTHRD100 // Avoid async void methods
 
         private void Develop_Click(object sender, RoutedEventArgs e)
@@ -453,26 +455,45 @@ namespace SolutionExtensions.ToolWindows
             item.Argument = "?";
         }
 
+        Point start;
         FrameworkElement movingElement;
         FrameworkElement movingOverElement;
+        private void ExtensionItem_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            ExtensionItem_MouseEvent(sender, e);
+        }
         private void ExtensionItem_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            //to only mouse up without move
-            ExtensionItem_MouseMove(sender, e);
+            ExtensionItem_MouseEvent(sender, e);
         }
         private void ExtensionItem_MouseMove(object sender, MouseEventArgs e)
+        {
+            ExtensionItem_MouseEvent(sender, e);
+        }
+        private void ExtensionItem_MouseEvent(object sender, MouseEventArgs e)
         {
             void log(string s) => Debug.WriteLine(s);
             try
             {
                 var src = (sender as FrameworkElement);
                 if (src == null) return;
-                //if btn down
+                if (e.RoutedEvent == MouseDownEvent)
+                {
+                    start = e.GetPosition(this);
+                    return;
+                }
+                //if btn down (MouseMoveEvent)
                 if (e.LeftButton == MouseButtonState.Pressed)
                 {
                     //if not moving
                     if (movingElement == null)
                     {
+                        var pt = e.GetPosition(this);
+                        if (new Vector(start.X - pt.X, start.Y - pt.Y).Length < 5)
+                        {
+                            return;
+                        }
+                        
                         log($"Starting moving with {(src.DataContext as ExtensionItem).Title}");
                         //start moving
                         movingElement = src;
@@ -520,13 +541,13 @@ namespace SolutionExtensions.ToolWindows
                             if (a == null)
                                 log($"Adorner not found");
                             movingOverElement = null;
-                            var moveBefore = a?.IsTop != false;//isTop =true means before, istop=false means after
-                            if (srcItem != null && dstItem != null)
+                            var moveAfter = a?.IsTop != true;
+                            if (srcItem != null && dstItem != null && srcItem!=dstItem)
                             {
-                                log($"End of moving from {srcItem.Title} {(moveBefore ? "before" : "after")} {dstItem.Title}");
+                                log($"End of moving from {srcItem.Title} {(moveAfter? "after" : "before")} {dstItem.Title}");
                                 list.Remove(srcItem);
                                 var i = list.IndexOf(dstItem);
-                                if (!moveBefore) i++;
+                                if (moveAfter) i++;
                                 if (i >= list.Count || i < 0)
                                     list.Add(srcItem);
                                 else

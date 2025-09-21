@@ -107,14 +107,13 @@ namespace SolutionExtensions.Launcher
             //run extension
             Console.WriteLine($"{LauncherProcess.RUN}: Running extension");
             //to simplify code, which will break
-            var runner = new ExtensionRunner(type, method, dte, package, cmd.Argument, cmd.BreakDebugger, retryCount: 5);
+            var runner = new ExtensionRunner(type, method, dte, package, cmd.Argument, cmd.BreakDebugger);
             runner.Run();
             Console.WriteLine($"{LauncherProcess.DONE}");
         }
 
         private static EnvDTE.DTE GetDTE(Arguments cmd)
         {
-            //Marshal.GetActiveObject() //needs progid, not moniker
             var rot = new RunningComObjects();
             var dteCom = rot.GetRunningComObject(cmd.MonikerName);
             if (dteCom == null)
@@ -122,8 +121,31 @@ namespace SolutionExtensions.Launcher
             var dte = dteCom as EnvDTE.DTE;
             if (dte == null)
                 throw new ApplicationException($"Moniker COM is not DTE");
+            //wait for ready
+            var timeOut = DateTime.Now.AddMinutes(1);
+            Console.WriteLine($"{LauncherProcess.WAIT}: Waiting for DTE to be ready");
+            while (!TryGetSolution(dte))
+            {
+                Thread.Sleep(100);
+                if (DateTime.Now > timeOut)
+                    throw new ApplicationException($"Waiting for DTE timeout");
+            }
             return dte;
         }
+
+        private static bool TryGetSolution(EnvDTE.DTE dte)
+        {
+            try
+            {
+                var s = dte.Solution;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         private static IVsPackage FindPackage(string id, EnvDTE.DTE dte)
         {
             //this is not working and will never 

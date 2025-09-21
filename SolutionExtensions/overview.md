@@ -78,6 +78,7 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * 1.2.1 - package is IServiceProvider also in debug
 * 1.2.2 - Community.Toolkit removed
 * 1.2.3 - dialog for argument value
+* 1.2.4 - tooltips, out of process, drag & drop to reorder
 
 ### Ideas
 * Add new extension project using wizard
@@ -85,6 +86,8 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * allow to use /bin/debug or /bin/release using /**/extensionName.dll
 * custom variables in cfg like $(MyTemplates)=$(SolutionDir)/MyTemplates*
 * some support of events / long running extensions, autorun
+* generate mermaid diagrams for DTE https://mermaid.js.org/intro/syntax-reference.html
+
 
 #### Notes
 * Debugging
@@ -96,9 +99,9 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
     * Merged using ILMerge to one exe because referenced dlls are incompatible with vsix
     * merged exe is copied to lib folder and copyied with project
     * some classes from package are linked, not referenced
-* extension assembly
+* extension assembly (in-process mode)
     * cannot be reloaded, so it is using copy dll to new path, change of assembly name (using Mono.Cecil)
-    * it will not work if it is using some other re-compiled assembly
+    * it will not work if it is using some other re-compiled assembly, so you must use "Out of process" option
     * but can work only for methods reflection
 * Mono.Cecil
     * referenced only one dll, not whole package

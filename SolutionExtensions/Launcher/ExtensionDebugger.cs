@@ -26,7 +26,7 @@ namespace SolutionExtensions
             string launcherExe = GetLauncherExe(dte, package);
 
             var output = new System.Text.StringBuilder();
-            bool waiting = false;
+            bool launcherIsWaiting = false;
             void launcherOutputData(string line)
             {
                 if (string.IsNullOrEmpty(line))
@@ -35,17 +35,19 @@ namespace SolutionExtensions
                     line += "\n";
                 output.Append(line);
                 if (line.StartsWith(LauncherProcess.WAIT))
-                    waiting = true;
+                    launcherIsWaiting = true;
                 package.AddToOutputPaneThreadSafe(line);
             }
             var launcher = LauncherProcess.RunExtension(launcherExe, dllPath, item.ClassName, monikerName, packageId, argument, debug, launcherOutputData);
 
             while (!launcher.HasExited)
             {
-                if (waiting) break;
+                if (launcherIsWaiting) break;
                 launcher.WaitForExit(100);
             }
 
+            if (!debug)
+                return;
             if (launcher.HasExited)
                 throw new Exception($"Launcher exited with {launcher.ExitCode}\n{output}");
 
