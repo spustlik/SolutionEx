@@ -108,7 +108,7 @@ classDiagram
     Animal : +int age
     Animal : +String gender
     Animal: +isMammal()
-    Animal: +mate()
+    Animal: +mate() 
     class Duck{
         +String beakColor
         +swim()

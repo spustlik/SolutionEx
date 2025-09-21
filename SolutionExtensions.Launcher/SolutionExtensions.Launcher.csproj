@@ -70,22 +70,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\SolutionExtensions\Launcher\ExtensionObject.cs">
-      <Link>ExtensionObject.cs</Link>
+      <Link>Linked\ExtensionObject.cs</Link>
     </Compile>
     <Compile Include="..\SolutionExtensions\Launcher\LauncherProcess.cs">
-      <Link>LauncherProcess.cs</Link>
+      <Link>Linked\LauncherProcess.cs</Link>
     </Compile>
     <Compile Include="..\SolutionExtensions\Launcher\RunningComObjects.cs">
-      <Link>RunningComObjects.cs</Link>
+      <Link>Linked\RunningComObjects.cs</Link>
     </Compile>
     <Compile Include="..\SolutionExtensions\OleExtensions.cs">
-      <Link>OleExtensions.cs</Link>
+      <Link>Linked\OleExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\SolutionExtensions\Reflector\ReflectionCOM.cs">
-      <Link>ReflectionCOM.cs</Link>
+    <Compile Include="..\SolutionExtensions\Reflection\ReflectionCOM.cs">
+      <Link>Linked\ReflectionCOM.cs</Link>
     </Compile>
-    <Compile Include="..\SolutionExtensions\Reflector\ReflectionHelper.cs">
-      <Link>ReflectionHelper.cs</Link>
+    <Compile Include="..\SolutionExtensions\Reflection\ReflectionHelper.cs">
+      <Link>Linked\ReflectionHelper.cs</Link>
     </Compile>
     <Compile Include="ExtensionRunner.cs" />
     <Compile Include="Program.cs" />
