@@ -1,19 +1,20 @@
 ﻿using System;
-using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace SolutionExtensions
+namespace SolutionExtensions.Reflector
 {
     /// <summary>
     /// Interaction logic for ReflectorControl.xaml
     /// </summary>
     public partial class ReflectorControl : UserControl
     {
+        public ReflectorFactory Factory { get; } 
         public ReflectorControl()
         {
             InitializeComponent();
             ViewModel = new ReflectorVM();
+            Factory = new ReflectorFactory();
             Factory.COM.RegisterInterfacesFromAppDomain();
         }
 
@@ -26,7 +27,6 @@ namespace SolutionExtensions
         {
             ViewModel.SelectedNode = (sender as TreeView).SelectedItem as ReflectorNode; ;
         }
-        public ReflectorFactory Factory { get; } = new ReflectorFactory();
 
         private void CallExpand<T>(object sender, Action<T> action) where T : class
         {
@@ -69,7 +69,6 @@ namespace SolutionExtensions
         private void ExpandInterfaces_Click(object sender, RoutedEventArgs e)
         {
             CallExpand<ReflectorValueNode>(sender, node => Factory.ExpandInterfaces(node));
-
         }
 
         private void ExpandMethods_Click(object sender, RoutedEventArgs e)

@@ -19,11 +19,9 @@ namespace SolutionExtensions
         */
         public int RegisterComObject(object comObject, string monikerName)
         {
+            //Marshal.GetActiveObject - needs progId
             IMoniker moniker = CreateMoniker(monikerName);
             var result = Rot.Register(0, comObject, moniker);
-            //Marshal.ThrowExceptionForHR(hr);
-            //var r1 = rot.IsRunning(moniker);
-            //var r2 = rot.IsRunning(moniker.na)
             return result;
         }
 

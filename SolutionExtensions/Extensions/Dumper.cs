@@ -4,7 +4,6 @@ using EnvDTE80;
 using EnvDTE90a;
 using Microsoft.VisualStudio.Shell;
 using SolutionExtensions.Reflector;
-using SolutionExtensions.ToolWindows;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -21,12 +20,12 @@ namespace SolutionExtensions.Extensions
 #pragma warning disable VSTHRD010 // Invoke single-threaded types on Main thread
     public class Dumper
     {
-        private readonly ReflectionDumper reflectionDumper;
+        private readonly ReflectionXmlDumper reflectionDumper;
         private readonly Stopwatch watches = new Stopwatch();
 
         public Dumper()
         {
-            reflectionDumper = new ReflectionDumper(
+            reflectionDumper = new ReflectionXmlDumper(
                     typeof(System.Globalization.CultureInfo),
                     typeof(System.Threading.Thread),
                     typeof(Task),

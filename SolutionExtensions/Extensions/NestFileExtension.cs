@@ -4,7 +4,6 @@ using SolutionExtensions.Reflector;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO.Packaging;
 using System.Linq;
 using System.Windows;
 

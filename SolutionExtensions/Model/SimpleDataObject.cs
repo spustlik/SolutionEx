@@ -1,5 +1,4 @@
-﻿using Microsoft.VisualStudio.Shell.Services;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,7 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
 
-namespace SolutionExtensions
+namespace Model
 {
     public abstract class SimpleDataObject : INotifyPropertyChanged, INotifyPropertyChanging
     {
@@ -125,7 +124,7 @@ namespace SolutionExtensions
             remove { _errorsChanged -= value; }
         }
 
-        System.Collections.IEnumerable INotifyDataErrorInfo.GetErrors(string propertyName)
+        IEnumerable INotifyDataErrorInfo.GetErrors(string propertyName)
         {
             var error = GetError(propertyName);
             if (error == null)
@@ -217,7 +216,7 @@ namespace SolutionExtensions
                         pc.PropertyChanged -= CollectionItem_Changed;
                 }
             }
-            void Collection_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+            void Collection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
             {
                 if (e.Action == NotifyCollectionChangedAction.Move)
                     return; //not interesting

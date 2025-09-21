@@ -1,8 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SolutionExtensions.Formula;
-using System;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace SolutionExtensionsTests
 {

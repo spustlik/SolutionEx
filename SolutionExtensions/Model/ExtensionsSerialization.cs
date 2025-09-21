@@ -1,8 +1,6 @@
-﻿using Microsoft.VisualStudio.Shell;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
-using System.Windows.Documents;
 
 namespace SolutionExtensions
 {

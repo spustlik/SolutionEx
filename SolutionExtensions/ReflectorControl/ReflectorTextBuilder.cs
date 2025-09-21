@@ -1,6 +1,4 @@
-﻿using SolutionExtensions.Reflector;
-
-namespace SolutionExtensions
+﻿namespace SolutionExtensions.Reflector
 {
     public class ReflectorTextBuilder : ReflectorNodeBuilder<string>
     {

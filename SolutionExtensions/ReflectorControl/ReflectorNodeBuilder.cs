@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace SolutionExtensions
+namespace SolutionExtensions.Reflector
 {
     public abstract class ReflectorNodeBuilder<TR>
     {

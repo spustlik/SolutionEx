@@ -1,21 +1,18 @@
-﻿using Microsoft.VisualStudio.Debugger.Interop;
-using SolutionExtensions.Reflector;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace SolutionExtensions.Extensions
+namespace SolutionExtensions.Reflector
 {
     public delegate void DumperDelegate(object o, XElement parent);
     public delegate void DumperDelegate<T>(T o, XElement parent);
-    public class ReflectionDumper
+    public class ReflectionXmlDumper
     {
-        public ReflectionDumper(params Type[] skipTypes)
+        public ReflectionXmlDumper(params Type[] skipTypes)
         {
             this.skipTypes = new HashSet<Type>(skipTypes);
         }
@@ -121,15 +118,15 @@ namespace SolutionExtensions.Extensions
             if (interfaces.Length > 0)
             {
                 foreach (var intf in interfaces) usedTypes.Add(intf);
-                parent.Add(new XAttribute("_interfaces", String.Join(", ", interfaces.Select(i => GetTypeName(i)))));
+                parent.Add(new XAttribute("_interfaces", string.Join(", ", interfaces.Select(i => GetTypeName(i)))));
             }
             if (ReflectionCOM.IsCOMObjectType(o.GetType()))
             {
-                var com = this.ComReflection.GetInterfaces(o).ToArray();
+                var com = ComReflection.GetInterfaces(o).ToArray();
                 if (com.Length > 0)
                 {
                     foreach (var intf in com) usedTypes.Add(intf);
-                    parent.Add(new XAttribute("_COMinterfaces", String.Join(", ", com.Select(i => GetTypeName(i)))));
+                    parent.Add(new XAttribute("_COMinterfaces", string.Join(", ", com.Select(i => GetTypeName(i)))));
                 }
             }
             if (o is IEnumerable a)

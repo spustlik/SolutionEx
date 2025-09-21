@@ -1,11 +1,9 @@
 ﻿using Microsoft.VisualStudio.Shell;
-using SolutionExtensions.ToolWindows;
 using System;
 using System.ComponentModel.Design;
-using System.Threading;
 using System.Threading.Tasks;
 
-namespace SolutionExtensions
+namespace SolutionExtensions.Commands
 {
     public abstract class CommandBase
     {
@@ -48,8 +46,8 @@ namespace SolutionExtensions
         public OleMenuCommand MenuComand { get; private set; }
         protected CommandBase(int commandId, Guid commandSet)
         {
-            this.CommandId = commandId;
-            this.CommandSet = commandSet;
+            CommandId = commandId;
+            CommandSet = commandSet;
         }
         /// <summary>
         /// This function is the callback used to execute the command when the menu item is clicked.

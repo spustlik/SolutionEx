@@ -1,8 +1,7 @@
-﻿using SolutionExtensions.Reflector;
-using System;
+﻿using System;
 using System.Xml.Linq;
 
-namespace SolutionExtensions
+namespace SolutionExtensions.Reflector
 {
     public class ReflectorXmlBuilder : ReflectorNodeBuilder<XElement>
     {

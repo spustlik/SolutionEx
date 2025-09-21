@@ -1,5 +1,4 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -18,6 +17,8 @@ namespace SolutionExtensions.Reflector
         {
             try
             {
+                //TODO: test assembly.DefinedTypes !calls GetTypes()
+                //throws load error sometime on assemblies without ressolved refs
                 var types = assembly.GetTypes();
                 foreach (var t in types.OrderBy(t => t.GUID))
                 {

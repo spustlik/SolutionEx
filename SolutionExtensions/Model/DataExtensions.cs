@@ -2,7 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace SolutionExtensions
+namespace Model
 {
     public static class DataExtensions
     {

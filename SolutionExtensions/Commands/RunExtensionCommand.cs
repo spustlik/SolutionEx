@@ -1,11 +1,8 @@
-﻿using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Threading;
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
 
-namespace SolutionExtensions
+namespace SolutionExtensions.Commands
 {
     public sealed class RunExtensionCommand : CommandBaseAsync
     {

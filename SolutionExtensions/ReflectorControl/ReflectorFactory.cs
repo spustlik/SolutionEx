@@ -1,14 +1,11 @@
-﻿using Microsoft.VisualStudio.Shell;
-using SolutionExtensions.Reflector;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Xml.Linq;
 
-namespace SolutionExtensions
+namespace SolutionExtensions.Reflector
 {
     public class ReflectorFactory
     {

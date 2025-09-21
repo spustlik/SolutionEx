@@ -1,14 +1,10 @@
-﻿using Microsoft.VisualStudio.VCProjectEngine;
-using SolutionExtensions;
+﻿using Model;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Windows.Forms;
 
-namespace SolutionExtensions
+namespace SolutionExtensions.Reflector
 {
 
     public abstract class ReflectorNode : SimpleDataObject

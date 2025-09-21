@@ -1,6 +1,7 @@
 ﻿using EnvDTE;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using SolutionExtensions.Commands;
 using System;
 using System.Collections.Generic;
 using System.IO;

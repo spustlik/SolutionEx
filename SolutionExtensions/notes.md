@@ -39,9 +39,65 @@
     * old extension instance "Destroy" must be called to remove events
 
 
+# refactoring
+* _DesignData - WPF, DTE, 
+  * [ ] TODO: rename
+* Commands - DTE, VSIX
+* Converters - WPF
+* Extensions - internal ext. DTE, VSIX
+    * Dumper uses ReflectionXmlDumper, DTE, rozumi DTE objektum
+    * DumpExtension, DumpExtensionMore,NestFile
+* Formula
+    * not really used, can be removed
+* Images - doc only
+* Launcher - DTE,Launcher
+    * ExtensionDebugger - runs exe using DTE, LauncherProcess
+        * [ ] TODO: merge?
+    * ExtensionObject - used also from Launcher
+        * needs DTE as parameter
+    * LauncherProcess - just wrapper for running process
+    * RunningComObjects - just COM extern wrapper to use ROT
+        * [ ] TODO: move to another place, ns?
+* Model - plain .net
+    * ExtensionModel - using SimpleDataObject
+    * ExtensionSerialization - using ExtensionModel 
+    * SimpleDataObject
+    * [ ] todo: move to namespace?
+* Reflection - plain .net
+    * ReflectionBuilderCS, ReflectionXmlDumper
+        * [ ] TODO: rename and refact
+    * ReflectionCOM
+    * ReflectionHelper
+* ReflectorControl - WPF
+    * xaml - needs colors from PlatformUI and VSStyles.xaml
+    * (TreeView) style with Stretch HorizontalAlignment
+    * cs - using ReflectorFactory
+    * ReflectorFactory
+    * ReflectorModel 
+    * ReflectorNodeBuilder 
+    * ReflectorTextBuilder
+    * ReflectorXmlBuilder
+ * Themes - VsStyles.xaml
+ * ToolWindows
+    * ExtensionsListToolWindow - WPF, ui, VSStyles.xaml, DTE, Package, Pane
+        * [ ] todo: refactor DI
+        * [ ] todo: (not needed) refact VSStyles.xaml
+    * ExtensionsListToolWindowPane
+    * MoveAdorner - just WPF, 
+        * [ ] TODO: refact D&D from ExtensionsListToolWindow  
+    * ReflectorToolWindow - shell, ui, VSstyles.xaml, DTE, ReflectorToolWindowPane
+        * [ ] todo: refactor DI
+        * [ ] todo: (not needed) refact VSStyles.xaml
+ * DteExtensions
+ * DataExtensions - plain .net
+ * OleExtensions - DTE
+ * ExtensionManager - uses DTE,package
+ * SolutionExtensionsPackage
+ * StringTemplates - plain .net
+ * WpfExtensions - uses DTE, etc?
+    * [ ] TODO: refact
+
 # mermaid tests
-
-
 ```mermaid
 classDiagram
     note "From Duck till Zebra"

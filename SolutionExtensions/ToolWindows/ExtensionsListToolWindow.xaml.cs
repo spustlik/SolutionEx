@@ -1,6 +1,7 @@
 ﻿using EnvDTE;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.Win32;
+using Model;
 using SolutionExtensions._DesignData;
 using System;
 using System.Collections.Specialized;
@@ -61,6 +62,10 @@ namespace SolutionExtensions.ToolWindows
 
     public partial class ExtensionsListToolWindow : UserControl
     {
+        public VM ViewModel => this.DataContext as VM;
+        ToolWindowPane ToolWindowPane => this.Tag as ToolWindowPane;
+        SolutionExtensionsPackage Package;
+        ExtensionManager ExtensionManager => this.Package.ExtensionManager;
         public ExtensionsListToolWindow()
         {
             InitializeComponent();
@@ -69,6 +74,14 @@ namespace SolutionExtensions.ToolWindows
             ViewModel.IsDebug = true;
 #endif
             ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+        }
+        //assigned when created ToolWindowPane 
+        private void Control_Loaded(object sender, System.Windows.RoutedEventArgs e)
+        {
+            Package = ToolWindowPane.Package as SolutionExtensionsPackage;
+            ViewModel.Model = Package.Model;
+            ViewModel.Model.Extensions.OnCollectionItemChanged(null, ViewModelExtensions_PropertyChanged);
+            ViewModel.Model.Extensions.CollectionChanged += ViewModelExtensions_CollectionChanged;
         }
         private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
@@ -114,26 +127,6 @@ namespace SolutionExtensions.ToolWindows
             });
         }
 
-        public VM ViewModel => this.DataContext as VM;
-        //assigned when created ToolWindowPane 
-        ToolWindowPane ToolWindowPane => this.Tag as ToolWindowPane;
-        SolutionExtensionsPackage Package;
-        ExtensionManager ExtensionManager => this.Package.ExtensionManager;
-        private void Control_Loaded(object sender, System.Windows.RoutedEventArgs e)
-        {
-            Package = ToolWindowPane.Package as SolutionExtensionsPackage;
-            ViewModel.Model = Package.Model;
-            ViewModel.Model.Extensions.OnCollectionItemChanged(null, ViewModelExtensions_PropertyChanged);
-            ViewModel.Model.Extensions.CollectionChanged += ViewModelExtensions_CollectionChanged;
-            //try
-            //{
-            //    ExtensionManager.LoadFile(ViewModel.Model, true);
-            //}
-            //catch (Exception)
-            //{
-            //    //ignore
-            //}
-        }
 
         private void AddItem_Click(object sender, System.Windows.RoutedEventArgs e)
         {

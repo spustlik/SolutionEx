@@ -2,7 +2,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace SolutionExtensions
+namespace SolutionExtensions.Commands
 {
     public abstract class CommandBaseAsync : CommandBase
     {

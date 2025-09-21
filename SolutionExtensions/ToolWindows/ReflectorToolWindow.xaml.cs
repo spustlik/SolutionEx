@@ -2,28 +2,16 @@
 using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using SolutionExtensions.Reflector;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Packaging;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Threading;
 
 namespace SolutionExtensions.ToolWindows
 {
-    [Guid("2016A00B-1AF6-4C0A-9F58-77E201374A87")]
-    public class ReflectorToolWindowPane : ToolWindowPaneBase<ReflectorToolWindow>
-    {
-        public static string CAPTION = "DTE reflection";
-
-        public ReflectorToolWindowPane() : base(CAPTION, new ReflectorToolWindow())
-        {
-        }
-    }
 
     public partial class ReflectorToolWindow : UserControl
     {

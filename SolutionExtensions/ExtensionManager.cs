@@ -2,12 +2,10 @@
 using EnvDTE80;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Internal;
 using SolutionExtensions.Extensions;
 using SolutionExtensions.Reflector;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;

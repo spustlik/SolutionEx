@@ -80,10 +80,10 @@
     <Compile Include="ReflectorControl\ReflectorNodeBuilder.cs" />
     <Compile Include="ReflectorControl\ReflectorTextBuilder.cs" />
     <Compile Include="ReflectorControl\ReflectorXmlBuilder.cs" />
-    <Compile Include="Reflector\ReflectionBuilderCS.cs" />
-    <Compile Include="Reflector\ReflectionCOM.cs" />
-    <Compile Include="Extensions\ReflectionDumper.cs" />
-    <Compile Include="Reflector\ReflectionHelper.cs" />
+    <Compile Include="Reflection\ReflectionBuilderCS.cs" />
+    <Compile Include="Reflection\ReflectionCOM.cs" />
+    <Compile Include="Reflection\ReflectionXmlDumper.cs" />
+    <Compile Include="Reflection\ReflectionHelper.cs" />
     <Compile Include="Launcher\ExtensionObject.cs" />
     <Compile Include="Launcher\LauncherProcess.cs" />
     <Compile Include="Launcher\RunningComObjects.cs" />
@@ -102,8 +102,9 @@
     <Compile Include="ToolWindows\ReflectorToolWindow.xaml.cs">
       <DependentUpon>ReflectorToolWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ToolWindows\ReflectorToolWindowPane.cs" />
     <Compile Include="ToolWindows\ToolWindowPaneBase.cs" />
-    <Compile Include="Commands\DataExtensions.cs" />
+    <Compile Include="Model\DataExtensions.cs" />
     <Compile Include="WpfExtensions.cs" />
     <Compile Include="_DesignData\ColorModel.cs" />
     <Compile Include="_DesignData\ColorWindow.xaml.cs">
