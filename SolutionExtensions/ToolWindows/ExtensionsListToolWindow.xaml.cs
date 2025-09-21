@@ -63,9 +63,8 @@ namespace SolutionExtensions.ToolWindows
     public partial class ExtensionsListToolWindow : UserControl
     {
         public VM ViewModel => this.DataContext as VM;
-        ToolWindowPane ToolWindowPane => this.Tag as ToolWindowPane;
-        SolutionExtensionsPackage Package;
-        ExtensionManager ExtensionManager => this.Package.ExtensionManager;
+        private SolutionExtensionsPackage Package;
+        private ExtensionManager ExtensionManager => this.Package.ExtensionManager;
         public ExtensionsListToolWindow()
         {
             InitializeComponent();
@@ -78,7 +77,7 @@ namespace SolutionExtensions.ToolWindows
         //assigned when created ToolWindowPane 
         private void Control_Loaded(object sender, System.Windows.RoutedEventArgs e)
         {
-            Package = ToolWindowPane.Package as SolutionExtensionsPackage;
+            Package = SolutionExtensionsPackage.GetFor(this);
             ViewModel.Model = Package.Model;
             ViewModel.Model.Extensions.OnCollectionItemChanged(null, ViewModelExtensions_PropertyChanged);
             ViewModel.Model.Extensions.CollectionChanged += ViewModelExtensions_CollectionChanged;

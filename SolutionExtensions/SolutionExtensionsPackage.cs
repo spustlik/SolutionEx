@@ -1,13 +1,18 @@
 ﻿using EnvDTE;
+using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using SolutionExtensions.Commands;
+using SolutionExtensions.ToolWindows;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Packaging;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using Task = System.Threading.Tasks.Task;
 
 namespace SolutionExtensions
@@ -148,5 +153,20 @@ namespace SolutionExtensions
             System.Windows.MessageBox.Show("Test method called from extension package");
         }
 
+        public static SolutionExtensionsPackage GetFor(UserControl control)
+        {
+            var pkg = GetGlobal();
+            if (pkg != null)
+                return pkg;
+            var pane = control.Tag as ToolWindowPane;
+            return pane?.Package as SolutionExtensionsPackage;
+        }
+
+        public static SolutionExtensionsPackage GetGlobal()
+        {
+            var vsShell = ServiceProvider.GlobalProvider.GetService<SVsShell, IVsShell>();
+            var pkg = vsShell.GetPackages().FirstOrDefault(p => p.GetType().GUID == typeof(SolutionExtensionsPackage).GUID);
+            return pkg as SolutionExtensionsPackage;
+        }
     }
 }

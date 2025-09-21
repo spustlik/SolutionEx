@@ -22,11 +22,10 @@ namespace SolutionExtensions.ToolWindows
             debugMenuItem.Visibility = Visibility.Visible;
 #endif
         }
-        ToolWindowPane ToolWindowPane => this.Tag as ToolWindowPane;
-        SolutionExtensionsPackage Package;
+        private SolutionExtensionsPackage Package;
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            Package = ToolWindowPane.Package as SolutionExtensionsPackage;
+            Package = SolutionExtensionsPackage.GetFor(this);
         }
 
         private void SetRootObject(string caption, object obj)

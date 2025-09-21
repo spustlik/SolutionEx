@@ -78,13 +78,11 @@
  * Themes - VsStyles.xaml
  * ToolWindows
     * ExtensionsListToolWindow - WPF, ui, VSStyles.xaml, DTE, Package, Pane
-        * [ ] todo: refactor DI
         * [ ] todo: (not needed) refact VSStyles.xaml
     * ExtensionsListToolWindowPane
     * MoveAdorner - just WPF, 
         * [ ] TODO: refact D&D from ExtensionsListToolWindow  
     * ReflectorToolWindow - shell, ui, VSstyles.xaml, DTE, ReflectorToolWindowPane
-        * [ ] todo: refactor DI
         * [ ] todo: (not needed) refact VSStyles.xaml
  * DteExtensions
  * DataExtensions - plain .net
