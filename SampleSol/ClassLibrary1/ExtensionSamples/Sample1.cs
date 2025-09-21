@@ -1,10 +1,14 @@
 ﻿using EnvDTE;
-using EnvDTE80;
 using System;
+using System.ComponentModel;
 using System.Windows.Forms;
 
 namespace ExtensionSamples
 {
+    /// <summary>
+    /// you can add Description attribute to class or method
+    /// </summary>
+    [Description("Sample 1 extension")]
     public class Sample1
     {
         //change type of package to Microsoft.VisualStudio.Shell.Package, if you want to reference another libraries
@@ -15,16 +19,9 @@ namespace ExtensionSamples
         /// <param name="package">Reference to executing package, you can change it to AsyncPackage,IAsyncServiceProvider</param>
         public void Run(DTE dte, IServiceProvider package)
         {
-            var dte2 = dte as DTE2;
-            var tw = dte2.ToolWindows.GetToolWindow("Solution extensions");
-            //this returns null
             MessageBox.Show("Running!");
-            System.Diagnostics.Debugger.Break();
-            if (package != null)
-            {
-                dynamic p = package;
-                p.TestMethod();
-            }
+            //add breakpoint or use this line to debug it
+            //System.Diagnostics.Debugger.Break();
         }
     }
 }

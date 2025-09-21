@@ -4,6 +4,7 @@ using System.Windows.Forms;
 
 namespace ExtensionSamples
 {
+    //sample to show argument usage (with automatic conversion)
     internal class Sample3
     {
         [Description("How many horses?")]
