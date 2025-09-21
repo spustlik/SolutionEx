@@ -14,5 +14,8 @@
     <Style TargetType="Button" BasedOn="{StaticResource {x:Static shell:VsResourceKeys.ThemedDialogButtonStyleKey}}"/>
     <Style TargetType="Label" BasedOn="{StaticResource {x:Static shell:VsResourceKeys.ThemedDialogLabelStyleKey}}"/>
     <Style TargetType="CheckBox" BasedOn="{StaticResource {x:Static shell:VsResourceKeys.CheckBoxStyleKey}}"/>
-
+    <Style TargetType="Button" x:Key="LikeVsActionButton">
+        <Setter Property="Background" Value="{DynamicResource {x:Static ui:ThemedDialogColors.ActionButtonBackgroundActiveBrushKey}}"/>
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static ui:ThemedDialogColors.ActionButtonTextBrushKey}}"/>
+    </Style>
 </ResourceDictionary>

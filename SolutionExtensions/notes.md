@@ -67,8 +67,8 @@
     * ReflectionCOM
     * ReflectionHelper
 * ReflectorControl - WPF
-    * xaml - needs colors from PlatformUI and VSStyles.xaml
-    * (TreeView) style with Stretch HorizontalAlignment
+    //* xaml - needs colors from PlatformUI and VSStyles.xaml
+    //* (TreeView) style with Stretch HorizontalAlignment
     * cs - using ReflectorFactory
     * ReflectorFactory
     * ReflectorModel 
