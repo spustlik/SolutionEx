@@ -47,8 +47,6 @@
 * Extensions - internal ext. DTE, VSIX
     * Dumper uses ReflectionXmlDumper, DTE, rozumi DTE objektum
     * DumpExtension, DumpExtensionMore,NestFile
-* Formula
-    * not really used, can be removed
 * Images - doc only
 * Launcher - DTE,Launcher
     * ExtensionDebugger - runs exe using DTE, LauncherProcess

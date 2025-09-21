@@ -182,22 +182,6 @@ namespace SolutionExtensions.ToolWindows
             }
         }
 
-        private void DumpObj(string formula, string name)
-        {
-            var dte = Package.GetService<DTE, DTE>();
-            var fb = new Formula.ReflectionBinder();
-            //not working, because it is needed to cast/queryIntf to com
-            try
-            {
-                var result = fb.Evaluate(new { dte }, formula);
-                SetRootObject(name, result);
-            }
-            catch (Exception ex)
-            {
-                this.ShowException(ex);
-            }
-        }
-
         private void DumpObj(string name, Func<object> objFactory)
         {
             try

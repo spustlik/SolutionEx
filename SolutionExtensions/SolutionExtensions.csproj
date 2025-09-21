@@ -67,10 +67,6 @@
     <Compile Include="Extensions\DumpExtensionMore.cs" />
     <Compile Include="Extensions\DumpExtension.cs" />
     <Compile Include="Extensions\NestFileExtension.cs" />
-    <Compile Include="Formula\ReflectionBinder.cs" />
-    <Compile Include="Formula\Syntax.cs" />
-    <Compile Include="Formula\SyntaxTree.cs" />
-    <Compile Include="Formula\Tokenizer.cs" />
     <Compile Include="OleExtensions.cs" />
     <Compile Include="ReflectorControl\ReflectorControl.xaml.cs">
       <DependentUpon>ReflectorControl.xaml</DependentUpon>
