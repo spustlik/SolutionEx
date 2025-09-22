@@ -1,0 +1,50 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:themes="clr-namespace:SolutionExtensions.UI.Themes;assembly=SolutionExtensions.UI" xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <SolidColorBrush x:Key="{x:Static themes:ThemeKeys.TreeViewItem_TreeArrow_Static_Stroke}" Color="#FFD6D6D6"/>
+    <SolidColorBrush x:Key="{x:Static themes:ThemeKeys.TreeViewItem_TreeArrow_Static_Fill}" Color="#FF1F1F1F"/>
+    <SolidColorBrush x:Key="{x:Static themes:ThemeKeys.TreeViewItem_TreeArrow_MouseOver_Stroke}" Color="#FFD6D6D6"/>
+    <SolidColorBrush x:Key="{x:Static themes:ThemeKeys.TreeViewItem_TreeArrow_MouseOver_Fill}" Color="#FF1F1F1F"/>
+    <SolidColorBrush x:Key="{x:Static themes:ThemeKeys.TreeViewItem_TreeArrow_Static_Checked_Stroke}" Color="#FFD6D6D6"/>
+    <SolidColorBrush x:Key="{x:Static themes:ThemeKeys.TreeViewItem_TreeArrow_Static_Checked_Fill}" Color="#FF403582"/>
+    <SolidColorBrush x:Key="{x:Static themes:ThemeKeys.TreeViewItem_TreeArrow_MouseOver_Checked_Stroke}" Color="#FFD6D6D6"/>
+    <SolidColorBrush x:Key="{x:Static themes:ThemeKeys.TreeViewItem_TreeArrow_MouseOver_Checked_Fill}" Color="#FF3D3D3D"/>
+    <SolidColorBrush x:Key="{x:Static themes:ThemeKeys.TreeViewItem_Stroke}" Color="#FFFAFAFA"/>
+    <SolidColorBrush x:Key="{x:Static themes:ThemeKeys.TreeViewItem_Fill}" Color="#FF1F1F1F"/>
+    <SolidColorBrush x:Key="{x:Static themes:ThemeKeys.TreeViewItem_Selected_Stroke}" Color="#FFFAFAFA"/>
+    <SolidColorBrush x:Key="{x:Static themes:ThemeKeys.TreeViewItem_Selected_Fill}" Color="#FF006CBE"/>
+    <SolidColorBrush x:Key="{x:Static themes:ThemeKeys.TreeViewItem_Selected_Inactive_Stroke}" Color="#FFFAFAFA"/>
+    <SolidColorBrush x:Key="{x:Static themes:ThemeKeys.TreeViewItem_Selected_Inactive_Fill}" Color="#FF383838"/>
+    <SolidColorBrush x:Key="{x:Static themes:ThemeKeys.TreeViewItem_Disabled_Stroke}" Color="#FF5C5C5C"/>
+
+    <!-- can simulate dark theme for these styles-->
+    <Style TargetType="ContextMenu" >
+    </Style>
+    <Style TargetType="TreeView">
+        <Setter Property="Foreground" Value="#e0e0e0"/>
+        <Setter Property="Background" Value="#404040"/>
+    </Style>
+    <Style TargetType="ComboBox">
+        <Setter Property="Foreground" Value="#e0e0e0"/>
+        <Setter Property="Background" Value="#404040"/>
+    </Style>
+    <Style TargetType="ListBox">
+        <Setter Property="Foreground" Value="#e0e0e0"/>
+        <Setter Property="Background" Value="#404040"/>
+    </Style>
+    <Style TargetType="Button">
+        <Setter Property="Foreground" Value="#e0e0e0"/>
+        <Setter Property="Background" Value="#404040"/>
+    </Style>
+    <Style TargetType="Label">
+        <Setter Property="Foreground" Value="#e0e0e0"/>
+    </Style>
+    <Style TargetType="CheckBox">
+        <Setter Property="Foreground" Value="#e0e0e0"/>
+        <Setter Property="Background" Value="#404040"/>
+    </Style>
+    <Style TargetType="Button" x:Key="LikeVsActionButton">
+        <Setter Property="Foreground" Value="#e0e0e0"/>
+        <Setter Property="Background" Value="#404040"/>
+    </Style>
+</ResourceDictionary>

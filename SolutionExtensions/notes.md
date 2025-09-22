@@ -46,6 +46,7 @@
 # refactoring
 * _DesignData - WPF, DTE, 
   * [ ] TODO: rename
+  * d:DataContext still not working (using {d:DesignData /_DesignData/ReflectorVM.xaml})
 * Commands - DTE, VSIX
 * Converters - WPF
 * Extensions - internal ext. DTE, VSIX

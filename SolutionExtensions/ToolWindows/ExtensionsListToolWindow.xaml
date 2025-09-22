@@ -4,10 +4,10 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SolutionExtensions.ToolWindows"             
-             xmlns:model="clr-namespace:SolutionExtensions"
+             xmlns:conv="clr-namespace:SolutionExtensions.UI;assembly=SolutionExtensions.UI"
+             xmlns:model="clr-namespace:SolutionExtensions.Model;assembly=SolutionExtensions.UI"
              xmlns:shell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"             
              xmlns:ui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
-             xmlns:design="clr-namespace:SolutionExtensions._DesignData"
              xmlns:cmt="uri:comments"
              mc:Ignorable="d cmt" 
              d:Background="White"
@@ -20,9 +20,9 @@
     <Grid>
         <Grid.Resources>
             <BooleanToVisibilityConverter x:Key="boolToVisi"/>
-            <model:EmptyConverter x:Key="notEmptyToVisi" Inner="{StaticResource boolToVisi}" Negate="True"/>
-            <model:EmptyConverter x:Key="emptyToVisi" Inner="{StaticResource boolToVisi}"/>
-            <model:EmptyConverter x:Key="notEmpty" Negate="True"/>
+            <conv:EmptyConverter x:Key="notEmptyToVisi" Inner="{StaticResource boolToVisi}" Negate="True"/>
+            <conv:EmptyConverter x:Key="emptyToVisi" Inner="{StaticResource boolToVisi}"/>
+            <conv:EmptyConverter x:Key="notEmpty" Negate="True"/>
             <Style x:Key="mover" TargetType="Control">
                 <Setter Property="Template">
                     <Setter.Value>

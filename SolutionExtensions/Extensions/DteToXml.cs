@@ -3,7 +3,7 @@ using EnvDTE100;
 using EnvDTE80;
 using EnvDTE90a;
 using Microsoft.VisualStudio.Shell;
-using Model;
+using SolutionExtensions.Model;
 using SolutionExtensions.Reflector;
 using System;
 using System.Collections;

@@ -2,6 +2,7 @@
 using EnvDTE100;
 using Microsoft.VisualStudio.Shell;
 using SolutionExtensions.Launcher;
+using SolutionExtensions.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;

@@ -69,6 +69,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SolutionExtensions.UI\Reflection\ReflectionCOM.cs">
+      <Link>Linked\ReflectionCOM.cs</Link>
+    </Compile>
+    <Compile Include="..\SolutionExtensions.UI\Reflection\ReflectionHelper.cs">
+      <Link>Linked\ReflectionHelper.cs</Link>
+    </Compile>
     <Compile Include="..\SolutionExtensions\Launcher\ExtensionObject.cs">
       <Link>Linked\ExtensionObject.cs</Link>
     </Compile>
@@ -80,12 +86,6 @@
     </Compile>
     <Compile Include="..\SolutionExtensions\OleExtensions.cs">
       <Link>Linked\OleExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\SolutionExtensions\Reflection\ReflectionCOM.cs">
-      <Link>Linked\ReflectionCOM.cs</Link>
-    </Compile>
-    <Compile Include="..\SolutionExtensions\Reflection\ReflectionHelper.cs">
-      <Link>Linked\ReflectionHelper.cs</Link>
     </Compile>
     <Compile Include="ExtensionRunner.cs" />
     <Compile Include="Program.cs" />

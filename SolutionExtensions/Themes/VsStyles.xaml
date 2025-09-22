@@ -6,7 +6,8 @@
              xmlns:model="clr-namespace:SolutionExtensions"
              xmlns:shell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"
              xmlns:ui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
-             xmlns:cmt="uri:comments">
+             xmlns:cmt="uri:comments"
+             mc:Ignorable="cmt">
     <Style TargetType="ContextMenu" BasedOn="{StaticResource {x:Static shell:VsResourceKeys.ContextMenuStyleKey}}"/>
     <Style TargetType="TreeView" BasedOn="{StaticResource {x:Static shell:VsResourceKeys.ThemedDialogTreeViewStyleKey}}"/>
     <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Static shell:VsResourceKeys.ThemedDialogComboBoxStyleKey}}"/>

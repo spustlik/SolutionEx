@@ -1,13 +1,12 @@
 ﻿using EnvDTE;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.Win32;
-using Model;
-using SolutionExtensions._DesignData;
-using SolutionExtensions.WPF;
+using SolutionExtensions.ColorDump;
+using SolutionExtensions.Model;
+using SolutionExtensions.UI;
 using System;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -15,7 +14,6 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 
 namespace SolutionExtensions.ToolWindows
 {
@@ -427,7 +425,7 @@ namespace SolutionExtensions.ToolWindows
             {
                 this.ShowException(ex);
             }
-        }        
+        }
 #pragma warning restore VSTHRD100 // Avoid async void methods
 
         private void Develop_Click(object sender, RoutedEventArgs e)

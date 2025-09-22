@@ -3,7 +3,9 @@ using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using SolutionExtensions.Commands;
+using SolutionExtensions.Model;
 using SolutionExtensions.ToolWindows;
+using SolutionExtensions.UI.Themes;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -82,6 +84,7 @@ namespace SolutionExtensions
                 ExtensionManager.SyncToDte(Model);
             }
             dte.Events.DTEEvents.OnStartupComplete += DTEEvents_OnStartupComplete;
+            VsThemeKeys.Init();
         }
 
         private void DTEEvents_OnStartupComplete()

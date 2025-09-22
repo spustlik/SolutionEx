@@ -59,31 +59,16 @@
     <Compile Include="Commands\CommandShow.cs" />
     <Compile Include="Commands\CommandBase.cs" />
     <Compile Include="Commands\RunExtensionCommand.cs" />
-    <Compile Include="Converters\EmptyConverter.cs" />
     <Compile Include="DteExtensions.cs" />
-    <Compile Include="Model\ExtensionsSerialization.cs" />
     <Compile Include="Extensions\CreateGUID.cs" />
     <Compile Include="Extensions\DteToXml.cs" />
     <Compile Include="Extensions\DumpExtension.cs" />
     <Compile Include="Extensions\NestFileExtension.cs" />
     <Compile Include="OleExtensions.cs" />
-    <Compile Include="ReflectorControl\ReflectorControl.xaml.cs">
-      <DependentUpon>ReflectorControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="ReflectorControl\ReflectorFactory.cs" />
-    <Compile Include="ReflectorControl\ReflectorModel.cs" />
-    <Compile Include="ReflectorControl\ReflectorNodeBuilder.cs" />
-    <Compile Include="ReflectorControl\ReflectorTextBuilder.cs" />
-    <Compile Include="ReflectorControl\ReflectorXmlBuilder.cs" />
-    <Compile Include="Reflection\ReflectionBuilderCS.cs" />
-    <Compile Include="Reflection\ReflectionCOM.cs" />
-    <Compile Include="Reflection\ReflectionBuilderXml.cs" />
-    <Compile Include="Reflection\ReflectionHelper.cs" />
     <Compile Include="Launcher\ExtensionObject.cs" />
     <Compile Include="Launcher\LauncherProcess.cs" />
     <Compile Include="Launcher\RunningComObjects.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Model\SimpleDataObject.cs" />
     <Compile Include="SolutionExtensionsPackage.cs" />
     <Compile Include="ExtensionManager.cs" />
     <Compile Include="StringTemplates.cs" />
@@ -91,21 +76,17 @@
     <Compile Include="ToolWindows\ExtensionsListToolWindow.xaml.cs">
       <DependentUpon>ExtensionsListToolWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Model\ExtensionsModel.cs" />
     <Compile Include="ToolWindows\ExtensionsListToolWindowPane.cs" />
-    <Compile Include="ToolWindows\MoveAdorner.cs" />
-    <Compile Include="ToolWindows\MoveCollectionHelper.cs" />
     <Compile Include="ToolWindows\ReflectorToolWindow.xaml.cs">
       <DependentUpon>ReflectorToolWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="ToolWindows\ReflectorToolWindowPane.cs" />
     <Compile Include="ToolWindows\ToolWindowPaneBase.cs" />
-    <Compile Include="Model\DataExtensions.cs" />
-    <Compile Include="WpfExtensions.cs" />
-    <Compile Include="_DesignData\ColorModel.cs" />
-    <Compile Include="_DesignData\ColorWindow.xaml.cs">
+    <Compile Include="ColorDump\ColorModel.cs" />
+    <Compile Include="ColorDump\ColorWindow.xaml.cs">
       <DependentUpon>ColorWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="VsThemeKeys.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="commands.t4">
@@ -176,14 +157,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="ReflectorControl\ReflectorControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Themes\TreeViewStyle.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Themes\VsStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -196,7 +169,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="_DesignData\ColorWindow.xaml">
+    <Page Include="ColorDump\ColorWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -207,7 +180,15 @@
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\SolutionExtensions.UI\SolutionExtensions.UI.csproj">
+      <Project>{f9da9d2c-5cf4-4be7-958a-8501a988f2df}</Project>
+      <Name>SolutionExtensions.UI</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="_DesignData\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

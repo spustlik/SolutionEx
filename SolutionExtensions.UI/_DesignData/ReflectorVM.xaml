@@ -1,0 +1,12 @@
+﻿<local:ReflectorVM  
+    xmlns:local="clr-namespace:SolutionExtensions.Reflector"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"  
+    >
+    <local:ReflectorVM.Children>
+        <local:ReflectorRoot x:Name="root">
+            <local:ReflectorRoot.Children>
+                <local:ReflectorMethod MethodName="method" Signature="void method(string msg)"/>
+            </local:ReflectorRoot.Children>
+        </local:ReflectorRoot>
+    </local:ReflectorVM.Children>
+</local:ReflectorVM>

@@ -3,6 +3,7 @@ using EnvDTE80;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using SolutionExtensions.Extensions;
+using SolutionExtensions.Model;
 using SolutionExtensions.Reflector;
 using System;
 using System.Collections.Generic;

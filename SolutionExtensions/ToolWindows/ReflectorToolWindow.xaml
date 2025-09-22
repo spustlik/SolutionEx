@@ -4,10 +4,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SolutionExtensions.ToolWindows"
-             xmlns:model="clr-namespace:SolutionExtensions.Reflector"
+             xmlns:model="clr-namespace:SolutionExtensions.Reflector;assembly=SolutionExtensions.UI"
              xmlns:shell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"             
              xmlns:ui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
-             xmlns:cmt="uri:comments" xmlns:conv="clr-namespace:SolutionExtensions"
+             xmlns:cmt="uri:comments" 
+             xmlns:conv="clr-namespace:SolutionExtensions.UI;assembly=SolutionExtensions.UI"
              mc:Ignorable="d cmt" 
              d:Background="White"
              Loaded="UserControl_Loaded"
@@ -16,7 +17,9 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/SolutionExtensions;component/Themes/VsStyles.xaml"/>
+                <ResourceDictionary Source="/SolutionExtensions.UI;component/Themes/TreeViewStyle.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+
             <BooleanToVisibilityConverter x:Key="boolToVisi"/>
             <conv:EmptyConverter x:Key="notEmptyToVisi" Inner="{StaticResource boolToVisi}" Negate="True"/>
             <conv:EmptyConverter x:Key="emptyToVisi" Inner="{StaticResource boolToVisi}"/>
