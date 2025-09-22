@@ -7,8 +7,12 @@
     - optionaly exec something like Destroy() method
     - add autoRun to extension options?
     - that extensions should be destroyed on solution unload
-
-### Nest file extension
+ * [ ] publish versioning
+    - add or get version
+    - manifest
+    - AssemblyInfo.cs (AssemlbyVersion), launcher, package
+    
+### Nest
 * Cannot find how to un-nest item, there are missing methods for that
 ```c#
     var project = dte.Solution.Projects[0] as EnvDTE.Project;

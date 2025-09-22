@@ -12,8 +12,7 @@
              mc:Ignorable="d cmt" 
              d:Background="White"
              Loaded="Control_Loaded"
-             cmt:DataContext="{d:DesignData /_DesignData/ExtensionListToolWindowVM.xaml}"
-             
+             cmt:DataContext="{d:DesignData /_DesignData/ExtensionListToolWindowVM.xaml}"             
              d:DesignHeight="455.41" d:DesignWidth="560.916">
     <UserControl.Resources>
         <ResourceDictionary Source="/SolutionExtensions;component/Themes/VsStyles.xaml"/>
@@ -90,12 +89,13 @@
 
                 </Border>
             </DataTemplate>
-            <Style x:Key="btnArgumentDialog" TargetType="Button" BasedOn="{StaticResource {x:Static shell:VsResourceKeys.ButtonStyleKey}}">
+            <Style x:Key="iconArgumentDialog" TargetType="ContentControl">
                 <Setter Property="Content">
                     <Setter.Value>
                         <Border BorderBrush="{Binding Foreground, ElementName=text}" BorderThickness="1" >
                             <StackPanel Orientation="Vertical">
                                 <Rectangle Height="3" Fill="{Binding Foreground,ElementName=text}"/>
+                                <Rectangle Height="3" Fill="Red"/>
                                 <TextBlock Text="?" Padding="4,0" x:Name="text" FontSize="9"/>
                             </StackPanel>
                         </Border>
@@ -212,8 +212,8 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <TextBox Text="{Binding SelectedItem.DllPath, UpdateSourceTrigger=PropertyChanged}"/>
-                    <Button Grid.Column="1" Click="BrowseDll_Click">...</Button>
-                    <Button Grid.Column="2" Click="SetSelf_Click" ToolTip="Internal extensions">⛨</Button>
+                    <Button Grid.Column="1" Margin="2,0,0,0" Click="BrowseDll_Click">...</Button>
+                    <Button Grid.Column="2" Margin="2,0,0,0" Click="SetSelf_Click" ToolTip="Internal extensions">⛨</Button>
                 </Grid>
                 <Label Content="Class Name 🛈" ToolTip="Pick class name with Run method"/>
                 <ComboBox IsEditable="True" IsTextSearchEnabled="True" DropDownOpened="PickClass_Opened" Text="{Binding SelectedItem.ClassName}" />
@@ -224,7 +224,12 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <TextBox Text="{Binding SelectedItem.Argument, UpdateSourceTrigger=PropertyChanged}"/>
-                    <Button Grid.Column="1" Click="ArgumentAsk_Click" ToolTip="Ask for argument when executing" Style="{StaticResource btnArgumentDialog}"/>
+                    <Button Grid.Column="1" Margin="2,0,0,0" Click="ArgumentAsk_Click" ToolTip="Ask for argument when executing">
+                        <Path SnapsToDevicePixels="True" 
+                              Data="M0,0 L10,0 M0,1 L10,1 M0,2 L10,2 M0,0 L10,0 L10,10 0,10z" 
+                              Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                              />
+                    </Button>
                 </Grid>
                 <Label Content="Options"/>
                 <StackPanel Orientation="Horizontal" Margin="10,3,0,0">
