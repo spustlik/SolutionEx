@@ -184,6 +184,8 @@ namespace SolutionExtensions
 
         public bool CompileIfNeeded(ExtensionItem item)
         {
+            if (!item.CompileBeforeRun)
+                return false;
             ThreadHelper.ThrowIfNotOnUIThread();
             var dte = package.GetService<DTE, DTE>() as DTE2;
             var path = Path.GetDirectoryName(item.DllPath);
@@ -212,7 +214,7 @@ namespace SolutionExtensions
         public bool AskArgumentIfNeeded(ExtensionItem item, out string argument)
         {
             argument = item.Argument;
-            if (argument!=null && argument.StartsWith("?"))
+            if (argument != null && argument.StartsWith("?"))
             {
                 var (method, type) = FindExtensionMethod(item, throwIfNotFound: false);
                 var prompt = "Enter argument value";

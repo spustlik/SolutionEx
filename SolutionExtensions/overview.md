@@ -47,7 +47,7 @@ public class MyExtension
 }
 ```
 * commit and share with others in team, it is possible to share compiled assembly also
-* WARNING: `package` argument is IServiceProvider when debugging, 
+* WARNING: `package` argument is `IServiceProvider` when debugging, 
 * else inherits from `AsyncPackage`, `Package`, and `IServiceProvider`
 * You can use __DTE Inspector__ to inspect DTE objects
 
@@ -79,6 +79,7 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * 1.2.2 - Community.Toolkit removed
 * 1.2.3 - dialog for argument value
 * 1.2.4 - tooltips, out of process, drag & drop to reorder
+* 1.2.5 - option to compile before run, bugfixes
 
 ### Ideas
 * Add new extension project using wizard
@@ -88,19 +89,18 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * some support of events / long running extensions, autorun
 * generate mermaid diagrams for DTE https://mermaid.js.org/intro/syntax-reference.html
 
-
 #### Notes
 * Debugging
     * DTE is in global Runtime Objects Table, under some moniker name, it is used to get instance of DTE in launcher process
     * this process is attached to debugger from IDE
     * user should add breakpoint to his code, or call `Debugger.Break()`
 * Launcher
-    * execute extension in separate process - for debugging (or to allow reload assembly in future, and allow debugging)
+    * executes extension in separate process - for debugging (or to allow reload assembly in future)
     * Merged using ILMerge to one exe because referenced dlls are incompatible with vsix
     * merged exe is copied to lib folder and copyied with project
     * some classes from package are linked, not referenced
 * extension assembly (in-process mode)
-    * cannot be reloaded, so it is using copy dll to new path, change of assembly name (using Mono.Cecil)
+    * cannot be reloaded, so it is using copy of dll to new path, change of assembly name (using Mono.Cecil)
     * it will not work if it is using some other re-compiled assembly, so you must use "Out of process" option
     * but can work only for methods reflection
 * Mono.Cecil

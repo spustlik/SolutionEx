@@ -66,9 +66,19 @@ namespace SolutionExtensions.Model
         }
         #endregion
 
+        #region CompileBeforeRun property
+        private bool _compileBeforeRun;
+        public bool CompileBeforeRun
+        {
+            get => _compileBeforeRun;
+            set => Set(ref _compileBeforeRun, value);
+        }
+        #endregion
+
         public IEnumerable<(string name, bool value, Action<bool> setter)> GetFlagInfo()
         {
             yield return (name: nameof(OutOfProcess), OutOfProcess, (v) => OutOfProcess = v); ;
+            yield return (name: nameof(CompileBeforeRun), CompileBeforeRun, (v) => CompileBeforeRun= v); ;
         }
 
         public IEnumerable<string> GetFlags() => GetFlagInfo().Where(fi => fi.value).Select(fi => fi.name);

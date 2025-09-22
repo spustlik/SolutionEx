@@ -234,6 +234,9 @@
                 <Label Content="Options"/>
                 <StackPanel Orientation="Horizontal" Margin="10,3,0,0">
                     <CheckBox IsChecked="{Binding SelectedItem.OutOfProcess}" Content="Out of process 🛈" ToolTip="Extension is executed using anothe process, so all dlls are always reloaded and not locked."/>
+                    <FrameworkElement Width="15"/>
+                    <CheckBox IsChecked="{Binding SelectedItem.CompileBeforeRun}" Content="Compile 🛈" ToolTip="Before Running extension, it will be tried to compile containing project. Disable to make it faster."/>
+                    <FrameworkElement Width="15"/>
                 </StackPanel>
             </StackPanel>
         </StackPanel>
