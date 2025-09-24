@@ -82,5 +82,9 @@ namespace SolutionExtensions.Model
         }
 
         public IEnumerable<string> GetFlags() => GetFlagInfo().Where(fi => fi.value).Select(fi => fi.name);
+        public override string ToString()
+        {
+            return $"{GetType().Name} '{Title}'";
+        }
     }
 }

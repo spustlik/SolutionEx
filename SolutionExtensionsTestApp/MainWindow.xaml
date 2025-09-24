@@ -7,7 +7,7 @@
         xmlns:themes="clr-namespace:SolutionExtensions.UI.Themes;assembly=SolutionExtensions.UI"
         mc:Ignorable="d"
         Loaded="Window_Loaded"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="790" Width="1374">
     <Grid x:Name="grid">
         <Grid.LayoutTransform>
             <ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
@@ -21,14 +21,19 @@
             <ColumnDefinition Width="3"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <StackPanel Orientation="Horizontal" Grid.ColumnSpan="99" Margin="5,3">
+        <StackPanel Orientation="Horizontal" Grid.ColumnSpan="99" Margin="0,3">
+            <StackPanel.Resources>
+                <Style TargetType="Button">
+                    <Setter Property="Margin" Value="5,3"/>
+                    <Setter Property="Padding" Value="5,0"/>
+                </Style>
+            </StackPanel.Resources>
             <Button Click="Zoom_Click">Zoom</Button>
             <Button Click="DumpTheme_Click">Dump theme</Button>
             <Button Background="{StaticResource {x:Static themes:ThemeKeys.TreeViewItem_Stroke}}">Color</Button>
-            <Button>
-                <Rectangle Width="50" Height="20" 
+            <Button Padding="0">
+                <Rectangle Width="20" Height="20" 
                            Fill="{StaticResource {x:Static themes:ThemeKeys.TreeViewItem_TreeArrow_Static_Stroke}}">
-                    
                 </Rectangle>
             </Button>
         </StackPanel>

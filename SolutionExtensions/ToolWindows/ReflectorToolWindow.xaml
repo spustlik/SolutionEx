@@ -11,7 +11,7 @@
              xmlns:conv="clr-namespace:SolutionExtensions.UI;assembly=SolutionExtensions.UI"
              mc:Ignorable="d cmt" 
              d:Background="White"
-             Loaded="UserControl_Loaded"
+             Initialized="UserControl_Initialized"
              d:DesignHeight="68.15" d:DesignWidth="324.002">
     <UserControl.Resources>
         <ResourceDictionary>

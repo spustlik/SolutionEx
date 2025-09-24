@@ -14,13 +14,6 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/SolutionExtensions.UI;component/Themes/TreeViewStyle.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-            <Style x:Key="myStyleBase" TargetType="Button">
-                <Setter Property="BorderBrush" Value="{StaticResource {x:Static themes:ThemeKeys.TreeViewItem_Fill}}"/>
-            </Style>
-            <Style x:Key="myStyle" BasedOn="{StaticResource myStyleBase}" TargetType="Button">
-                <Setter Property="Background" Value="Red"/>
-                <Setter Property="Foreground" Value="{DynamicResource xyz}"/>
-            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
@@ -29,11 +22,12 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Label >Reflector</Label>
+        <Label>Reflector</Label>
         <StackPanel Grid.Row="1" Orientation="Horizontal" >
             <Button Content="MainWindow" Click="DumpMaionWindow_Click"/>
             <Button Content="Style" Click="DumpStyle_Click"/>
         </StackPanel>
-        <reflector:ReflectorControl Grid.Row="2" x:Name="reflectorControl" HorizontalAlignment="Stretch"/>
+        <reflector:ReflectorControl 
+            Grid.Row="2" x:Name="reflectorControl" HorizontalAlignment="Stretch"/>
     </Grid>
 </UserControl>

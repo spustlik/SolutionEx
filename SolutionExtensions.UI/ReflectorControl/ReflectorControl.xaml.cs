@@ -18,7 +18,7 @@ namespace SolutionExtensions.Reflector
             InitializeComponent();
             DataContext = new ReflectorVM();
             Factory = new ReflectorFactory();
-            Factory.COM.RegisterInterfacesFromAppDomain();            
+            Factory.COM.RegisterInterfacesFromAppDomain();
         }
 
         public ReflectorVM ViewModel { get => DataContext as ReflectorVM; }
@@ -28,7 +28,8 @@ namespace SolutionExtensions.Reflector
             if (iconButton == null) return;
             var basedOn = TryFindResource("LikeVsActionButton") as Style;
             if (basedOn == null) return; //needed only in VS, defining only colors
-            iconButton.BasedOn = basedOn;
+            if (!iconButton.IsSealed)
+                iconButton.BasedOn = basedOn;
         }
         private void treeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {

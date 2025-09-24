@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace SolutionExtensions.UI
@@ -15,6 +17,9 @@ namespace SolutionExtensions.UI
                 title = "Error";
             MessageBox.Show(ex.Message + suffix, title, MessageBoxButton.OK, MessageBoxImage.Error);
         }
+        /// <summary>
+        /// returns name of resource key, if property is set by DynamicResource
+        /// </summary>
         public static string GetPropertyResourceKey(this DependencyObject obj, DependencyProperty prop)
         {
             //SetResourceReference(Control.StyleProperty, "FormLabelStyle")
@@ -67,7 +72,7 @@ namespace SolutionExtensions.UI
         {
             if (!(VisualTreeHelper.GetParent(element) is FrameworkElement p))
                 return null;
-            if (p.GetType().IsAssignableFrom(ancestorType))
+            if (ancestorType.IsAssignableFrom(p.GetType()))
             {
                 if (level <= 1)
                     return p;
@@ -83,21 +88,14 @@ namespace SolutionExtensions.UI
                 return null;
             return p.FindAncestorOrSelf(predicate);
         }
-        //static void _Resources()
-        //{
-        //    var _ = new[] {
-        //        VsResourceKeys.ButtonStyleKey,
-        //        VsResourceKeys.LabelEnvironment111PercentFontSizeStyleKey,
-        //        VsResourceKeys.ThemedDialogTreeViewItemStyleKey,
-        //        //...
-        //        CommonControlsColors.ButtonBorderBrushKey,
-        //        CommonControlsColors.ButtonBorderColorKey,
-        //        CommonControlsColors.ComboBoxBackgroundBrushKey,
-        //        //no treeview
-        //        TreeViewColors.BackgroundTextColorKey,
-        //        TreeViewColors.BackgroundColorKey,
-        //    };
-        //}
+        public static bool IsModifierKey(this Key key)
+        {
+            return new[] {
+                Key.LeftAlt, Key.RightAlt, Key.LeftCtrl, Key.RightCtrl, Key.LeftShift, Key.RightShift,
+                Key.CapsLock, Key.NumLock, Key.LWin, Key.RWin,
+                }.Contains(key);
+        }
+
     }
 }
 

@@ -4,10 +4,19 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SolutionExtensionsTestApp"
+             xmlns:extensions="clr-namespace:SolutionExtensions.UI.Extensions;assembly=SolutionExtensions.UI"
+             xmlns:themes="clr-namespace:SolutionExtensions.UI.Themes;assembly=SolutionExtensions.UI"
              mc:Ignorable="d" 
+             Background="Black"
+             Initialized="UserControl_Initialized"
              d:DesignHeight="450" d:DesignWidth="800">
+    <!-- 
+    why VSSimulation.xaml is not working in ExtensionsListControl ?
+    another scope (another assembly?)
+    or assembly is Control class ? using Generic.xaml
+    -->
     <DockPanel>
         <Label DockPanel.Dock="Top">Extension list</Label>
-        <TextBlock>TODO</TextBlock>
+        <extensions:ExtensionsListControl x:Name="extensionList"/>
     </DockPanel>
 </UserControl>

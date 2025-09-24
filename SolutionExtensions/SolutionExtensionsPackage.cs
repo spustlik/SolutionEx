@@ -151,20 +151,6 @@ namespace SolutionExtensions
             var fi = si.FindProjectItem(cfgFilePath) ?? si.ProjectItems.AddFromFile(cfgFilePath);
         }
 
-        public void TestMethod()
-        {
-            System.Windows.MessageBox.Show("Test method called from extension package");
-        }
-
-        public static SolutionExtensionsPackage GetFor(UserControl control)
-        {
-            var pkg = GetGlobal();
-            if (pkg != null)
-                return pkg;
-            var pane = control.Tag as ToolWindowPane;
-            return pane?.Package as SolutionExtensionsPackage;
-        }
-
         public static SolutionExtensionsPackage GetGlobal()
         {
             var vsShell = ServiceProvider.GlobalProvider.GetService<SVsShell, IVsShell>();

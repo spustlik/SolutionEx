@@ -10,9 +10,8 @@ namespace SolutionExtensions
         protected ToolWindowPaneBase(string caption, TC content) : base(null)
         {
             this.Caption = caption;
-            this.Content = content;            
-            //see SolutionExtensionsPackage.GetFor()
-            content.Tag = this; //can use dependency property instead 
+            this.Content = content;
+            //to get package from pane, use SolutionExtensionsPackage.GetGlobal();
         }
         public new TC Content { get => base.Content as TC; set => base.Content = value; }
     }

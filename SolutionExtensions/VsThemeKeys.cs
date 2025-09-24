@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SolutionExtensions
 {
@@ -11,17 +9,18 @@ namespace SolutionExtensions
     {
         public static void Init()
         {
+            Dictionary<string, Type> getNsTypes(Type someType) =>
+                someType.Assembly
+                        .GetTypes()
+                        .Where(x => x.Namespace == someType.Namespace)
+                        .GroupBy(x => x.Name)
+                        .ToDictionary(g => g.Key, g => g.First());
             //xmlns:shell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"             
             //xmlns:ui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
-            var t = typeof(Microsoft.VisualStudio.PlatformUI.VSColorTheme);
-            //Microsoft.VisualStudio.PlatformUI.TreeViewColors.
-            var uiTypes = t.Assembly.GetTypes()
-                .Where(x => x.Namespace == t.Namespace)
-                .GroupBy(x => x.Name)
-                .ToDictionary(g => g.Key, g => g.First());
             var namespaces = new Dictionary<string, Dictionary<string, Type>>()
             {
-                { "ui", uiTypes }
+                { "ui", getNsTypes(typeof(Microsoft.VisualStudio.PlatformUI.VSColorTheme)) },
+                { "shell", getNsTypes(typeof(Microsoft.VisualStudio.Shell.VsResourceKeys)) }
             };
             ThemeKeys.ReplaceWithOriginals(key =>
             {

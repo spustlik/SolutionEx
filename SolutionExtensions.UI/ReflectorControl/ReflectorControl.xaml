@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:conv="clr-namespace:SolutionExtensions.UI"
              xmlns:cmt="uri:comments" 
-             xmlns:reflector="clr-namespace:SolutionExtensions.Reflector"
+             xmlns:local="clr-namespace:SolutionExtensions.Reflector"
              mc:Ignorable="d cmt" 
              d:DesignHeight="450" d:DesignWidth="800"
              d:Background="White"
@@ -90,7 +90,7 @@
             <Setter Property="ClipToBounds" Value="True"/>
         </Style>
         <HierarchicalDataTemplate 
-                DataType="{x:Type reflector:ReflectorRoot}"
+                DataType="{x:Type local:ReflectorRoot}"
                 ItemsSource="{Binding Path=Children}">
             <ContentControl Style="{StaticResource addButtons}">
                 <Grid>
@@ -112,7 +112,7 @@
             </ContentControl>
         </HierarchicalDataTemplate>
         <HierarchicalDataTemplate 
-                DataType="{x:Type reflector:ReflectorPropertyValue}"
+                DataType="{x:Type local:ReflectorPropertyValue}"
                 ItemsSource="{Binding Path=Children}">
             <ContentControl Style="{StaticResource addButtons}">
                 <ContentControl.ToolTip>
@@ -165,7 +165,7 @@
             </ContentControl>
         </HierarchicalDataTemplate>
         <HierarchicalDataTemplate 
-                DataType="{x:Type reflector:ReflectorMethod}"
+                DataType="{x:Type local:ReflectorMethod}"
                 ItemsSource="{Binding Path=Children}">
             <ContentControl Style="{StaticResource addButtons}" >
                 <ContentControl.ToolTip>
@@ -192,7 +192,7 @@
             </ContentControl>
         </HierarchicalDataTemplate>
         <HierarchicalDataTemplate 
-                DataType="{x:Type reflector:ReflectorEnumItem}"
+                DataType="{x:Type local:ReflectorEnumItem}"
                 ItemsSource="{Binding Path=Children}">
             <ContentControl Style="{StaticResource addButtons}" >
                 <ContentControl.ToolTip>
@@ -227,7 +227,7 @@
             </ContentControl>
         </HierarchicalDataTemplate>
         <HierarchicalDataTemplate 
-                DataType="{x:Type reflector:ReflectorInterface}" 
+                DataType="{x:Type local:ReflectorInterface}" 
                 ItemsSource="{Binding Path=Children}">
             <ContentControl Style="{StaticResource addButtons}" >
                 <ContentControl.ToolTip>
@@ -274,6 +274,5 @@
                 </ContextMenu>
             </TreeView.ContextMenu>
         </TreeView>
-        
     </Grid>
 </UserControl>

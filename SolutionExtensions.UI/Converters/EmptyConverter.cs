@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
@@ -22,8 +23,13 @@ namespace SolutionExtensions.UI
         private bool IsTrue(object value, object parameter)
         {
             var r = Equals(value, parameter);
-            if (value is string s && parameter == null && string.IsNullOrEmpty(s))
-                r = true;
+            if (parameter == null)
+            {
+                if (value is string s && string.IsNullOrEmpty(s))
+                    r = true;
+                else if (value is IList list && list.Count == 0)
+                    r = false;
+            }
             if (Negate) r = !r;
             return r;
         }

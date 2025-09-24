@@ -4,214 +4,93 @@ using Microsoft.Win32;
 using SolutionExtensions.ColorDump;
 using SolutionExtensions.Model;
 using SolutionExtensions.UI;
+using SolutionExtensions.UI.Extensions;
 using System;
-using System.Collections.Specialized;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 
 namespace SolutionExtensions.ToolWindows
 {
 
-    public class VM : SimpleDataObject
+    public partial class ExtensionsListToolWindow : UserControl, IExtensionsService
     {
-
-        #region ValidationMessage property
-        private string _validationMessage;
-        public string ValidationMessage
-        {
-            get => _validationMessage;
-            set => Set(ref _validationMessage, value);
-        }
-        #endregion
-
-        #region SelectedItem property
-        private ExtensionItem _selectedItem;
-        public ExtensionItem SelectedItem
-        {
-            get => _selectedItem;
-            set => Set(ref _selectedItem, value);
-        }
-        #endregion
-
-        #region Model property
-        private ExtensionsModel _model;
-        public ExtensionsModel Model
-        {
-            get => _model;
-            set => Set(ref _model, value);
-        }
-        #endregion
-
-        #region IsDebug property
-        private bool _isDebug;
-        public bool IsDebug
-        {
-            get => _isDebug;
-            set => Set(ref _isDebug, value);
-        }
-        #endregion
-
-    }
-
-    public partial class ExtensionsListToolWindow : UserControl
-    {
-        public VM ViewModel => this.DataContext as VM;
         private SolutionExtensionsPackage Package;
         private ExtensionManager ExtensionManager => this.Package.ExtensionManager;
-        private MoveCollectionHelper mover;
         public ExtensionsListToolWindow()
         {
             InitializeComponent();
-            this.DataContext = new VM();
+        }
+        private void UserControl_Initialized(object sender, EventArgs e)
+        {
+            Package = SolutionExtensionsPackage.GetGlobal();
+            list.Init(Package.Model, this);
+            list.ViewModel.AddMenuItem("🔦DTE", ButtonDump_Click, "Inspect DTE objects...");
+            list.ViewModel.AddMenuItem("-", null);
+            list.ViewModel.AddMenuItem("Add new extension project to solution", AddProj_Click);
+            list.ViewModel.AddMenuItem("Add config as solution item", AddConfig_Click);
+            list.ViewModel.AddMenuItem("Validate all extensions", CheckAll_Click);
 #if DEBUG
-            ViewModel.IsDebug = true;
+            //<Separator/>
+            list.ViewModel.AddMenuItem("Reload", Load_Click);
+            list.ViewModel.AddMenuItem("Sync to VS", SyncToDte_Click);
+            list.ViewModel.AddMenuItem("Save", Save_Click);
+            list.ViewModel.AddMenuItem("Show colors", ShowColors_Click);
 #endif
-            ViewModel.PropertyChanged += ViewModel_PropertyChanged;
-        }
-        //assigned when created ToolWindowPane 
-        private void Control_Loaded(object sender, System.Windows.RoutedEventArgs e)
-        {
-            Package = SolutionExtensionsPackage.GetFor(this);
-            ViewModel.Model = Package.Model;
-            ViewModel.Model.Extensions.OnCollectionItemChanged(null, ViewModelExtensions_PropertyChanged);
-            ViewModel.Model.Extensions.CollectionChanged += ViewModelExtensions_CollectionChanged;
-            mover = MoveCollectionHelper.Create(this, ViewModel.Model.Extensions);
-        }
-        private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(VM.SelectedItem))
-            {
-                this.Validate();
-            }
-        }
-        private void ViewModelExtensions_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            //Package.Log($"ViewModelExtensions_PropertyChanged: {e.PropertyName}");
-            var item = sender as ExtensionItem;
-            if (e.PropertyName == nameof(ExtensionItem.ClassName))
-            {
-                ExtensionManager.SetItemTitleFromMethod(item);
-            }
-            ThrottleValidate();
-            ThrottleUpdateModel();
         }
 
-        private void ViewModelExtensions_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void AddConfig_Click(object sender, RoutedEventArgs e)
         {
-            //Package.Log($"ViewModelExtensions_CollectionChanged: {e.Action}");
-            ThrottleUpdateModel();
+            this.Package.AddConfigToSolutionItem();
         }
 
-        private ThrottleTimer _validator = new ThrottleTimer(TimeSpan.FromSeconds(0.3));
-        private void ThrottleValidate()
+        private void ButtonDump_Click(object sender, RoutedEventArgs e)
         {
-            _validator.Invoke(() => Validate());
-        }
-        private ThrottleTimer _saver = new ThrottleTimer(TimeSpan.FromSeconds(0.3));
-
-        private void ThrottleUpdateModel()
-        {
-            if (ExtensionManager.GetCfgFilePath() == null)
-                return;
-            _saver.Invoke(() =>
-            {
-                Package.Log("Saving");
-                ExtensionManager.SaveFile(ViewModel.Model);
-                SyncToDTE();
-            });
+            _ = this.Package.ShowToolWindowAsync(typeof(ReflectorToolWindowPane), 0, true, CancellationToken.None);
         }
 
-
-        private void AddItem_Click(object sender, System.Windows.RoutedEventArgs e)
+        private void ShowColors_Click(object sender, RoutedEventArgs e)
         {
-            this.ViewModel.Model.Extensions.Add(new ExtensionItem());
-            this.ViewModel.SelectedItem = this.ViewModel.Model.Extensions.Last();
+            var w = new ColorWindow();
+            w.Show();
+            //await this.Package.ShowStatusBarErrorAsync("Some error");
+            //await this.Package.ShowStatusBarAsync("Some text 1", isImportant:true);
+            //await this.Package.ShowStatusBarAsync("Some text 2", waitMs:5000);
+            //await this.Package.ShowStatusBarAsync("Some text 3");
+            //await Task.Delay(1000);
+            //await this.Package.ShowStatusBarAsync(null);
         }
 
-        private void Delete_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            if (this.ViewModel.SelectedItem == null)
-                return;
-            this.ViewModel.Model.Extensions.Remove(this.ViewModel.SelectedItem);
-        }
-
-        private void Run_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            var item = (sender as FrameworkElement).DataContext as ExtensionItem ?? ViewModel.SelectedItem;
-            if (item == null)
-                return;
-            if (!ExtensionManager.AskArgumentIfNeeded(item, out var argument))
-                return;
-            try
-            {
-                Package.Log($"Running extension '{item.Title}' with argument '{argument}' and flags {String.Join(",", item.GetFlags())} from {Path.GetFileName(item.DllPath)},{item.ClassName}");
-                if (ExtensionManager.CompileIfNeeded(item))
-                    Package.Log($"extension recompiled");
-                if (item.OutOfProcess)
-                    ExtensionDebugger.RunExtension(item, argument, Package, ExtensionManager, false);
-                else
-                    ExtensionManager.RunExtension(item, argument);
-                Package.Log($"Done.");
-            }
-            catch (Exception ex)
-            {
-                var title = $"Error running extension '{item.Title}'";
-                Package.AddToOutputPane($"{title}:\nfrom:{item.DllPath}\n" + ex);
-                _ = Package.ShowStatusBarErrorAsync(ex.Message);
-                this.ShowException(ex, "See output pane for details", title);
-            }
-        }
-
-        private void Debug_Click(object sender, RoutedEventArgs e)
-        {
-            var item = ViewModel.SelectedItem;
-            if (item == null)
-                return;
-            if (!ExtensionDebugger.ValidateBreakpoint(item, Package, ExtensionManager))
-            {
-                if (MessageBox.Show($"No breakpoint found.\n" +
-                    $"There should be breakpoint in your extension to stop debugger there.\n" +
-                    $"Or add System.Diagnostics.Debugger.Break(); to your code.\n" +
-                    $"Do you want to continue?",
-                    "Breakpoint missing",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Hand) != MessageBoxResult.Yes)
-                    return;
-            }
-            if (!ExtensionManager.AskArgumentIfNeeded(item, out var argument))
-                return;
-            try
-            {
-                ExtensionDebugger.RunExtension(item, argument, Package, ExtensionManager, true);
-            }
-            catch (Exception ex)
-            {
-                var title = $"Error running extension '{item.Title}' in DEBUG";
-                Package.AddToOutputPane($"{title}:\nfrom:{item.DllPath}\n" + ex);
-                _ = Package.ShowStatusBarErrorAsync(ex.Message);
-                this.ShowException(ex, "See output pane for details", title);
-            }
-        }
-        private void Load_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            try
-            {
-                ExtensionManager.LoadFile(ViewModel.Model);
-            }
-            catch (Exception ex)
-            {
-                this.ShowException(ex);
-            }
-        }
         private void SyncToDte_Click(object sender, RoutedEventArgs e)
         {
             SyncToDTE();
+        }
+
+        private void Load_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            ExtensionManager.LoadFile(list.ViewModel.Model);
+        }
+        private void Save_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            ExtensionManager.SaveFile(list.ViewModel.Model);
+        }
+
+        private void CheckAll_Click(object sender, RoutedEventArgs e)
+        {
+            var sb = new StringBuilder();
+            foreach (var item in list.ViewModel.Model.Extensions)
+            {
+                var msg = list.ExtensionsService.GetValidation(item);
+                if (msg != null)
+                    sb.AppendLine($"Extension #{list.ViewModel.Model.Extensions.IndexOf(item) + 1} '{item.Title}': {msg}");
+            }
+            if (sb.Length == 0)
+                MessageBox.Show("All extensions look valid");
+            else
+                MessageBox.Show(sb.ToString(), "Validation results", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
 
         private void SyncToDTE()
@@ -219,127 +98,13 @@ namespace SolutionExtensions.ToolWindows
             try
             {
                 Package.Log($"Syncing to DTE");
-                ExtensionManager.SyncToDte(ViewModel.Model);
+                ExtensionManager.SyncToDte(list.ViewModel.Model);
             }
             catch (Exception ex)
             {
                 Package.AddToOutputPane($"Error syncing to DTE:" + ex);
                 _ = Package.ShowStatusBarErrorAsync(ex.Message);
             }
-        }
-
-        private void Save_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            ExtensionManager.SaveFile(ViewModel.Model);
-        }
-
-        private void PickClass_Opened(object sender, EventArgs e)
-        {
-            var item = this.ViewModel.SelectedItem;
-            if (!File.Exists(ExtensionManager.GetRealPath(item.DllPath)))
-            {
-                if (!BrowseDll())
-                    return;
-            }
-            var cb = sender as ComboBox;
-            var classes = ExtensionManager.FindExtensionClassesInDll(item.DllPath);
-            cb.ItemsSource = classes;
-        }
-
-        private void BrowseDll_Click(object sender, RoutedEventArgs e)
-        {
-            BrowseDll();
-        }
-
-        private bool BrowseDll()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            var dte = Package.GetService<DTE, DTE>();
-            var item = this.ViewModel.SelectedItem;
-            var dlg = new OpenFileDialog();
-            if (dte.Solution != null)
-                dlg.InitialDirectory = Path.GetDirectoryName(dte.Solution.FileName);
-            dlg.Title = "Choose extension DLL";
-            dlg.DefaultExt = ".dll";
-            dlg.Filter = "DLL Files (*.dll)|*.dll|All Files (*.*)|*.*";
-            dlg.CheckFileExists = true;
-            dlg.FileName = this.ViewModel.SelectedItem.DllPath;
-            //if (!string.IsNullOrEmpty(dlg.FileName))
-            //    dlg.InitialDirectory = Path.GetDirectoryName(dlg.FileName);
-            if (dlg.ShowDialog() != true)
-                return false;
-            ExtensionManager.SetDllPath(item, dlg.FileName);
-            if (string.IsNullOrEmpty(item.ClassName))
-                item.ClassName = ExtensionManager.FindExtensionClassesInDll(item.DllPath).FirstOrDefault();
-            ExtensionManager.EnsureTitle(item);
-            return true;
-        }
-
-        private void Validate()
-        {
-            var item = this.ViewModel.SelectedItem;
-            if (item == null)
-            {
-                ViewModel.ValidationMessage = null;
-                return;
-            }
-            ViewModel.ValidationMessage = GetValidation(item);
-        }
-
-        private string GetValidation(ExtensionItem item)
-        {
-            if (String.IsNullOrWhiteSpace(item.DllPath))
-                return $"DLL path is empty";
-            if (!ExtensionManager.IsDllPathInSolutionScope(item))
-                if (!ExtensionManager.IsDllPathSelf(item))
-                    return $"Warning: DLL path is not in Solution (sub)folder";
-            if (!ExtensionManager.IsDllExists(item))
-                return $"DLL file does not exist, maybe you must compile it first?";
-
-            var check = ExtensionManager.CheckItemCode(item);
-            switch (check)
-            {
-                case ExtensionManager.CheckResult.ClassNotFound:
-                    return $"Class '{item.ClassName}' not found in DLL";
-                case ExtensionManager.CheckResult.RunMethodNotFound:
-                    return $"Class '{item.ClassName}' must have 'Run' method";
-                case ExtensionManager.CheckResult.ArgumentPropertyNotFound:
-                    return $"Class '{item.ClassName}' should have 'Argument' property";
-            }
-            return null;
-        }
-
-        private void Shortcut_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
-        {
-            e.Handled = true;
-            if (this.ViewModel.SelectedItem == null)
-                return;
-            if (e.KeyboardDevice.Modifiers == ModifierKeys.None)
-                return;
-            var key = e.Key == Key.System ? e.SystemKey : e.Key;
-
-            if (key == Key.System || IsModifierKey(key))
-                return;
-            var g = e.KeyboardDevice.Modifiers == ModifierKeys.None ?
-                new KeyGesture(key, ModifierKeys.Control) : //none not supported
-                new KeyGesture(key, e.KeyboardDevice.Modifiers);
-            this.ViewModel.SelectedItem.ShortCutKey = g.GetDisplayStringForCulture(System.Globalization.CultureInfo.InvariantCulture);
-        }
-
-        private bool IsModifierKey(Key key)
-        {
-            return new[] {
-                Key.LeftAlt, Key.RightAlt, Key.LeftCtrl, Key.RightCtrl, Key.LeftShift, Key.RightShift,
-                Key.CapsLock, Key.NumLock, Key.LWin, Key.RWin,
-                }.Contains(key);
-        }
-
-        private void SetSelf_Click(object sender, RoutedEventArgs e)
-        {
-            var item = ViewModel.SelectedItem;
-            if (item == null)
-                return;
-            item.DllPath = ExtensionManager.SELF;
         }
         private void AddProj_Click(object sender, RoutedEventArgs e)
         {
@@ -371,99 +136,113 @@ namespace SolutionExtensions.ToolWindows
             project.ProjectItems.AddFromFile("MyExtension1.cs create templated file in temp");
             */
         }
-
-        private void CheckAll_Click(object sender, RoutedEventArgs e)
+        private bool BrowseDll(ExtensionItem item)
         {
-            var sb = new StringBuilder();
-            foreach (var item in ViewModel.Model.Extensions)
-            {
-                var msg = GetValidation(item);
-                if (msg != null)
-                    sb.AppendLine($"Extension #{ViewModel.Model.Extensions.IndexOf(item) + 1} '{item.Title}': {msg}");
-            }
-            if (sb.Length == 0)
-                MessageBox.Show("All extensions look valid");
-            else
-                MessageBox.Show(sb.ToString(), "Validation results", MessageBoxButton.OK, MessageBoxImage.Warning);
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var dte = Package.GetService<DTE, DTE>();
+            var dlg = new OpenFileDialog();
+            if (dte.Solution != null)
+                dlg.InitialDirectory = Path.GetDirectoryName(dte.Solution.FileName);
+            dlg.Title = "Choose extension DLL";
+            dlg.DefaultExt = ".dll";
+            dlg.Filter = "DLL Files (*.dll)|*.dll|All Files (*.*)|*.*";
+            dlg.CheckFileExists = true;
+            dlg.FileName = item.DllPath;
+            //if (!string.IsNullOrEmpty(dlg.FileName))
+            //    dlg.InitialDirectory = Path.GetDirectoryName(dlg.FileName);
+            if (dlg.ShowDialog() != true)
+                return false;
+            ExtensionManager.SetDllPath(item, dlg.FileName);
+            if (string.IsNullOrEmpty(item.ClassName))
+                item.ClassName = ExtensionManager.FindExtensionClassesInDll(item.DllPath).FirstOrDefault();
+            ExtensionManager.EnsureTitle(item);
+            return true;
         }
 
-        private void ButtonMore_Click(object sender, RoutedEventArgs e)
+
+        //------------
+        void IExtensionsService.SetItemTitleFromMethod(ExtensionItem item)
         {
-            (sender as Button).OpenContextMenu();
+            ExtensionManager.SetItemTitleFromMethod(item);
         }
 
-        private void AddConfig_Click(object sender, RoutedEventArgs e)
+        void IExtensionsService.Save(ExtensionsModel model)
         {
-            this.Package.AddConfigToSolutionItem();
-        }
-
-        private void Copy_Click(object sender, RoutedEventArgs e)
-        {
-            var item = ViewModel.SelectedItem;
-            if (item == null)
+            if (ExtensionManager.GetCfgFilePath() == null)
                 return;
-            var copy = new ExtensionItem()
-            {
-                Title = $"{item.Title} (copy)",
-                ClassName = item.ClassName,
-                DllPath = item.DllPath,
-                //ShortCutKey=src.ShortCutKey
-            };
-            ViewModel.Model.Extensions.Add(copy);
-            ViewModel.SelectedItem = copy;
+            Package.Log("Saving");
+            ExtensionManager.SaveFile(model);
+            SyncToDTE();
         }
 
-#pragma warning disable VSTHRD100 // Avoid async void methods
-        private async void ButtonDump_Click(object sender, RoutedEventArgs e)
+        void IExtensionsService.Run(ExtensionItem item, bool debug)
         {
-            var p = this.Package;
+            if (debug && !ExtensionDebugger.ValidateBreakpoint(item, Package, ExtensionManager))
+            {
+                if (MessageBox.Show($"No breakpoint found.\n" +
+                    $"There should be breakpoint in your extension to stop debugger there.\n" +
+                    $"Or add System.Diagnostics.Debugger.Break(); to your code.\n" +
+                    $"Do you want to continue?",
+                    "Breakpoint missing",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Hand) != MessageBoxResult.Yes)
+                    return;
+            }
+            if (!ExtensionManager.AskArgumentIfNeeded(item, out var argument))
+                return;
             try
             {
-                await p.ShowToolWindowAsync(typeof(ReflectorToolWindowPane), 0, true, CancellationToken.None);
+                Package.Log($"Running extension '{item.Title}' with argument '{argument}' and flags {String.Join(",", item.GetFlags())} from {Path.GetFileName(item.DllPath)},{item.ClassName}");
+                if (ExtensionManager.CompileIfNeeded(item))
+                    Package.Log($"Extension recompiled");
+                if (debug || item.OutOfProcess)
+                    ExtensionDebugger.RunExtension(item, argument, Package, ExtensionManager, debug);
+                else
+                    ExtensionManager.RunExtension(item, argument);
+                Package.Log($"Done.");
             }
             catch (Exception ex)
             {
-                this.ShowException(ex);
+                var title = $"Error {(debug ? "running" : "debugging")} extension '{item.Title}'";
+                Package.AddToOutputPane($"{title}:\nfrom:{item.DllPath}\n" + ex);
+                _ = Package.ShowStatusBarErrorAsync(ex.Message);
+                this.ShowException(ex, "See output pane for details", title);
             }
         }
-#pragma warning restore VSTHRD100 // Avoid async void methods
 
-        private void Develop_Click(object sender, RoutedEventArgs e)
+        bool IExtensionsService.ShowBrowseDll(ExtensionItem item, bool force)
         {
-            var w = new ColorWindow();
-            w.Show();
-            //await this.Package.ShowStatusBarErrorAsync("Some error");
-            //await this.Package.ShowStatusBarAsync("Some text 1", isImportant:true);
-            //await this.Package.ShowStatusBarAsync("Some text 2", waitMs:5000);
-            //await this.Package.ShowStatusBarAsync("Some text 3");
-            //await Task.Delay(1000);
-            //await this.Package.ShowStatusBarAsync(null);
+            if (!force && File.Exists(ExtensionManager.GetRealPath(item.DllPath)))
+                return true;
+            return BrowseDll(item);
         }
 
-        private void ArgumentAsk_Click(object sender, RoutedEventArgs e)
+        string[] IExtensionsService.FindExtensionClasses(ExtensionItem item)
         {
-            var item = ViewModel.SelectedItem;
-            if (item == null)
-                return;
-            item.Argument = "?";
+            return ExtensionManager.FindExtensionClassesInDll(item.DllPath);
+        }
+        string IExtensionsService.GetValidation(ExtensionItem item)
+        {
+            if (String.IsNullOrWhiteSpace(item.DllPath))
+                return $"DLL path is empty";
+            if (!ExtensionManager.IsDllPathInSolutionScope(item))
+                if (!ExtensionManager.IsDllPathSelf(item))
+                    return $"Warning: DLL path is not in Solution (sub)folder";
+            if (!ExtensionManager.IsDllExists(item))
+                return $"DLL file does not exist, maybe you must compile it first?";
+
+            var check = ExtensionManager.CheckItemCode(item);
+            switch (check)
+            {
+                case ExtensionManager.CheckResult.ClassNotFound:
+                    return $"Class '{item.ClassName}' not found in DLL";
+                case ExtensionManager.CheckResult.RunMethodNotFound:
+                    return $"Class '{item.ClassName}' must have 'Run' method";
+                case ExtensionManager.CheckResult.ArgumentPropertyNotFound:
+                    return $"Class '{item.ClassName}' should have 'Argument' property";
+            }
+            return null;
         }
 
-        private void ExtensionItem_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            mover.ProcessMouseEvent(sender, e);
-        }
-        private void ExtensionItem_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            mover.ProcessMouseEvent(sender, e);
-        }
-        private void ExtensionItem_MouseMove(object sender, MouseEventArgs e)
-        {
-            mover.ProcessMouseEvent(sender, e);
-        }
-
-        private void MoverAttach_Loaded(object sender, RoutedEventArgs e)
-        {
-            mover.AttachToMouseEvents(sender as UIElement);
-        }
     }
 }

@@ -1,20 +1,8 @@
 ﻿using SolutionExtensions.UI;
 using SolutionExtensions.UI.Themes;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace SolutionExtensionsTestApp
 {
@@ -26,6 +14,17 @@ namespace SolutionExtensionsTestApp
         public MainWindow()
         {
             InitializeComponent();
+            Application.Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
+        }
+
+        private void Current_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            if (MessageBox.Show(e.Exception.Message + "\nDo you want to exit?", "Unexpected error", MessageBoxButton.YesNoCancel, MessageBoxImage.Error) != MessageBoxResult.Yes)
+            {
+                e.Handled = true;
+                return;
+            }
+            Application.Current.Shutdown();
         }
 
         private void Zoom_Click(object sender, RoutedEventArgs e)
@@ -48,7 +47,10 @@ namespace SolutionExtensionsTestApp
         {
             var s = ThemeKeys.DumpCurrentValues(this);
             Clipboard.SetText(s);
-            MessageBox.Show(s, "Copied to clipboard");
+            //MessageBox.Show(s, "Copied to clipboard");
+            var fn = Path.Combine(Path.GetTempPath(), "theme.xaml");
+            File.WriteAllText(fn, s);
+            Process.Start("notepad.exe", fn);
         }
     }
 }

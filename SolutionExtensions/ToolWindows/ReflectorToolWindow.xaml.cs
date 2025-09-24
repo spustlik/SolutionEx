@@ -24,9 +24,9 @@ namespace SolutionExtensions.ToolWindows
 #endif
         }
         private SolutionExtensionsPackage Package;
-        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        private void UserControl_Initialized(object sender, EventArgs e)
         {
-            Package = SolutionExtensionsPackage.GetFor(this);
+            Package = SolutionExtensionsPackage.GetGlobal();
             reflectorControl.OnOpenDocument += ReflectorControl_OnOpenDocument;
         }
 
@@ -181,9 +181,9 @@ namespace SolutionExtensions.ToolWindows
                 };
             });
         }
+
 #pragma warning restore VSTHRD010
         #endregion
-
 
     }
 }

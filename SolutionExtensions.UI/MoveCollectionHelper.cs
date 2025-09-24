@@ -9,6 +9,20 @@ using System.Windows.Media;
 
 namespace SolutionExtensions.UI
 {
+    public class MoveItemArgs : EventArgs
+    {
+        public object Item { get; }
+        /// <summary>
+        /// new index of after Item removed from collection
+        /// </summary>
+        public int NewIndex { get; } //can be > length, then it means add
+
+        public MoveItemArgs(object source, int index)
+        {
+            Item = source;
+            NewIndex= index;
+        }
+    }
     public class MoveCollectionHelper
     {
         private readonly UIElement owner;
@@ -18,6 +32,7 @@ namespace SolutionExtensions.UI
         private FrameworkElement movingElement;
         private FrameworkElement movingOverElement;
         public Type VisualItemType { get; set; } = typeof(ListBoxItem);
+        public event EventHandler<MoveItemArgs> MoveCompleted;
         public static MoveCollectionHelper Create<T>(UIElement owner, ObservableCollection<T> collection)
         {
             return new MoveCollectionHelper(owner, collection, typeof(T));
@@ -34,7 +49,7 @@ namespace SolutionExtensions.UI
         {
             itemElement.MouseDown += ProcessMouseEvent;
             itemElement.MouseUp += ProcessMouseEvent;
-            itemElement.MouseMove += ProcessMouseEvent; 
+            itemElement.MouseMove += ProcessMouseEvent;
         }
 
         public void ProcessMouseEvent(object sender, MouseEventArgs e)
@@ -82,8 +97,8 @@ namespace SolutionExtensions.UI
             var item = ele?.DataContext;
             if (!HasItemType(item))
                 return;
-            //log($"Moving over {item.Title}");
             movingOverElement = ele.FindAncestor(VisualItemType);
+            //log($"Moving over {movingOverElement}, {movingOverElement.DataContext}, {item}");
             if (item != movingElement.DataContext)
             {
                 //replace adorners with new item
@@ -138,9 +153,13 @@ namespace SolutionExtensions.UI
             var i = list.IndexOf(dstItem);
             if (moveAfter) i++;
             if (i >= list.Count || i < 0)
+            {
+                i = list.Count;
                 list.Add(srcItem);
+            }
             else
                 list.Insert(i, srcItem);
+            this.MoveCompleted?.Invoke(this, new MoveItemArgs(srcItem, i));
         }
         private int GetItemPos(object item)
         {

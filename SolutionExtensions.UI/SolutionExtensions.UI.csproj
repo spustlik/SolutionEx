@@ -54,6 +54,9 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\ExtensionsListControl.xaml.cs">
+      <DependentUpon>ExtensionsListControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MoveAdorner.cs" />
     <Compile Include="MoveCollectionHelper.cs" />
     <Compile Include="Reflection\ReflectionBuilderCS.cs" />
@@ -68,9 +71,14 @@
     <Compile Include="ReflectorControl\ReflectorNodeBuilder.cs" />
     <Compile Include="ReflectorControl\ReflectorTextBuilder.cs" />
     <Compile Include="ReflectorControl\ReflectorXmlBuilder.cs" />
-    <Compile Include="Themes\ThemedKeys.cs" />
+    <Compile Include="Themes\ThemeDumper.cs" />
+    <Compile Include="Themes\ThemeKeys.cs" />
     <Compile Include="ThrottleTimer.cs" />
     <Compile Include="WpfExtensions.cs" />
+    <Page Include="Extensions\ExtensionsListControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ReflectorControl\ReflectorControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

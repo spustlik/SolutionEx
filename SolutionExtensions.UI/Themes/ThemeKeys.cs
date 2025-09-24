@@ -1,28 +1,22 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Windows;
-using System.Windows.Media;
 
 namespace SolutionExtensions.UI.Themes
 {
     //this is allowing to override keys for some colors
-    //keys are named how it is used
+    //keys are named by usage, not source
     //map to VS colors is stringified, vs names are strange, https://learn.microsoft.com/en-us/visualstudio/extensibility/ux-guidelines/shared-colors-for-visual-studio?view=vs-2022
     //ui="Microsoft.VisualStudio.PlatformUI"
-    //WARNING: sometime StaticResource is cached by StaticResourceHolder
-    //and DynamicResource must be used instead
+    //shell="Microsoft.VisualStudio.Shell"
     public class ThemeKeys
     {
         private static readonly Dictionary<string, string> _originals = new Dictionary<string, string>();
         static ThemeKeys()
         {
             //string values moved to _originals and set to unique values using prop name
-            //but x:Static is probably compiled to baml?
             foreach (var (property, current) in GetKeys())
             {
                 _originals.Add(property.Name, current as string);
@@ -46,25 +40,12 @@ namespace SolutionExtensions.UI.Themes
         }
         public static string DumpCurrentValues(FrameworkElement resources)
         {
-            var sb = new StringBuilder();
-            foreach (var (property, value) in GetKeys())
-            {
-                var r = resources.TryFindResource(value);
-                if (r is SolidColorBrush brush)
-                {
-                    sb.AppendLine($"<SolidColorBrush x:Key=\"{{x:Static themes:ThemeKeys.{property.Name}}}\" Color=\"{brush.Color}\"/>");
-                }
-                else if (r is Color color)
-                {
-                    sb.AppendLine($"<Color x:Key=\"{{x:Static themes:ThemeKeys.{property.Name}}}\">{color}</Color>");
-                }
-                else
-                {
-                    sb.AppendLine($"<!-- {property.Name}={value} : {(r ?? "(null)")} -->");
-                }
-            }
-            return sb.ToString();
+            var d = new ThemeDumper(resources);
+            foreach (var (property, value) in GetKeys())            
+                d.Dump(property.Name, value);            
+            return d.Result;
         }
+
         private static IEnumerable<(PropertyInfo property, object current)> GetKeys()
         {
             var props = typeof(ThemeKeys).GetProperties();
@@ -84,11 +65,18 @@ namespace SolutionExtensions.UI.Themes
         public static object TreeViewItem_TreeArrow_MouseOver_Checked_Stroke { get; set; } = "ui:TreeViewColors.SelectedItemActiveGlyphBrushKey";
         public static object TreeViewItem_TreeArrow_MouseOver_Checked_Fill { get; set; } = "ui:TreeViewColors.SelectedItemActiveBrushKey";
         public static object TreeViewItem_Stroke { get; set; } = "ui:TreeViewColors.BackgroundTextBrushKey";
-        /**/public static object TreeViewItem_Fill { get; set; } = "ui:TreeViewColors.BackgroundBrushKey";
+        public static object TreeViewItem_Fill { get; set; } = "ui:TreeViewColors.BackgroundBrushKey";
         public static object TreeViewItem_Selected_Stroke { get; set; } = "ui:TreeViewColors.HighlightedSpanTextBrushKey";
         public static object TreeViewItem_Selected_Fill { get; set; } = "ui:TreeViewColors.HighlightedSpanBrushKey";
         public static object TreeViewItem_Selected_Inactive_Stroke { get; set; } = "ui:TreeViewColors.SelectedItemInactiveTextBrushKey";
-        /**/public static object TreeViewItem_Selected_Inactive_Fill { get; set; } = "ui:TreeViewColors.SelectedItemInactiveBrushKey";
+        public static object TreeViewItem_Selected_Inactive_Fill { get; set; } = "ui:TreeViewColors.SelectedItemInactiveBrushKey";
         public static object TreeViewItem_Disabled_Stroke { get; set; } = "ui:ThemedDialogColors.ListItemDisabledTextBrushKey";
+        //**new:
+        public static object Mover_Fill { get; set; } = "ui:CommonControlsColors.ButtonBrushKey";
+        public static object Validation_Stroke { get; set; } = "ui:ThemedDialogColors.ValidationErrorTextBrushKey";
+        public static object Validation_Fill { get; set; } = "ui:ThemedDialogColors.ValidationErrorBrushKey";
+        public static object Button_Style { get; set; } = "shell:VsResourceKeys.ButtonStyleKey";
+        public static object Label_Style { get; set; } = "shell:VsResourceKeys.ThemedDialogLabelStyleKey";
+        public static object TextBox_Style { get; set; } = "shell:VsResourceKeys.TextBoxStyleKey";
     }
 }
