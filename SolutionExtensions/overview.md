@@ -79,7 +79,8 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * 1.2.2 - Community.Toolkit removed
 * 1.2.3 - dialog for argument value
 * 1.2.4 - tooltips, out of process, drag & drop to reorder
-* 1.2.5 - option to compile before run, bugfixes
+* 1.2.5 - option to compile before run, bug fixes
+* 1.3 - UX and internals refactoring, bug fixes
 
 ### Ideas
 * Add new extension project using wizard
