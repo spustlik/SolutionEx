@@ -15,6 +15,7 @@ namespace VSIXTests
             var s = selection.Text;
             s = s.Replace(".", "_");
             selection.Text = "{x:Static themes:" + s + "}";
+            
         }
     }
 }

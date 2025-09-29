@@ -7,6 +7,7 @@ using SolutionExtensions.Model;
 using SolutionExtensions.Reflector;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
@@ -193,9 +194,11 @@ namespace SolutionExtensions
             var projects = dte.Solution.Projects.Cast<Project>().ToArray();
             var proj = projects.FirstOrDefault(p => p.Name == name);
             if (proj == null)
-                return false;
+                throw new ApplicationException($"Cannot find project '{name}' to compile");)
             var cfg = dte.Solution.SolutionBuild.ActiveConfiguration.Name;
             dte.Solution.SolutionBuild.BuildProject(cfg, proj.UniqueName, WaitForBuildToFinish: true);
+            if(dte.Solution.SolutionBuild.LastBuildInfo != 0)
+                throw new ApplicationException($"Error compiling project '{name}'");
             return true;
         }
 
@@ -216,11 +219,15 @@ namespace SolutionExtensions
             argument = item.Argument;
             if (argument != null && argument.StartsWith("?"))
             {
-                var (method, type) = FindExtensionMethod(item, throwIfNotFound: false);
+                var (_, type) = FindExtensionMethod(item, throwIfNotFound: false);
                 var prompt = "Enter argument value";
                 if (type != null)
                 {
                     var pi = ExtensionObject.FindArgumentProperty(type);
+                    if (pi.GetCustomAttribute<DefaultValueAttribute>()?.Value is string defValue)
+                    {
+                        argument = defValue;
+                    }
                     prompt = pi.GetDescription() ?? prompt;
                 }
                 argument = argument.TrimStart('?');

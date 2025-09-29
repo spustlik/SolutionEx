@@ -29,10 +29,12 @@ Your extension is just compiled assembly and should be in your solution.
 * execute your extension using `Run` button, or assigned key shortcut, or using `Debug`
 ### More
 * add `[Description("caption")]` attribute to Run method or class to allow inspection of caption
+### Add argument
 * add public non-static property called `Argument`, 
 and config argument value of extension to parametrize your run
 * if argument starts with "?", user will be asked for it (with default value)
-* for questions you can also use `[Description]` attribute on `Argument` property
+* use `[Description]` attribute to use your caption in dialog
+* use `[DefaultValue]` attribute to set default value of argument
 
 ``` 
 public class MyExtension
@@ -70,7 +72,7 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * `DumpExtension` - dumps common props and collections of DTE to xml file
 * `Nest file` - nests file with same name but different extensions
 * `Create GUID` - just creates new GUID and copies into clipboard
-
+* `Fix Encoding` - changes encoding of all text files with non-ascii characters to UTF8
 ### Version history
 * 1.0 - initial version
 * 1.1 - if possible, extension is compiled
@@ -81,6 +83,7 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * 1.2.4 - tooltips, out of process, drag & drop to reorder
 * 1.2.5 - option to compile before run, bug fixes
 * 1.3 - UX and internals refactoring, bug fixes
+* 1.3.1 - argument default value
 
 ### Ideas
 * Add new extension project using wizard
@@ -89,6 +92,7 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * custom variables in cfg like $(MyTemplates)=$(SolutionDir)/MyTemplates*
 * some support of events / long running extensions, autorun
 * generate mermaid diagrams for DTE https://mermaid.js.org/intro/syntax-reference.html
+* some rich ui like Task Dialog
 
 #### Notes
 * Debugging

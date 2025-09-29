@@ -226,7 +226,21 @@ namespace SolutionExtensions
                 yield return item.FileNames[(short)i];
             }
         }
-
+        public static string StringToConst(string s)
+        {
+            var types = new[] { typeof(EnvDTE.Constants) };
+            foreach (var type in types)
+            {
+                var list = type.GetFields();
+                foreach (var field in list)
+                {
+                    var v = field.GetValue(null);
+                    if (Equals(v, s))
+                        return field.DeclaringType.Name + "." + field.Name;
+                }
+            }
+            return s;
+        }
 
         static void addFile(DTE dte, string fn)
         {
