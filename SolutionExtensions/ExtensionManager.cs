@@ -176,6 +176,17 @@ namespace SolutionExtensions
             var description = method.GetDescription() ?? type.GetDescription() ?? type.Name;
             item.Title = description;
         }
+        public void SetArgumentFromClass(ExtensionItem item)
+        {
+            if (!string.IsNullOrEmpty(item.Argument))
+                return;
+            var (_, type) = FindExtensionMethod(item, throwIfNotFound: false);
+            if (type == null)
+                return;
+            var pi = ExtensionObject.FindArgumentProperty(type);
+            if (pi.propertyInfo == null) return;
+            item.Argument = "?";
+        }
 
         private (MethodInfo method, Type type) FindExtensionMethod(ExtensionItem item, bool throwIfNotFound)
         {
@@ -194,10 +205,10 @@ namespace SolutionExtensions
             var projects = dte.Solution.Projects.Cast<Project>().ToArray();
             var proj = projects.FirstOrDefault(p => p.Name == name);
             if (proj == null)
-                throw new ApplicationException($"Cannot find project '{name}' to compile");)
+                throw new ApplicationException($"Cannot find project '{name}' to compile");
             var cfg = dte.Solution.SolutionBuild.ActiveConfiguration.Name;
             dte.Solution.SolutionBuild.BuildProject(cfg, proj.UniqueName, WaitForBuildToFinish: true);
-            if(dte.Solution.SolutionBuild.LastBuildInfo != 0)
+            if (dte.Solution.SolutionBuild.LastBuildInfo != 0)
                 throw new ApplicationException($"Error compiling project '{name}'");
             return true;
         }
@@ -219,18 +230,16 @@ namespace SolutionExtensions
             argument = item.Argument;
             if (argument != null && argument.StartsWith("?"))
             {
+                argument = argument.TrimStart('?');
                 var (_, type) = FindExtensionMethod(item, throwIfNotFound: false);
                 var prompt = "Enter argument value";
                 if (type != null)
                 {
                     var pi = ExtensionObject.FindArgumentProperty(type);
-                    if (pi.GetCustomAttribute<DefaultValueAttribute>()?.Value is string defValue)
-                    {
-                        argument = defValue;
-                    }
-                    prompt = pi.GetDescription() ?? prompt;
+                    prompt = pi.description ?? prompt;
+                    if (String.IsNullOrEmpty(argument))
+                        argument = pi.defaultValue + "";
                 }
-                argument = argument.TrimStart('?');
                 if (!TextInputDialog.Show(item.Title, prompt, argument, out argument))
                     return false;
             }
@@ -287,11 +296,12 @@ namespace SolutionExtensions
             if (!string.IsNullOrEmpty(item.Argument))
             {
                 var pi = ExtensionObject.FindArgumentProperty(type);
-                if (pi == null)
+                if (pi.propertyInfo == null)
                     return CheckResult.ArgumentPropertyNotFound;
             }
             return CheckResult.Ok;
         }
+
     }
 
 }

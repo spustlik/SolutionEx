@@ -161,9 +161,10 @@ namespace SolutionExtensions.ToolWindows
 
 
         //------------
-        void IExtensionsService.SetItemTitleFromMethod(ExtensionItem item)
+        void IExtensionsService.UpdateItemFromDll(ExtensionItem item)
         {
             ExtensionManager.SetItemTitleFromMethod(item);
+            ExtensionManager.SetArgumentFromClass(item);
         }
 
         void IExtensionsService.Save(ExtensionsModel model)
@@ -225,11 +226,11 @@ namespace SolutionExtensions.ToolWindows
         {
             if (String.IsNullOrWhiteSpace(item.DllPath))
                 return $"DLL path is empty";
+            if (!ExtensionManager.IsDllExists(item))
+                return $"DLL file does not exist, maybe you must compile it first?";
             if (!ExtensionManager.IsDllPathInSolutionScope(item))
                 if (!ExtensionManager.IsDllPathSelf(item))
                     return $"Warning: DLL path is not in Solution (sub)folder";
-            if (!ExtensionManager.IsDllExists(item))
-                return $"DLL file does not exist, maybe you must compile it first?";
 
             var check = ExtensionManager.CheckItemCode(item);
             switch (check)

@@ -73,7 +73,9 @@ namespace SolutionExtensions.UI.Themes
         public static object TreeViewItem_Disabled_Stroke { get; set; } = "ui:ThemedDialogColors.ListItemDisabledTextBrushKey";
         //**new:
         public static object Mover_Fill { get; set; } = "ui:CommonControlsColors.ButtonBrushKey";
-        public static object Validation_Stroke { get; set; } = "ui:ThemedDialogColors.ValidationErrorTextBrushKey";
+        
+        //this color is same as bg
+        //public static object Validation_Stroke { get; set; } = "ui:ThemedDialogColors.ValidationErrorTextBrushKey";
         public static object Validation_Fill { get; set; } = "ui:ThemedDialogColors.ValidationErrorBrushKey";
         public static object Button_Style { get; set; } = "shell:VsResourceKeys.ButtonStyleKey";
         public static object Label_Style { get; set; } = "shell:VsResourceKeys.ThemedDialogLabelStyleKey";

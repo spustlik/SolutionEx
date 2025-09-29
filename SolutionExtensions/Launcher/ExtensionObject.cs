@@ -1,9 +1,11 @@
 ﻿using EnvDTE;
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using SolutionExtensions.Reflector;
 
 namespace SolutionExtensions
 {
@@ -63,9 +65,12 @@ namespace SolutionExtensions
                 m.GetParameters().Length >= 1 &&
                 IsDTE(m.GetParameters()[0]);
         }
-        public static PropertyInfo FindArgumentProperty(Type type)
+        public static (PropertyInfo propertyInfo, string description, object defaultValue) FindArgumentProperty(Type type)
         {
-            return type.GetProperty("Argument");
+            var propertyInfo = type.GetProperty("Argument");
+            var defaultValue = propertyInfo?.GetCustomAttribute<DefaultValueAttribute>()?.Value;
+            var description = propertyInfo?.GetDescription();
+            return (propertyInfo, description, defaultValue);
         }
         private static bool IsDTE(ParameterInfo pi)
         {
@@ -88,7 +93,8 @@ namespace SolutionExtensions
             var instance = method.IsStatic ? null : Activator.CreateInstance(type);
             if (!string.IsNullOrEmpty(argument))
             {
-                var pi = FindArgumentProperty(type) ?? throw new Exception($"Missing Argument property on '{type.Name}'");
+                var (pi, _, _) = FindArgumentProperty(type);
+                if (pi == null) throw new Exception($"Missing Argument property on '{type.Name}'");
                 var argValue = Convert.ChangeType(argument, pi.PropertyType);
                 pi.SetValue(instance, argValue);
             }

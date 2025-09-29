@@ -18,7 +18,6 @@
     <SolidColorBrush x:Key="{x:Static themes:ThemeKeys.TreeViewItem_Disabled_Stroke}" Color="#FF5C5C5C"/>
 
     <SolidColorBrush x:Key="{x:Static themes:ThemeKeys.Mover_Fill}" Color="#FF3D3D3D"/>
-    <SolidColorBrush x:Key="{x:Static themes:ThemeKeys.Validation_Stroke}" Color="Black"/>
     <SolidColorBrush x:Key="{x:Static themes:ThemeKeys.Validation_Fill}" Color="Orange"/>
 
     <!-- can simulate dark theme for these styles-->

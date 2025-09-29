@@ -32,7 +32,7 @@ namespace SolutionExtensionsTestApp
         }
 
         /** svc interface **/
-        void IExtensionsService.SetItemTitleFromMethod(ExtensionItem item)
+        void IExtensionsService.UpdateItemFromDll(ExtensionItem item)
         {
             item.Title = item.ClassName + " extension";
         }

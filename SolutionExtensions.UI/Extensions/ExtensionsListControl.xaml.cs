@@ -61,7 +61,7 @@ namespace SolutionExtensions.UI.Extensions
 
     public interface IExtensionsService
     {
-        void SetItemTitleFromMethod(ExtensionItem item);
+        void UpdateItemFromDll(ExtensionItem item);
         void Save(ExtensionsModel model);
         void Run(ExtensionItem item, bool debug);
         bool ShowBrowseDll(ExtensionItem item, bool force);
@@ -115,7 +115,7 @@ namespace SolutionExtensions.UI.Extensions
             var item = sender as ExtensionItem;
             if (e.PropertyName == nameof(ExtensionItem.ClassName))
             {
-                ExtensionsService.SetItemTitleFromMethod(item);
+                ExtensionsService.UpdateItemFromDll(item);
             }
             ThrottleValidate();
             ThrottleUpdateModel();

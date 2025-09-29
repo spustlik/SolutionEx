@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -32,12 +33,12 @@ namespace SolutionExtensions
                 $" - {nonAsciiCount} is non ASCII\n" +
                 String.Join("\n", nonAsciiFiles.Take(3).Select(f => Path.GetFileName(f))) +
                 $"...\n" +
-                $"Do you want to convert them to UTF-8?";
+                $"Do you want to convert them from {Encoding.Default.EncodingName} to UTF-8?";
             if (MessageBox.Show(msg, "Check items", MessageBoxButton.YesNoCancel, MessageBoxImage.Question) != MessageBoxResult.Yes)
-                return;            
-            foreach(var f in nonAsciiFiles)
+                return;
+            foreach (var f in nonAsciiFiles)
             {
-                var text = File.ReadAllText(f);
+                var text = File.ReadAllText(f, Encoding.Default);
                 File.WriteAllText(f, text, new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
             }
         }

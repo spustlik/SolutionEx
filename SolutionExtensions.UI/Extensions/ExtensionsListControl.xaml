@@ -95,8 +95,7 @@
                 </Setter>
             </Style>
             <Style x:Key="textValidation" TargetType="TextBlock">
-                <Setter Property="Background" Value="{StaticResource {x:Static themes:ThemeKeys.Validation_Fill}}"/>
-                <Setter Property="Foreground" Value="{StaticResource {x:Static themes:ThemeKeys.Validation_Stroke}}"/>
+                <Setter Property="Background" Value="{DynamicResource {x:Static themes:ThemeKeys.Validation_Fill}}"/>
             </Style>
         </Grid.Resources>
         <Grid.RowDefinitions>
