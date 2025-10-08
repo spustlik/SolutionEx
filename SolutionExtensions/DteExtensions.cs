@@ -40,16 +40,59 @@ namespace SolutionExtensions
             return folder;
         }
 
-        public static ProjectItem FindProjectItem(this Project project, string filePath)
+        public static Project FindSolutionProject(this Solution solution, Func<Project, bool> predicate)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            foreach (ProjectItem item in project.ProjectItems)
+            foreach (Project p in solution.Projects)
             {
-                if (string.Equals(item.Name, Path.GetFileName(filePath), StringComparison.OrdinalIgnoreCase))
-                    return item;
+                if (predicate(p)) return p;
+                var f = p.ProjectItems.FindSolutionProject(predicate);
+                if (f != null) return f;
             }
             return null;
         }
+
+        private static Project FindSolutionProject(this ProjectItems items, Func<Project, bool> predicate)
+        {
+            //warn: projects are in projectItems
+            if (items == null)
+                return null;
+            ThreadHelper.ThrowIfNotOnUIThread();
+            //if (items.Kind == EnvDTE.Constants.vsProjectItemKindSolutionItems ||
+            //    items.Kind == EnvDTE.Constants.vsProjectItemsKindMisc)
+            //{
+            foreach (ProjectItem projectItem in items)
+            {
+                if (projectItem.Object is Project pip && predicate(pip))
+                    return pip;
+                var f = FindSolutionProject(projectItem.ProjectItems, predicate);
+                if (f != null) return f;
+            }
+            return null;
+        }
+
+        public static ProjectItem FindProjectItem(this Project project, string filePath)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            string name = Path.GetFileName(filePath);
+            return FindProjectItem(project.ProjectItems, item => string.Equals(item.Name, name, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public static ProjectItem FindProjectItem(this ProjectItems items, Func<ProjectItem, bool> predicate)
+        {
+            if (items == null)
+                return null;
+            ThreadHelper.ThrowIfNotOnUIThread();
+            foreach (ProjectItem item in items)
+            {
+                if (predicate(item))
+                    return item;
+                var f = item.ProjectItems.FindProjectItem(predicate);
+                if (f != null) return f;
+            }
+            return null;
+        }
+
         public static Project FindProjectMiscItems(this Solution solution)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -198,6 +241,12 @@ namespace SolutionExtensions
             }
         }
 
+        public static void SetWaitCursor(this DTE dte)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var vsShell = ServiceProvider.GlobalProvider.GetService<SVsUIShell, IVsUIShell>();
+            vsShell.SetWaitCursor();
+        }
         public static Command GetCommandByName(this DTE dte, string name)
         {
             ThreadHelper.ThrowIfNotOnUIThread();

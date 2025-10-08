@@ -106,6 +106,8 @@ namespace SolutionExtensions.UI.Extensions
         {
             if (e.PropertyName == nameof(VM.SelectedItem))
             {
+                if(ViewModel.SelectedItem!=null)
+                    ExtensionsService.UpdateItemFromDll(ViewModel.SelectedItem);
                 this.Validate();
             }
         }

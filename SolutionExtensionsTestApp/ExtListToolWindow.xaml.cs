@@ -35,6 +35,15 @@ namespace SolutionExtensionsTestApp
         void IExtensionsService.UpdateItemFromDll(ExtensionItem item)
         {
             item.Title = item.ClassName + " extension";
+            if (item.ClassName == "Class1")
+            {
+                item.ArgumentTitle = "My Parameter";
+            }
+            else
+            {
+                item.ArgumentTitle = null;
+            }
+            
         }
 
         private string GetFileName() => Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "solex.cfg");

@@ -73,6 +73,7 @@
     <Compile Include="SolutionExtensionsPackage.cs" />
     <Compile Include="ExtensionManager.cs" />
     <Compile Include="Launcher\ExtensionDebugger.cs" />
+    <Compile Include="SolutionTool.cs" />
     <Compile Include="StringTemplates.cs" />
     <Compile Include="ToolWindows\ExtensionsListToolWindow.xaml.cs">
       <DependentUpon>ExtensionsListToolWindow.xaml</DependentUpon>

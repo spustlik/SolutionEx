@@ -216,7 +216,16 @@
                 </Grid>
                 <Label Content="Class Name 🛈" ToolTip="Pick class name with Run method"/>
                 <ComboBox IsEditable="True" IsTextSearchEnabled="True" DropDownOpened="PickClass_Opened" Text="{Binding SelectedItem.ClassName}" />
-                <Label Content="Argument 🛈" ToolTip="Argument property will be set with this value, or user will be asked for it."/>
+                <Label ToolTip="Argument property will be set with this value, or user will be asked for it.">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Visibility="{Binding SelectedItem.ArgumentTitle, Converter={StaticResource notEmptyToVisi}}">
+                            <Run Text="{Binding SelectedItem.ArgumentTitle}"/>
+                            <Run Text=" (argument)" FontWeight="Normal"/>
+                        </TextBlock>
+                        <TextBlock Text="Argument" Visibility="{Binding SelectedItem.ArgumentTitle, Converter={StaticResource emptyToVisi}}"/>
+                        <TextBlock Text=" 🛈"/>
+                    </StackPanel>
+                </Label>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>

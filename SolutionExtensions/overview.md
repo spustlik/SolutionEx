@@ -84,6 +84,7 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * 1.2.5 - option to compile before run, bug fixes
 * 1.3 - UX and internals refactoring, bug fixes
 * 1.3.1 - argument default value
+* 1.4 - fixed bug when solution folders and compile used, argument description is used on tool editor
 
 ### Ideas
 * Add new extension project using wizard
@@ -93,6 +94,8 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * some support of events / long running extensions, autorun
 * generate mermaid diagrams for DTE https://mermaid.js.org/intro/syntax-reference.html
 * some rich ui like Task Dialog
+* more args?
+* some generator support
 
 #### Notes
 * Debugging

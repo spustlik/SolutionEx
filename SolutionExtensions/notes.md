@@ -12,7 +12,18 @@
     - manifest
     - AssemblyInfo.cs (AssemlbyVersion), launcher, package
     
+### Generator
+* custom tool in solution scope
+    * problem that IVsSingleFileGenerator returns extension without knowledge of source
+    * IVsSingleFileGeneratorFactory can be somehow used
+    * idea: there can be configuration which sol-generator use on which file pattern
+    * maybe can be somehow used T4generator
+    * but there is problem with template tooling (no intelisense)
+    * so lets try to use solution assembly for model and t4 only for generation
+    * idea: xml file with xsd, where is confgured generator
+
 ### Nest
+* in new versoin of VS2022 is file-nesting automated and configured
 * Cannot find how to un-nest item, there are missing methods for that
 ```c#
     var project = dte.Solution.Projects[0] as EnvDTE.Project;

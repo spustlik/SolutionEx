@@ -57,6 +57,15 @@ namespace SolutionExtensions.Model
         }
         #endregion
 
+        #region ArgumentTitle property
+        private string _argumentTitle;
+        public string ArgumentTitle
+        {
+            get => _argumentTitle;
+            set => Set(ref _argumentTitle, value);
+        }
+        #endregion
+
         #region OutOfProcess property
         private bool _outOfProcess;
         public bool OutOfProcess

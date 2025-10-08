@@ -178,14 +178,16 @@ namespace SolutionExtensions
         }
         public void SetArgumentFromClass(ExtensionItem item)
         {
-            if (!string.IsNullOrEmpty(item.Argument))
-                return;
+            item.ArgumentTitle = null;
+            //if (!string.IsNullOrEmpty(item.Argument))
+            //    return;
             var (_, type) = FindExtensionMethod(item, throwIfNotFound: false);
             if (type == null)
                 return;
             var pi = ExtensionObject.FindArgumentProperty(type);
             if (pi.propertyInfo == null) return;
-            item.Argument = "?";
+            //item.Argument = "?";
+            item.ArgumentTitle = pi.description;
         }
 
         private (MethodInfo method, Type type) FindExtensionMethod(ExtensionItem item, bool throwIfNotFound)
@@ -202,8 +204,8 @@ namespace SolutionExtensions
             var dte = package.GetService<DTE, DTE>() as DTE2;
             var path = Path.GetDirectoryName(item.DllPath);
             var name = Path.GetFileNameWithoutExtension(item.DllPath);
-            var projects = dte.Solution.Projects.Cast<Project>().ToArray();
-            var proj = projects.FirstOrDefault(p => p.Name == name);
+
+            var proj = dte.Solution.FindSolutionProject(p => p.Name == name);
             if (proj == null)
                 throw new ApplicationException($"Cannot find project '{name}' to compile");
             var cfg = dte.Solution.SolutionBuild.ActiveConfiguration.Name;
