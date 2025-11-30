@@ -192,7 +192,11 @@ namespace SolutionExtensions
 
         private (MethodInfo method, Type type) FindExtensionMethod(ExtensionItem item, bool throwIfNotFound)
         {
+            if (String.IsNullOrEmpty(item.DllPath))
+                return default;
             var assembly = LoadVersionedAssembly(GetRealPath(item.DllPath));
+            if (assembly == null)
+                return default;
             return ExtensionObject.FindExtensionMethod(assembly, item.ClassName, throwIfNotFound);
         }
 
@@ -225,6 +229,8 @@ namespace SolutionExtensions
         public string[] FindExtensionClassesInDll(string dllPath)
         {
             var assembly = LoadVersionedAssembly(GetRealPath(dllPath));
+            if (assembly == null)
+                return new string[0];
             return ExtensionObject.GetExtensionClassNames(assembly);
         }
         public bool AskArgumentIfNeeded(ExtensionItem item, out string argument)

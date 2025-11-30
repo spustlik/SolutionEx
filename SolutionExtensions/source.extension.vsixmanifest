@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="SolutionExtensions.1F32280E-3E31-4783-BF82-7900E94191BB" Version="1.3.2" Language="en-US" Publisher="Jan Stuchlík" />
+        <Identity Id="SolutionExtensions.1F32280E-3E31-4783-BF82-7900E94191BB" Version="1.4.1" Language="en-US" Publisher="Jan Stuchlík" />
         <DisplayName>Solution Extensions</DisplayName>
         <Description xml:space="preserve">Allows to add custom extension to solution and share it in the team</Description>
         <Icon>Images\logo.png</Icon>
         <Preview>true</Preview>
     </Metadata>
     <Installation>
-        <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0, 18.0)">
+        <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0, 19.0)">
             <ProductArchitecture>amd64</ProductArchitecture>
         </InstallationTarget>
     </Installation>

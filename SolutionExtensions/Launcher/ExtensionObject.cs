@@ -132,6 +132,8 @@ namespace SolutionExtensions
                     ai.Write(verFullName);
                 }
             }
+            if (!File.Exists(verFullName))
+                return null;
             var a = Assembly.LoadFrom(verFullName);
             //Console.WriteLine($"loaded assembly {a.GetName().Name}, version {a.GetName().Version} from {Path.GetFileName(unique)}");
             return a;

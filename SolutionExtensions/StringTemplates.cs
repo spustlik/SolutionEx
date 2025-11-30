@@ -15,6 +15,8 @@ namespace SolutionExtensions
         /// </summary>
         public static string ExpandString(string s, Func<string, string> getUpperCasedVariableValue, bool envVariables = false)
         {
+            if (String.IsNullOrEmpty(s))
+                return s;
             if (envVariables)
                 s = Environment.ExpandEnvironmentVariables(s);
             s = _varRegex.Replace(s, (m) =>
