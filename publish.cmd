@@ -42,6 +42,8 @@ type build.log>>%LOG%
 del build.log>nul
 
 :stepP
+echo -- Ignore error, if already logged in
 %VSIX% login -publisherName "JanStuchlik" -personalAccessToken "%PAT%"
+echo --
 %VSIX% publish -payload %RES%\SolutionExtensions.vsix  -publishManifest %RES%\packageManifest.json -personalAccessToken "%PAT%"
 
