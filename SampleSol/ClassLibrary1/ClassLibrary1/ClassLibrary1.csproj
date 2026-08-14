@@ -4,4 +4,16 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Update="myfile.foo">
+      <Generator>SolutionFileGenerator</Generator>
+      <LastGenOutput>myfile.oof</LastGenOutput>
+    </None>
+    <None Update="myfile.oof">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>myfile.foo</DependentUpon>
+    </None>
+  </ItemGroup>
+
 </Project>
