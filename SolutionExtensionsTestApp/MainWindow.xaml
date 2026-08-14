@@ -7,7 +7,7 @@
         xmlns:themes="clr-namespace:SolutionExtensions.UI.Themes;assembly=SolutionExtensions.UI"
         mc:Ignorable="d"
         Loaded="Window_Loaded"
-        Title="MainWindow" Height="790" Width="1374">
+        Title="Testing app" Height="790" Width="1374">
     <Grid x:Name="grid">
         <Grid.LayoutTransform>
             <ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
