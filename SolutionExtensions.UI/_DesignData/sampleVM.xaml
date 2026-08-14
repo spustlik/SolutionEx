@@ -1,0 +1,26 @@
+﻿<x:Array
+	xmlns:system="clr-namespace:System;assembly=mscorlib"
+    xmlns:local="clr-namespace:SolutionExtensions.Model"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	Type="{x:Type system:Object}"
+	>
+	<system:String>
+		Jedna
+	</system:String>
+	<system:String>
+		Dva
+	</system:String>
+	<system:String>
+		Tři
+	</system:String>
+	<system:Int32>
+		42
+	</system:Int32>
+    <!--<local:TestModel Value="57"></local:TestModel>-->
+	<local:ExtensionItem Title="some item">
+	</local:ExtensionItem>
+	<system:String>
+		--konec--
+	</system:String>
+
+</x:Array>

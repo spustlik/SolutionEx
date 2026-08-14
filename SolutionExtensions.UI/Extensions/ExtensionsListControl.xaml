@@ -13,6 +13,7 @@
     <Grid>
         <Grid.Resources>
             <BooleanToVisibilityConverter x:Key="boolToVisi"/>
+            <conv:NegatedBooleanToVisibilityConverter x:Key="notBoolToVisi"/>
             <conv:EmptyConverter x:Key="notEmptyToVisi" Inner="{StaticResource boolToVisi}" Negate="True"/>
             <conv:EmptyConverter x:Key="emptyToVisi" Inner="{StaticResource boolToVisi}"/>
             <conv:EmptyConverter x:Key="notEmpty" Negate="True"/>
@@ -53,13 +54,23 @@
                             </Grid.RowDefinitions>
 
                             <StackPanel Grid.Row="0" Orientation="Horizontal">
+                                <Border VerticalAlignment="Stretch" Width="25" ToolTip="Generator"
+                                        Visibility="{Binding IsGenerator, Converter={StaticResource boolToVisi}}"
+                                        >
+                                    <Border BorderBrush="{Binding Foreground, ElementName=text}" 
+                                            BorderThickness="1" CornerRadius="5" Margin="2" >
+                                        <TextBlock FontSize="14" FontWeight="Bold"  HorizontalAlignment="Center" VerticalAlignment="Center">G</TextBlock>
+                                    </Border>
+                                </Border>
                                 <Label FontWeight="Bold" Content="{Binding Title}" Padding="3,0"/>
                                 <Label Content="(no name)" Visibility="{Binding Title, Converter={StaticResource emptyToVisi}}"/>
-                                <Border CornerRadius="5" BorderThickness="1" BorderBrush="{Binding Foreground,ElementName=text}"
-                                    VerticalAlignment="Center" Padding="5,0"
-                                    Visibility="{Binding ShortCutKey,Converter={StaticResource notEmptyToVisi}}">
-                                    <TextBlock Text="{Binding ShortCutKey}" FontFamily="Consolas" x:Name="text"/>
-                                </Border>
+                                <ContentControl Visibility="{Binding IsGenerator, Converter={StaticResource notBoolToVisi}}">
+                                    <Border CornerRadius="5" BorderThickness="1" BorderBrush="{Binding Foreground,ElementName=text}"
+                                        VerticalAlignment="Center" Padding="5,0"
+                                        Visibility="{Binding ShortCutKey,Converter={StaticResource notEmptyToVisi}}">
+                                        <TextBlock Text="{Binding ShortCutKey}" FontFamily="Consolas" x:Name="text"/>
+                                    </Border>
+                                </ContentControl>
                             </StackPanel>
 
                             <Grid Grid.Row="1" Opacity="0.8">
@@ -122,7 +133,7 @@
             </StackPanel.Resources>
             <Button Click="AddItem_Click" Content="✚ Add" ToolTip="Add new extension"/>
             <Button Click="Delete_Click" Content="🗙 Delete" Style="{StaticResource btnSelectedStyle}" ToolTip="Delete selected extension"/>
-            <Button Click="Run_Click" Content="▶ Run" Style="{StaticResource btnSelectedStyle}" ToolTip="Run selected extension"/>
+            <Button Click="Run_Click" Content="▶ Run" Style="{StaticResource btnSelectedStyle}" ToolTip="Run selected extension" />
             <Button Click="Debug_Click" Content="⚡Debug" Style="{StaticResource btnSelectedStyle}" ToolTip="Run selected extenion in debugger"/>
             <Button Content="💡More▾" 
                     Visibility="{Binding MenuItems, Converter={StaticResource notEmptyToVisi}}"
@@ -140,9 +151,12 @@
             </Label>
         </StackPanel>
         <!-- list of extensions -->
-        <ListBox Grid.Row="1" ItemsSource="{Binding Model.Extensions}" SelectedItem="{Binding SelectedItem}"
+        <ListBox Grid.Row="1" 
+                 ItemsSource="{Binding Model.Extensions}" 
+                 SelectedItem="{Binding SelectedItem}"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                 ItemTemplate="{StaticResource extensionItemTemplate}"                 
+                 ItemTemplate="{StaticResource extensionItemTemplate}" 
+                 d:ItemsSource="{d:SampleData ItemCount=3}"
                  >
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">

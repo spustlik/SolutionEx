@@ -70,9 +70,9 @@ namespace SolutionExtensions.Launcher
             if (!File.Exists(cmd.DllPath))
                 throw new ApplicationException($"File doesn't exists: {cmd.DllPath}");
             var assembly = Assembly.LoadFrom(cmd.DllPath);
-            var (method, type) = ExtensionObject.FindExtensionMethod(assembly, cmd.ClassName, true);
-            var par = method.GetParameters().Select(p => p.Name + ": " + GetTypeStr(p.ParameterType)).ToArray();
-            Log($"{type.FullName}.{method.Name}({String.Join(", ", par)}) found");
+            var ri = new ExtensionRI(assembly, cmd.ClassName) { ThrowIfNotFound= true };
+            var par = ri.RunMethod.GetParameters().Select(p => p.Name + ": " + GetTypeStr(p.ParameterType)).ToArray();
+            Log($"{ri.Type.FullName}.{ri.RunMethod.Name}({String.Join(", ", par)}) found");
 
             //wait for debugger attach
             if (cmd.WaitForDebugger)
@@ -106,7 +106,7 @@ namespace SolutionExtensions.Launcher
             //run extension
             Console.WriteLine($"{LauncherProcess.RUN}: Running extension");
             //to simplify code, which will break
-            var runner = new ExtensionRunner(type, method, dte, package, cmd.Argument, cmd.BreakDebugger);
+            var runner = new ExtensionRunner(ri, dte, package, cmd.Argument, cmd.BreakDebugger);
             runner.Run();
             Console.WriteLine($"{LauncherProcess.DONE}");
         }

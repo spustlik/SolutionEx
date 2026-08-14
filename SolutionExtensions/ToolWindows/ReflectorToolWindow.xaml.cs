@@ -84,7 +84,7 @@ namespace SolutionExtensions.ToolWindows
         {
             try
             {
-                Microsoft.VisualStudio.Shell.ThreadHelper.ThrowIfNotOnUIThread();
+                ThreadHelper.ThrowIfNotOnUIThread();
                 var obj = objFactory();
                 SetRootObject(name, obj);
             }

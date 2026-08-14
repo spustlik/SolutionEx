@@ -41,11 +41,9 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
@@ -54,9 +52,11 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Converters\NegatedBooleanToVisibilityConverter.cs" />
     <Compile Include="Extensions\ExtensionsListControl.xaml.cs">
       <DependentUpon>ExtensionsListControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Model\ExtensionItem.cs" />
     <Compile Include="MoveAdorner.cs" />
     <Compile Include="MoveCollectionHelper.cs" />
     <Compile Include="Reflection\ReflectionBuilderCS.cs" />
@@ -95,6 +95,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="_DesignData\ExtensionVM.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <DesignData Include="_DesignData\sampleVM.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </DesignData>
     <Page Include="_DesignData\ReflectorVM.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

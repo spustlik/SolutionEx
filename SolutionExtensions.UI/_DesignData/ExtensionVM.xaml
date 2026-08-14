@@ -1,0 +1,13 @@
+﻿<x:Array
+	xmlns:system="clr-namespace:System;assembly=mscorlib"
+    xmlns:local="clr-namespace:SolutionExtensions.Model"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	Type="{x:Type local:ExtensionsModel}">
+<!-- for some reason, this is not working, 
+	wpf designer show error of loading this assembly 
+	when some Model is used in xaml-->
+	<local:ExtensionItem Title="Item 1" ClassName="MyClass">
+	</local:ExtensionItem>
+	<local:ExtensionItem Title="Item 2" ClassName="MyClass2">
+	</local:ExtensionItem>
+</x:Array>

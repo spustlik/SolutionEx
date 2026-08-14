@@ -170,34 +170,38 @@ namespace SolutionExtensions
         {
             if (!String.IsNullOrEmpty(item.Title))
                 return;
-            var (method, type) = FindExtensionMethod(item, throwIfNotFound: false);
-            if (method == null)
-                return;
-            var description = method.GetDescription() ?? type.GetDescription() ?? type.Name;
-            item.Title = description;
+            ExtensionRI ri = FindRI(item);
+            if (ri != null)
+                item.Title = ri.GetDescription();
         }
+
+        private ExtensionRI FindRI(ExtensionItem item)
+        {
+            var a = LoadAssembly(item);
+            if (a == null)
+                return null;
+            return new ExtensionRI(a, item.ClassName);
+        }
+
         public void SetArgumentFromClass(ExtensionItem item)
         {
             item.ArgumentTitle = null;
             //if (!string.IsNullOrEmpty(item.Argument))
             //    return;
-            var (_, type) = FindExtensionMethod(item, throwIfNotFound: false);
-            if (type == null)
-                return;
-            var pi = ExtensionObject.FindArgumentProperty(type);
-            if (pi.propertyInfo == null) return;
+            var ri = FindRI(item);
+            if (ri == null) return;
+            var ap = ri.FindArgumentProperty();
+            if (ap.propertyInfo == null) return;
             //item.Argument = "?";
-            item.ArgumentTitle = pi.description;
+            item.ArgumentTitle = ap.description;
         }
 
-        private (MethodInfo method, Type type) FindExtensionMethod(ExtensionItem item, bool throwIfNotFound)
+        public Assembly LoadAssembly(ExtensionItem item)
         {
             if (String.IsNullOrEmpty(item.DllPath))
-                return default;
+                return null;
             var assembly = LoadVersionedAssembly(GetRealPath(item.DllPath));
-            if (assembly == null)
-                return default;
-            return ExtensionObject.FindExtensionMethod(assembly, item.ClassName, throwIfNotFound);
+            return assembly;
         }
 
         public bool CompileIfNeeded(ExtensionItem item)
@@ -239,25 +243,29 @@ namespace SolutionExtensions
             if (argument != null && argument.StartsWith("?"))
             {
                 argument = argument.TrimStart('?');
-                var (_, type) = FindExtensionMethod(item, throwIfNotFound: false);
-                var prompt = "Enter argument value";
-                if (type != null)
+                var ri = FindRI(item);
+                if (ri != null)
                 {
-                    var pi = ExtensionObject.FindArgumentProperty(type);
-                    prompt = pi.description ?? prompt;
-                    if (String.IsNullOrEmpty(argument))
-                        argument = pi.defaultValue + "";
+                    var prompt = "Enter argument value";
+                    if (ri.Type != null)
+                    {
+                        var ai = ri.FindArgumentProperty();
+                        prompt = ai.description ?? prompt;
+                        if (String.IsNullOrEmpty(argument))
+                            argument = ai.defaultValue + "";
+                    }
+                    if (!TextInputDialog.Show(item.Title, prompt, argument, out argument))
+                        return false;
                 }
-                if (!TextInputDialog.Show(item.Title, prompt, argument, out argument))
-                    return false;
             }
             return true;
         }
         public void RunExtension(ExtensionItem item, string argument)
         {
             var dte = package.GetService<DTE, DTE>();
-            var (method, type) = FindExtensionMethod(item, throwIfNotFound: true);
-            ExtensionObject.RunExtension(type, method, dte, package, argument);
+            var ri = FindRI(item);
+            if (ri != null) throw new InvalidOperationException($"Invalid Reflection information of item");
+            ExtensionObject.RunExtension(ri, dte, package, argument);
         }
 
         public bool IsDllPathInSolutionScope(ExtensionItem item)
@@ -296,20 +304,20 @@ namespace SolutionExtensions
         }
         public CheckResult CheckItemCode(ExtensionItem item)
         {
-            var (method, type) = FindExtensionMethod(item, throwIfNotFound: false);
-            if (type == null)
+            var ri = FindRI(item);
+            if (ri == null)
                 return CheckResult.ClassNotFound;
-            if (method == null)
+            if (ri.Type == null)
+                return CheckResult.ClassNotFound;
+            if (ri.RunMethod == null)
                 return CheckResult.RunMethodNotFound;
             if (!string.IsNullOrEmpty(item.Argument))
             {
-                var pi = ExtensionObject.FindArgumentProperty(type);
-                if (pi.propertyInfo == null)
+                var ai = ri.FindArgumentProperty();
+                if (ai.propertyInfo == null)
                     return CheckResult.ArgumentPropertyNotFound;
             }
             return CheckResult.Ok;
         }
-
     }
-
 }

@@ -1,12 +1,16 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Windows.Media.Media3D;
 
 namespace SolutionExtensions.Model
 {
     public static class ExtensionsSerialization
     {
         public const string URL = "https://marketplace.visualstudio.com/items?itemName=JanStuchlik.SolutionExtensions2";
+        private const string COMMENT = "#";
+        private const string FILEDEP = "->";
+
         public static void LoadFromFile(ExtensionsModel target, string filePath)
         {
             using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
@@ -17,8 +21,15 @@ namespace SolutionExtensions.Model
                     while (!sr.EndOfStream)
                     {
                         var line = sr.ReadLine().Trim();
-                        if (line.StartsWith("#") || string.IsNullOrWhiteSpace(line))
+                        if (line.StartsWith(COMMENT) || string.IsNullOrWhiteSpace(line))
                             continue;
+                        if (line.StartsWith(FILEDEP))
+                        {
+                            if (target.Extensions.LastOrDefault() == null)
+                                continue;
+                            target.Extensions.Last().Files.Add(line.Substring(2));
+                            continue;
+                        }
                         var item = LoadItem(line);
                         if (item != null)
                             target.Extensions.Add(item);
@@ -82,7 +93,13 @@ namespace SolutionExtensions.Model
         private static void SaveItem(StreamWriter sw, ExtensionItem item)
         {
             sw.WriteLine($"{item.Title}|{item.ShortCutKey}|{item.ClassName}|{item.DllPath}|{item.Argument}|{SaveFlags(item)}");
+            if (item.Files.Count > 0 && item.IsGenerator)
+            {
+                foreach (var f in item.Files)
+                {
+                    sw.WriteLine($"{FILEDEP}{f}");
+                }
+            }
         }
-
     }
 }

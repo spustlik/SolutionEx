@@ -1,102 +1,33 @@
 ﻿using EnvDTE;
+using SolutionExtensions.Reflector;
 using System;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using SolutionExtensions.Reflector;
 
 namespace SolutionExtensions
 {
+
     public static class ExtensionObject
     {
-        public static (MethodInfo method, Type type) FindExtensionMethod(
-            Assembly assembly, string className, bool throwIfNotFound = false)
-        {
-            var type = String.IsNullOrEmpty(className) ? null : assembly.GetType(className);
-            if (type == null)
-            {
-                if (throwIfNotFound)
-                    throw new InvalidOperationException($"Class {className} not found in assembly {assembly.FullName}");
-                return (method: null, type: null);
-            }
-            var method = type.GetMethods().FirstOrDefault(m => IsRunMethod(m));
-            if (method == null)
-            {
-                if (throwIfNotFound)
-                    throw new InvalidOperationException($"Class {className} does not have a valid Run method.\n{DumpType(type)}");
-                return (method: null, type);
-            }
-            return (method, type);
-        }
 
-        private static string DumpType(Type type)
+        public static void RunExtension(ExtensionRI ri, DTE dte, object package, string argument)
         {
-            var sb = new StringBuilder();
-            sb.AppendLine($"Type {type.FullName} in {type.Assembly.Location}");
-            sb.AppendLine($"Methods:");
-            foreach (var mi in type.GetMethods()
-                .OrderBy(mi => IsRunMethod(mi))
-                .ThenBy(mi => mi.Name))
-            {
-                sb.Append($"{mi.Name}(");
-                var parameters = mi.GetParameters();
-                for (int i = 0; i < parameters.Length; i++)
-                {
-                    if (i != 0) sb.Append(", ");
-                    var pi = parameters[i];
-                    sb.Append($"{pi.ParameterType.FullName} {pi.Name}");
-                    sb.Append($"/* isDTE:{IsDTE(pi)} */");
-                }
-                sb.AppendLine($") (check:{IsRunMethod(mi)})");
-            }
-            return sb.ToString();
-        }
-
-        public static bool IsExtensionClass(Type t)
-        {
-            return t.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly).Any(m => IsRunMethod(m));
-        }
-
-        public static bool IsRunMethod(MethodInfo m)
-        {
-            return m.Name == "Run" &&
-                m.GetParameters().Length >= 1 &&
-                IsDTE(m.GetParameters()[0]);
-        }
-        public static (PropertyInfo propertyInfo, string description, object defaultValue) FindArgumentProperty(Type type)
-        {
-            var propertyInfo = type.GetProperty("Argument");
-            var defaultValue = propertyInfo?.GetCustomAttribute<DefaultValueAttribute>()?.Value;
-            var description = propertyInfo?.GetDescription();
-            return (propertyInfo, description, defaultValue);
-        }
-        private static bool IsDTE(ParameterInfo pi)
-        {
-            if (typeof(DTE).IsAssignableFrom(pi.ParameterType))
-                return true;//not working when used in launcher, possible another envdte.dll (merged)
-            if (pi.ParameterType.GUID == typeof(DTE).GUID)
-                return true;
-            if (pi.ParameterType.GetInterfaces().Any(i => i.GUID == typeof(DTE).GUID))
-                return true;
-            return false;
-        }
-
-        public static void RunExtension(Type type, MethodInfo method, DTE dte, object package, string argument)
-        {
+            var method = ri.RunMethod;
             //var (method, type) = FindExtensionMethod(assembly, className, throwIfNotFound: true);
             var parameters = new object[method.GetParameters().Length];
             parameters[0] = dte;
             if (parameters.Length > 1)
                 parameters[1] = package;
-            var instance = method.IsStatic ? null : Activator.CreateInstance(type);
+            var instance = method.IsStatic ? null : Activator.CreateInstance(ri.Type);
             if (!string.IsNullOrEmpty(argument))
             {
-                var (pi, _, _) = FindArgumentProperty(type);
-                if (pi == null) throw new Exception($"Missing Argument property on '{type.Name}'");
-                var argValue = Convert.ChangeType(argument, pi.PropertyType);
-                pi.SetValue(instance, argValue);
+                var ai = ri.FindArgumentProperty();
+                if (ai.propertyInfo == null) throw new Exception($"Missing Argument property on '{ri.Type.Name}'");
+                var argValue = Convert.ChangeType(argument, ai.propertyInfo.PropertyType);
+                ai.propertyInfo.SetValue(instance, argValue);
             }
             try
             {
@@ -110,7 +41,7 @@ namespace SolutionExtensions
 
         public static string[] GetExtensionClassNames(Assembly assembly)
         {
-            return assembly.GetTypes().Where(t => IsExtensionClass(t)).Select(t => t.FullName).ToArray();
+            return assembly.GetTypes().Where(t => ExtensionRI.IsExtensionClass(t)).Select(t => t.FullName).ToArray();
         }
         public static Assembly LoadVersionedAssembly(string dllPath)
         {
@@ -169,5 +100,129 @@ namespace SolutionExtensions
                 return true;
             }
         }
+
+    }
+
+    /// <summary>
+    /// reflection info of extension
+    /// </summary>
+    public class ExtensionRI
+    {
+        // void Run(DTE dte, object package?)
+        public const string RUN_METHOD = "Run";
+        // string Generate(DTE dte, string input, string inputFileName, string ns)
+        public const string GENERATE_METHOD = "Generate";
+        private Assembly assembly;
+        private string className;
+        private Type type;
+
+        public bool ThrowIfNotFound { get; set; } = false;
+
+        public ExtensionRI(Assembly assembly, string className)
+        {
+            this.assembly = assembly;
+            this.className = className;
+        }
+        public Type Type
+        {
+            get
+            {
+                var type = String.IsNullOrEmpty(className) ? null : assembly.GetType(className);
+                if (type == null)
+                {
+                    if (ThrowIfNotFound)
+                        throw new InvalidOperationException($"Class {className} not found in assembly {assembly.FullName}");
+                }
+                return type;
+            }
+        }
+
+        public string GetDescription()
+        {
+            var mi = GetMethod(IsKnownMethod);
+            if (mi == null)
+                return null;
+            return mi.GetDescription() ??
+                Type.GetDescription() ??
+                Type.Name;
+        }
+
+        public MethodInfo RunMethod => GetMethod(IsRunMethod);
+        private MethodInfo GetMethod(Func<MethodInfo, bool> find)
+        {
+            var methods = Type.GetMethods();
+            var method = methods.FirstOrDefault(m => find(m));
+            if (method == null && ThrowIfNotFound)
+                throw new InvalidOperationException($"Class {className} does not have a valid extension method.\n{DumpType(type)}");
+            return method;
+        }
+
+        public (PropertyInfo propertyInfo, string description, object defaultValue) FindArgumentProperty()
+        {
+            var propertyInfo = Type.GetProperty("Argument");
+            var defaultValue = propertyInfo?.GetCustomAttribute<DefaultValueAttribute>()?.Value;
+            var description = propertyInfo?.GetDescription();
+            return (propertyInfo, description, defaultValue);
+        }
+
+        private static string DumpType(Type type)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine($"Type {type.FullName} in {type.Assembly.Location}");
+            sb.AppendLine($"Methods:");
+            foreach (var mi in type.GetMethods()
+                .OrderBy(mi => IsKnownMethod(mi))
+                .ThenBy(mi => mi.Name))
+            {
+                sb.Append($"{mi.Name}(");
+                var parameters = mi.GetParameters();
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    if (i != 0) sb.Append(", ");
+                    var pi = parameters[i];
+                    sb.Append($"{pi.ParameterType.FullName} {pi.Name}");
+                    sb.Append($"/* isDTE:{IsDTEParameter(pi)} */");
+                }
+                sb.AppendLine($") (check:{IsKnownMethod(mi)})");
+            }
+            return sb.ToString();
+        }
+
+        public static bool IsExtensionClass(Type type)
+        {
+            return type
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)
+                .Any(m => IsKnownMethod(m));
+        }
+        public static bool IsKnownMethod(MethodInfo m)
+        {
+            return IsRunMethod(m) || IsGenerateMethod(m);
+        }
+
+        public static bool IsRunMethod(MethodInfo m)
+        {
+            return m.Name == RUN_METHOD &&
+                m.GetParameters().Length >= 1 &&
+                IsDTEParameter(m.GetParameters()[0]);
+        }
+        private static bool IsGenerateMethod(MethodInfo m)
+        {
+            return m.Name == GENERATE_METHOD &&
+                m.GetParameters().Length >= 1 &&
+                IsDTEParameter(m.GetParameters()[0]);
+        }
+
+        private static bool IsDTEParameter(ParameterInfo pi)
+        {
+            if (typeof(DTE).IsAssignableFrom(pi.ParameterType))
+                return true;//not working when used in launcher, possible another envdte.dll (merged)
+            if (pi.ParameterType.GUID == typeof(DTE).GUID)
+                return true;
+            if (pi.ParameterType.GetInterfaces().Any(i => i.GUID == typeof(DTE).GUID))
+                return true;
+            return false;
+        }
+
+
     }
 }

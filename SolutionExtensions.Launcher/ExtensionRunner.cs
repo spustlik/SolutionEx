@@ -6,17 +6,15 @@ namespace SolutionExtensions.Launcher
 {
     public class ExtensionRunner
     {
-        private readonly Type type;
-        private readonly MethodInfo method;
+        private readonly ExtensionRI ri;
         private readonly EnvDTE.DTE dte;
         private readonly object package;
         private readonly string argument;
         private readonly bool breakDebugger;
 
-        public ExtensionRunner(Type type, MethodInfo method, EnvDTE.DTE dte, object package, string argument, bool breakDebugger)
+        public ExtensionRunner(ExtensionRI ri, EnvDTE.DTE dte, object package, string argument, bool breakDebugger)
         {
-            this.type = type;
-            this.method = method;
+            this.ri = ri;
             this.dte = dte;
             this.package = package;
             this.argument = argument;
@@ -31,7 +29,7 @@ namespace SolutionExtensions.Launcher
         {
             if (breakDebugger)
                 Debugger.Break();
-            ExtensionObject.RunExtension(type, method, dte, package, argument);
+            ExtensionObject.RunExtension(ri, dte, package, argument);
         }
     }
 }

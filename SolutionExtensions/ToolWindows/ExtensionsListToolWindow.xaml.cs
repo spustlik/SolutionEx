@@ -1,4 +1,5 @@
 ﻿using EnvDTE;
+using Microsoft.Build.Framework.XamlTypes;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.Win32;
 using SolutionExtensions.ColorDump;
@@ -6,8 +7,11 @@ using SolutionExtensions.Model;
 using SolutionExtensions.UI;
 using SolutionExtensions.UI.Extensions;
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.IO.Packaging;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Windows;
@@ -39,6 +43,7 @@ namespace SolutionExtensions.ToolWindows
             list.ViewModel.AddMenuItem("Sync to VS", SyncToDte_Click);
             list.ViewModel.AddMenuItem("Save", Save_Click);
             list.ViewModel.AddMenuItem("Show colors", ShowColors_Click);
+            list.ViewModel.AddMenuItem("Set and run code generator", RunCodeGenerator_Click);
 #endif
         }
 
@@ -52,6 +57,70 @@ namespace SolutionExtensions.ToolWindows
             _ = this.Package.ShowToolWindowAsync(typeof(ReflectorToolWindowPane), 0, true, CancellationToken.None);
         }
 
+        #region debug methods
+        private void RunCodeGenerator_Click(object sender, RoutedEventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var item = (sender as FrameworkElement).DataContext as ExtensionItem ?? list.ViewModel.SelectedItem;
+            if (item == null)
+                return;
+            try
+            {
+                var dte = Package.GetService<DTE, DTE>();
+                if (dte.SelectedItems.Count <= 0)
+                    throw new Exception($"No item(s) selected");
+                var selected = dte.SelectedItems.Item(1).ProjectItem;
+                if (selected == null)
+                    throw new Exception($"Selected item is not ProjectItem");
+                var customTool = selected.Properties.Item("CustomTool").Value as string;
+                if (customTool != nameof(SolutionFileGenerator))
+                {
+                    Package.Log($"Adding custom tool to item");
+                    selected.Properties.Item("CustomTool").Value = nameof(SolutionFileGenerator);
+                }
+                const string PROP = "SolutionExtensionsProperty";
+                Package.Log($"{PROP}={selected.Properties.Item(PROP).Value}");
+                selected.Properties.Item(PROP).Value = "42";
+                Package.Log($"Running CustomTool");
+                dynamic o = selected.Object;
+                o.RunCustomTool();
+                //but here SFG needs to known what real generator to call
+                // without explicit info from code above
+
+                //so logic can be
+                // if clicking Run on Extension of Generator type,
+                // run custom tool
+                // it must get right generator from file name and call it
+                /*
+                Package.Log($"Running extension as custom tool generator on current DTE item, '{item.Title}' from {Path.GetFileName(item.DllPath)},{item.ClassName}");
+                if (ExtensionManager.CompileIfNeeded(item))
+                    Package.Log($"Extension recompiled");
+                var (method, type) = ExtensionManager.FindExtensionMethod(item, methodName: ExtensionObject.GENERATE_METHOD, throwIfNotFound: true);
+                var instance = method.IsStatic ? null : Activator.CreateInstance(type);
+                var parameters = new object[method.GetParameters().Length];
+                parameters[0] = dte;
+                parameters[1] = "filecontent";
+                parameters[2] = "filename";
+                parameters[3] = "namespace";
+                //instance? getProperty or field Extension
+                //(extension can be changed during generation?)
+                try
+                {
+                    var result = method.Invoke(instance, parameters);
+                }
+                catch (TargetInvocationException tex)
+                {
+                    throw tex.InnerException;
+                }
+                Package.Log($"Done.");
+                */
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private void ShowColors_Click(object sender, RoutedEventArgs e)
         {
             var w = new ColorWindow();
@@ -63,20 +132,20 @@ namespace SolutionExtensions.ToolWindows
             //await Task.Delay(1000);
             //await this.Package.ShowStatusBarAsync(null);
         }
-
         private void SyncToDte_Click(object sender, RoutedEventArgs e)
         {
             SyncToDTE();
-        }
-
-        private void Load_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            ExtensionManager.LoadFile(list.ViewModel.Model);
         }
         private void Save_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             ExtensionManager.SaveFile(list.ViewModel.Model);
         }
+        private void Load_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            ExtensionManager.LoadFile(list.ViewModel.Model);
+        }
+        #endregion 
+
 
         private void CheckAll_Click(object sender, RoutedEventArgs e)
         {

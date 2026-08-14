@@ -1,4 +1,9 @@
-﻿# Todo
+﻿### to deploy
+ * change AssemblyInfo.cs Version in SolutionExtensions
+ * change @Version in <Identity in solution.extension.vsixmanifest
+ * use publish.cmd to upload into market
+
+# Todo
  * [ ] nest file is not unnesting
  * [ ] some support of events 
     - in extension, some event handlers will be added
@@ -10,17 +15,34 @@
  * [ ] publish versioning
     - add or get version
     - manifest
-    - AssemblyInfo.cs (AssemlbyVersion), launcher, package
+    - AssemblyInfo.cs (AssemblyVersion), launcher, package
     
 ### Generator
 * custom tool in solution scope
-    * problem that IVsSingleFileGenerator returns extension without knowledge of source
+    * problem is that IVsSingleFileGenerator returns extension without knowledge of source
     * IVsSingleFileGeneratorFactory can be somehow used
     * idea: there can be configuration which sol-generator use on which file pattern
     * maybe can be somehow used T4generator
     * but there is problem with template tooling (no intelisense)
     * so lets try to use solution assembly for model and t4 only for generation
     * idea: xml file with xsd, where is confgured generator
+    * IVsSingleFileGenerator, IObjectWithSite will probably work
+     with current projektItem selection
+    * how to specify what extension run on file?
+        * Custom tool shold be set to SolutionFilegenerator
+        * Custom tool namespace?
+        * or specify cls+method in cfg?
+        * or another cfg? like webcompiler config
+        * need file->class.generator 
+        * now class->[shortcut]->run
+        * 
+    * AI: `ProjectItem.Object.RunCustomTool()`
+    * `ProjectItem.Properties.Item("CustomTool").Value = toolName;`
+    * req: 
+        * run if file changes
+        * run manually
+        * code method to run 
+        * not needed another reference that DTE
 
 ### Nest
 * in new versoin of VS2022 is file-nesting automated and configured

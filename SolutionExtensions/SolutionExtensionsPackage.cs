@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.TextTemplating.VSHost;
 using SolutionExtensions.Commands;
 using SolutionExtensions.Model;
 using SolutionExtensions.ToolWindows;
@@ -43,6 +44,13 @@ namespace SolutionExtensions
     [ProvideToolWindow(typeof(ToolWindows.ExtensionsListToolWindowPane))]
     [ProvideToolWindow(typeof(ToolWindows.ReflectorToolWindowPane))]
     [ComVisible(true)]
+    [CodeGeneratorRegistration(typeof(SolutionFileGenerator), 
+        nameof(SolutionFileGenerator),
+        SolutionExtensionsPackage.PackageGuidString, 
+        GeneratesDesignTimeSource = true)]
+    [ProvideObject(typeof(SolutionFileGenerator))]
+    //this is working, above not
+    [ProvideCodeGenerator(typeof(SolutionFileGenerator), nameof(SolutionFileGenerator), "Description of my generator", generatesDesignTimeSource: true)]
     public sealed class SolutionExtensionsPackage : AsyncPackage
     {
         /// <summary>

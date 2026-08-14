@@ -9,9 +9,11 @@ You can find new menu in `Extensions` -> `Solution Extensions` ->
 
 ## Writing extension
 Your extension is just compiled assembly and should be in your solution. 
-* create new class library
+
+### Create new class library
 * add nuget package `Microsoft.VisualStudio.Interop` to reference DTE interfaces
-* create class with `Run` method (can be static)
+* add new class
+* add `Run` method (can be static)
 ```c#
     public class MyExtension
     {
@@ -27,12 +29,15 @@ Your extension is just compiled assembly and should be in your solution.
 * config of extensions is saved next to solution file (.extensions.cfg) and can be added to solution/source control, so it is loaded on other machines and allows to run extensions for others
 * add your new extension, pick dll, choose class name, change title, add shortcut if you want
 * execute your extension using `Run` button, or assigned key shortcut, or using `Debug`
-### More
+
+
+### Add description
 * add `[Description("caption")]` attribute to Run method or class to allow inspection of caption
+
 ### Add argument
-* add public non-static property called `Argument`, 
+* add public non-static `string` property called `Argument`, 
 and config argument value of extension to parametrize your run
-* if argument starts with "?", user will be asked for it (with default value)
+* if argument ends with "?", user will be asked for it (with default value)
 * use `[Description]` attribute to use your caption in dialog
 * use `[DefaultValue]` attribute to set default value of argument
 
@@ -96,7 +101,7 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * generate mermaid diagrams for DTE https://mermaid.js.org/intro/syntax-reference.html
 * some rich ui like Task Dialog
 * more args?
-* some generator support
+* some file generator support
 
 #### Notes
 * Debugging
