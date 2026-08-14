@@ -176,17 +176,23 @@ namespace SolutionExtensions.Reflector
                     {
                         Index = index++,
                     };
-                    var obj = item;
-                    //if (realItemType != null)
-                    //    obj = ReflectionHelper.Cast(obj, realItemType);
-                    SetValue(node, obj, realItemType);
-                    if (realItemType != null)
-                    {
-                        node.CanExpandInterfaces = true;
-                        var s = String.Join(", ", defProps.Select(pi => $"{pi.Name} = {pi.GetValue(obj)}"));
-                        node.ItemText = s;
-                    }
                     parent.Children.Add(node);
+                    try
+                    {
+                        var obj = item;
+                        //if (realItemType != null)
+                        //    obj = ReflectionHelper.Cast(obj, realItemType);
+                        SetValue(node, obj, realItemType);
+                        if (realItemType != null)
+                        {
+                            node.CanExpandInterfaces = true;
+                            node.ItemText = GetSafePropsText(defProps, obj);
+                        }
+                    }
+                    catch (Exception exp) 
+                    {
+                        AddError(node, exp);
+                    }
                 }
             }
             catch (Exception ex)
@@ -194,6 +200,23 @@ namespace SolutionExtensions.Reflector
                 AddError(parent, ex);
             }
         }
+
+        private string GetSafePropsText(IEnumerable<PropertyInfo> defProps, object obj)
+        {
+            var s = new List<string>();
+            foreach (var pi in defProps) {
+                try
+                {
+                    var value = pi.GetValue(obj);
+                    s.Add($"{pi.Name} = {value}");
+                }
+                catch { 
+                    //ignore not implemented/supported errors
+                }
+            }
+            return String.Join(", ", s);            
+        }
+
         public void ExpandInterfaces(ReflectorTypeNode parent)
         {
             if (!parent.CanExpandInterfaces)
@@ -242,6 +265,7 @@ namespace SolutionExtensions.Reflector
         }
         public void AddError(ReflectorNode node, Exception ex)
         {
+            //TODO: this is not visible for now
             if (!string.IsNullOrEmpty(node.Error))
             {
                 node.Error += "\n";
