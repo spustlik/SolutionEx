@@ -148,6 +148,7 @@ namespace SolutionExtensions
         }
 
         public MethodInfo RunMethod => GetMethod(IsRunMethod);
+        public MethodInfo GenerateMethod => GetMethod(IsGenerateMethod);
         private MethodInfo GetMethod(Func<MethodInfo, bool> find)
         {
             var methods = Type.GetMethods();

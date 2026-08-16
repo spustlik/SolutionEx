@@ -8,11 +8,12 @@
     <OutputType>library</OutputType>
     <RootNamespace>SolutionExtensions.UI</RootNamespace>
     <AssemblyName>SolutionExtensions.UI</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -75,6 +76,7 @@
     <Compile Include="Themes\ThemeKeys.cs" />
     <Compile Include="ThrottleTimer.cs" />
     <Compile Include="WpfExtensions.cs" />
+    <Compile Include="_DesignData\SampleData.cs" />
     <Page Include="Extensions\ExtensionsListControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -97,14 +99,8 @@
     </Page>
     <Page Include="_DesignData\ExtensionVM.xaml">
       <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
-    <DesignData Include="_DesignData\sampleVM.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </DesignData>
     <Page Include="_DesignData\ReflectorVM.xaml">
-      <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
@@ -121,6 +117,7 @@
     <None Include="..\SolutionExtensions\Key.snk">
       <Link>Key.snk</Link>
     </None>
+    <None Include="_DesignData\_readme.md" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

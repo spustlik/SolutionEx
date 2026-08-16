@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SolutionExtensions": {
+      "commandName": "VsixDebugger",
+      "commandLineArgs": "SampleSol/ClassLibrary1.sln"
+    }
+  }
+}

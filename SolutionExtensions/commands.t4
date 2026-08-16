@@ -12,11 +12,11 @@
 <#@ assembly name="System.Xml.Linq"#>
 <#@ import namespace="System.Xml.Linq" #>
 <#
-	//TextTemplatingFilePreprocessor vs TextTemplatingFileGenerator
-
+	//TextTemplatingFilePreprocessor vs TextTemplatingFileGenerator ss
+	
 	//WARNING: result file must have Compile property set to VSCTCompile
 	//AND: set <ResourceName>Menus.ctmenu</ResourceName> to result vstc file manually in csproj
-	GetDTE();    
+	GetDTE();
 
 	var package = "guidSEPkg";
 	var cmdSetGuid = "{7a30b1a0-c6bb-41ee-a9b4-f15017e2fee5}";

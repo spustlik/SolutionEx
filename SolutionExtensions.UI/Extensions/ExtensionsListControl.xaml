@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:model="clr-namespace:SolutionExtensions.Model"
              xmlns:local="clr-namespace:SolutionExtensions.UI.Extensions"
-             xmlns:conv="clr-namespace:SolutionExtensions.UI"
+             xmlns:ui="clr-namespace:SolutionExtensions.UI"
              xmlns:themes="clr-namespace:SolutionExtensions.UI.Themes"
              xmlns:cmt="uri:comments"
              mc:Ignorable="d cmt" 
@@ -13,10 +13,10 @@
     <Grid>
         <Grid.Resources>
             <BooleanToVisibilityConverter x:Key="boolToVisi"/>
-            <conv:NegatedBooleanToVisibilityConverter x:Key="notBoolToVisi"/>
-            <conv:EmptyConverter x:Key="notEmptyToVisi" Inner="{StaticResource boolToVisi}" Negate="True"/>
-            <conv:EmptyConverter x:Key="emptyToVisi" Inner="{StaticResource boolToVisi}"/>
-            <conv:EmptyConverter x:Key="notEmpty" Negate="True"/>
+            <ui:NegatedBooleanToVisibilityConverter x:Key="notBoolToVisi"/>
+            <ui:EmptyConverter x:Key="notEmptyToVisi" Inner="{StaticResource boolToVisi}" Negate="True"/>
+            <ui:EmptyConverter x:Key="emptyToVisi" Inner="{StaticResource boolToVisi}"/>
+            <ui:EmptyConverter x:Key="notEmpty" Negate="True"/>
             <Style x:Key="mover" TargetType="Control">
                 <Setter Property="VerticalAlignment" Value="Stretch"/>
                 <Setter Property="Template">
@@ -54,14 +54,18 @@
                             </Grid.RowDefinitions>
 
                             <StackPanel Grid.Row="0" Orientation="Horizontal">
-                                <Border VerticalAlignment="Stretch" Width="25" ToolTip="Generator"
-                                        Visibility="{Binding IsGenerator, Converter={StaticResource boolToVisi}}"
-                                        >
+                                <!--G -->
+                                <Border VerticalAlignment="Stretch" ToolTip="Generator"
+                                        Visibility="{Binding IsGenerator, Converter={StaticResource boolToVisi}}">
                                     <Border BorderBrush="{Binding Foreground, ElementName=text}" 
-                                            BorderThickness="1" CornerRadius="5" Margin="2" >
-                                        <TextBlock FontSize="14" FontWeight="Bold"  HorizontalAlignment="Center" VerticalAlignment="Center">G</TextBlock>
+                                            BorderThickness="1" CornerRadius="0" >
+                                        <TextBlock Padding="5,0" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                   FontSize="10" FontWeight="Bold">
+                                            <Run>G</Run>
+                                        </TextBlock>
                                     </Border>
                                 </Border>
+                                <!-- /G -->
                                 <Label FontWeight="Bold" Content="{Binding Title}" Padding="3,0"/>
                                 <Label Content="(no name)" Visibility="{Binding Title, Converter={StaticResource emptyToVisi}}"/>
                                 <ContentControl Visibility="{Binding IsGenerator, Converter={StaticResource notBoolToVisi}}">
@@ -155,8 +159,10 @@
                  ItemsSource="{Binding Model.Extensions}" 
                  SelectedItem="{Binding SelectedItem}"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                 ItemTemplate="{StaticResource extensionItemTemplate}" 
-                 d:ItemsSource="{d:SampleData ItemCount=3}"
+                 ItemTemplate="{StaticResource extensionItemTemplate}"
+                 cmt:ItemsSource2="{d:DesignData /_DesignData/ExtensionVM.xaml}"
+                 d:ItemsSource="{x:Static ui:SampleData.Extensions}"
+                 cmt:ItemsSource="{d:SampleData ItemCount=3}"
                  >
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
@@ -208,15 +214,18 @@
                 <TextBlock Style="{StaticResource textValidation}" Padding="2" Visibility="{Binding ValidationMessage,Converter={StaticResource notEmptyToVisi}}"><Run>⚠</Run><Run Text="{Binding ValidationMessage}"></Run></TextBlock>
                 <Label Content="Title 🛈" ToolTip="Just title of extension for menu and list."/>
                 <TextBox Text="{Binding SelectedItem.Title, UpdateSourceTrigger=PropertyChanged}"/>
-                <Label Content="Key Shortcut 🛈" ToolTip="If you want to use key gesture, use comma ',' separator. Or use ';' to allow more options. "/>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBox Text="{Binding SelectedItem.ShortCutKey, UpdateSourceTrigger=PropertyChanged}"/>
-                    <TextBox Grid.Column="1" Text="&lt;Press key here&gt;" KeyDown="Shortcut_KeyDown" PreviewKeyDown="Shortcut_KeyDown"/>
-                </Grid>
+                <StackPanel 
+                    Visibility="{Binding SelectedItem.IsGenerator, Converter={StaticResource notBoolToVisi}}">
+                        <Label Content="Key Shortcut 🛈" ToolTip="If you want to use key gesture, use comma ',' separator. Or use ';' to allow more options. "/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Text="{Binding SelectedItem.ShortCutKey, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBox Grid.Column="1" Text="&lt;Press key here&gt;" KeyDown="Shortcut_KeyDown" PreviewKeyDown="Shortcut_KeyDown"/>
+                        </Grid>
+                </StackPanel>
                 <Label Content="DLL Path 🛈" ToolTip="You can use $(SolutionDir),$(Self) or any environment variable like %APP_MY_PATH%."/>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -230,36 +239,39 @@
                 </Grid>
                 <Label Content="Class Name 🛈" ToolTip="Pick class name with Run method"/>
                 <ComboBox IsEditable="True" IsTextSearchEnabled="True" DropDownOpened="PickClass_Opened" Text="{Binding SelectedItem.ClassName}" />
-                <Label ToolTip="Argument property will be set with this value, or user will be asked for it.">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Visibility="{Binding SelectedItem.ArgumentTitle, Converter={StaticResource notEmptyToVisi}}">
-                            <Run Text="{Binding SelectedItem.ArgumentTitle}"/>
-                            <Run Text=" (argument)" FontWeight="Normal"/>
-                        </TextBlock>
-                        <TextBlock Text="Argument" Visibility="{Binding SelectedItem.ArgumentTitle, Converter={StaticResource emptyToVisi}}"/>
-                        <TextBlock Text=" 🛈"/>
-                    </StackPanel>
-                </Label>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBox Text="{Binding SelectedItem.Argument, UpdateSourceTrigger=PropertyChanged}"/>
-                    <Button Grid.Column="1" Margin="2,0,0,0" Click="ArgumentAsk_Click" ToolTip="Ask for argument when executing">
-                        <Path SnapsToDevicePixels="True" 
+                <StackPanel
+                    Visibility="{Binding SelectedItem.IsGenerator, Converter={StaticResource notBoolToVisi}}">
+                    <Label ToolTip="Argument property will be set with this value, or user will be asked for it.">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Visibility="{Binding SelectedItem.ArgumentTitle, Converter={StaticResource notEmptyToVisi}}">
+                                <Run Text="{Binding SelectedItem.ArgumentTitle}"/>
+                                <Run Text=" (argument)" FontWeight="Normal"/>
+                            </TextBlock>
+                            <TextBlock Text="Argument" Visibility="{Binding SelectedItem.ArgumentTitle, Converter={StaticResource emptyToVisi}}"/>
+                            <TextBlock Text=" 🛈"/>
+                        </StackPanel>
+                    </Label>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Text="{Binding SelectedItem.Argument, UpdateSourceTrigger=PropertyChanged}"/>
+                        <Button Grid.Column="1" Margin="2,0,0,0" Click="ArgumentAsk_Click" ToolTip="Ask for argument when executing">
+                            <Path SnapsToDevicePixels="True" 
                               Data="M0,0 L10,0 M0,1 L10,1 M0,2 L10,2 M0,0 L10,0 L10,10 0,10z" 
                               Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
                               />
-                    </Button>
-                </Grid>
-                <Label Content="Options"/>
-                <StackPanel Orientation="Horizontal" Margin="10,3,0,0">
-                    <CheckBox IsChecked="{Binding SelectedItem.OutOfProcess}" Content="Out of process 🛈" ToolTip="Extension is executed using anothe process, so all dlls are always reloaded and not locked."/>
-                    <FrameworkElement Width="15"/>
-                    <CheckBox IsChecked="{Binding SelectedItem.CompileBeforeRun}" Content="Compile 🛈" ToolTip="Before Running extension, it will be tried to compile containing project. Disable to make it faster."/>
-                    <FrameworkElement Width="15"/>
+                        </Button>
+                    </Grid>
                 </StackPanel>
+                <Label Content="Options"/>
+                        <StackPanel Orientation="Horizontal" Margin="10,3,0,0">
+                            <CheckBox IsChecked="{Binding SelectedItem.OutOfProcess}" Content="Out of process 🛈" ToolTip="Extension is executed using anothe process, so all dlls are always reloaded and not locked."/>
+                            <FrameworkElement Width="15"/>
+                            <CheckBox IsChecked="{Binding SelectedItem.CompileBeforeRun}" Content="Compile 🛈" ToolTip="Before Running extension, it will be tried to compile containing project. Disable to make it faster."/>
+                            <FrameworkElement Width="15"/>
+                        </StackPanel>
             </StackPanel>
         </StackPanel>
     </Grid>

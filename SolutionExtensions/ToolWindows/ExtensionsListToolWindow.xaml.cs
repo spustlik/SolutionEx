@@ -37,6 +37,7 @@ namespace SolutionExtensions.ToolWindows
             list.ViewModel.AddMenuItem("Add new extension project to solution", AddProj_Click);
             list.ViewModel.AddMenuItem("Add config as solution item", AddConfig_Click);
             list.ViewModel.AddMenuItem("Validate all extensions", CheckAll_Click);
+            list.ViewModel.AddMenuItem("Assign selected file(s) to generator", AssignToGenerator_Click);
 #if DEBUG
             //<Separator/>
             list.ViewModel.AddMenuItem("Reload", Load_Click);
@@ -57,6 +58,19 @@ namespace SolutionExtensions.ToolWindows
             _ = this.Package.ShowToolWindowAsync(typeof(ReflectorToolWindowPane), 0, true, CancellationToken.None);
         }
 
+        private void AssignToGenerator_Click(object sender, RoutedEventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var item = (sender as FrameworkElement).DataContext as ExtensionItem ?? list.ViewModel.SelectedItem;
+            if (item == null)
+                return;
+            if (!item.IsGenerator)
+                throw new Exception($"Selected extension is not generator");
+            var dte = Package.GetService<DTE, DTE>();
+            if (dte.SelectedItems.Count <= 0)
+                throw new Exception($"No item(s) selected");
+
+        }
         #region debug methods
         private void RunCodeGenerator_Click(object sender, RoutedEventArgs e)
         {
@@ -232,8 +246,7 @@ namespace SolutionExtensions.ToolWindows
         //------------
         void IExtensionsService.UpdateItemFromDll(ExtensionItem item)
         {
-            ExtensionManager.SetItemTitleFromMethod(item);
-            ExtensionManager.SetArgumentFromClass(item);
+            ExtensionManager.UpdateItemFromDll(item);
         }
 
         void IExtensionsService.Save(ExtensionsModel model)
@@ -306,8 +319,8 @@ namespace SolutionExtensions.ToolWindows
             {
                 case ExtensionManager.CheckResult.ClassNotFound:
                     return $"Class '{item.ClassName}' not found in DLL";
-                case ExtensionManager.CheckResult.RunMethodNotFound:
-                    return $"Class '{item.ClassName}' must have 'Run' method";
+                case ExtensionManager.CheckResult.MethodNotFound:
+                    return $"Class '{item.ClassName}' must have 'Run' or 'Generate' method";
                 case ExtensionManager.CheckResult.ArgumentPropertyNotFound:
                     return $"Class '{item.ClassName}' should have 'Argument' property";
             }

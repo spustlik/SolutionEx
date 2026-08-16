@@ -4,7 +4,7 @@
     
     >
     <local:ReflectorVM.Children>
-        <local:ReflectorRoot x:Name="root">
+        <local:ReflectorRoot x:Name="root" RootType="Test">
             <local:ReflectorRoot.Children>
                 <local:ReflectorMethod MethodName="method" Signature="void method(string msg)"/>
             </local:ReflectorRoot.Children>

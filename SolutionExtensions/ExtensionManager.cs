@@ -166,15 +166,6 @@ namespace SolutionExtensions
         private Lazy<Assembly> _selfAssembly = new Lazy<Assembly>(() => typeof(CreateGUID).Assembly);
         public Assembly SelfAssembly => _selfAssembly.Value;
 
-        public void SetItemTitleFromMethod(ExtensionItem item)
-        {
-            if (!String.IsNullOrEmpty(item.Title))
-                return;
-            ExtensionRI ri = FindRI(item);
-            if (ri != null)
-                item.Title = ri.GetDescription();
-        }
-
         private ExtensionRI FindRI(ExtensionItem item)
         {
             var a = LoadAssembly(item);
@@ -183,16 +174,16 @@ namespace SolutionExtensions
             return new ExtensionRI(a, item.ClassName);
         }
 
-        public void SetArgumentFromClass(ExtensionItem item)
+        public void UpdateItemFromDll(ExtensionItem item)
         {
             item.ArgumentTitle = null;
-            //if (!string.IsNullOrEmpty(item.Argument))
-            //    return;
-            var ri = FindRI(item);
-            if (ri == null) return;
+            ExtensionRI ri = FindRI(item);
+            if (ri == null || ri.Type == null) return;
+            item.IsGenerator = ri.GenerateMethod != null;
+            if (String.IsNullOrEmpty(item.Title))            
+                item.Title = ri.GetDescription();
             var ap = ri.FindArgumentProperty();
             if (ap.propertyInfo == null) return;
-            //item.Argument = "?";
             item.ArgumentTitle = ap.description;
         }
 
@@ -299,7 +290,7 @@ namespace SolutionExtensions
         {
             Ok,
             ClassNotFound,
-            RunMethodNotFound,
+            MethodNotFound,
             ArgumentPropertyNotFound,
         }
         public CheckResult CheckItemCode(ExtensionItem item)
@@ -309,8 +300,8 @@ namespace SolutionExtensions
                 return CheckResult.ClassNotFound;
             if (ri.Type == null)
                 return CheckResult.ClassNotFound;
-            if (ri.RunMethod == null)
-                return CheckResult.RunMethodNotFound;
+            if (ri.RunMethod == null && ri.GenerateMethod == null)
+                return CheckResult.MethodNotFound;
             if (!string.IsNullOrEmpty(item.Argument))
             {
                 var ai = ri.FindArgumentProperty();
@@ -319,5 +310,6 @@ namespace SolutionExtensions
             }
             return CheckResult.Ok;
         }
+
     }
 }

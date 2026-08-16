@@ -94,6 +94,7 @@ namespace SolutionExtensions.Model
         {
             yield return (name: nameof(OutOfProcess), OutOfProcess, (v) => OutOfProcess = v); ;
             yield return (name: nameof(CompileBeforeRun), CompileBeforeRun, (v) => CompileBeforeRun = v); ;
+            yield return (name: "Generator", IsGenerator, (v) => IsGenerator= v); ;
         }
 
         public IEnumerable<string> GetFlags() => GetFlagInfo().Where(fi => fi.value).Select(fi => fi.name);
@@ -105,18 +106,18 @@ namespace SolutionExtensions.Model
         protected override void DoPropertyChanged(string propertyName)
         {
             base.DoPropertyChanged(propertyName);
-            const string GEN = "GEN";
-            if (propertyName == nameof(ShortCutKey))
-            {
-                IsGenerator = ShortCutKey == GEN;
-            }
-            if (propertyName == nameof(IsGenerator))
-            {
-                if (IsGenerator)
-                    ShortCutKey = GEN;
-                else if (ShortCutKey == GEN)
-                    ShortCutKey = null;
-            }
+            //const string GEN = "GEN";
+            //if (propertyName == nameof(ShortCutKey))
+            //{
+            //    IsGenerator = ShortCutKey == GEN;
+            //}
+            //if (propertyName == nameof(IsGenerator))
+            //{
+            //    if (IsGenerator)
+            //        ShortCutKey = GEN;
+            //    else if (ShortCutKey == GEN)
+            //        ShortCutKey = null;
+            //}
         }
     }
 }

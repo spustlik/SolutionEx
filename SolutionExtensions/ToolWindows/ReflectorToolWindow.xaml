@@ -49,7 +49,7 @@
                         <MenuItem Header="DTE" Click="DumpDTE_Click"/>
                         <MenuItem Header="Active document" Click="DumpAD_Click"/>
                         <MenuItem Header="VSShell" Click="DumpVSShell_Click"/>
-                        <MenuItem Header="Debug" x:Name="debugMenuItem" Visibility="Collapsed">
+                        <MenuItem Header="Debug" x:Name="debugMenuItem" x:FieldModifier="private" Visibility="Collapsed">
                             <MenuItem Header="VS styles" Click="DumpVsStyles_Click"/>
                             <MenuItem Header="Tool windows" Click="DumpToolWindows_Click"/>
                             <MenuItem Header="Find package" Click="DumpPackage_Click"/>

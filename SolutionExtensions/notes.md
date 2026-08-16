@@ -3,6 +3,16 @@
  * change @Version in <Identity in solution.extension.vsixmanifest
  * use publish.cmd to upload into market
 
+### VS2026 debugging in Exp
+- on VSIX dll uncheck Create VSIX...
+- on VSIX dll check Deploy VSIX...
+- in exp check in Extension Manager 
+    - "Installed" 
+    - "Enabled"
+    - right version
+-> not working now, try to compare .csproj
+--> changed to SDK .csproj and working OK
+
 # Todo
  * [ ] nest file is not unnesting
  * [ ] some support of events 
