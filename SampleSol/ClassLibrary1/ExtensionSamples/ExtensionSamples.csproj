@@ -74,6 +74,7 @@
     </Compile>
     <Compile Include="ExperimentEvents.cs" />
     <Compile Include="Sample3.cs" />
+    <Compile Include="Sample5.cs" />
     <Compile Include="Sample4.cs" />
   </ItemGroup>
   <ItemGroup>

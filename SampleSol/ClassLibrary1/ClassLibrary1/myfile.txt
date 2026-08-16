@@ -1,0 +1,1 @@
+16.08.2026 21:21:03: from solution generator: input file D:\GitHub\SolutionEx\SampleSol\ClassLibrary1\ClassLibrary1\myfile.foo length 225, namespace ClassLibrary1

@@ -108,10 +108,13 @@ namespace SolutionExtensions
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var dte = package.GetService<DTE, DTE>();
-            var fn = $"{item.ClassName}.Run";
+            var methodName = item.IsGenerator ? "Generate" : "Run";
+            var fn = $"{item.ClassName}.{methodName}";
             //* FunctionName="ExtensionSamples.Sample1.Run(DTE dte, IServiceProvider package)" 
+#pragma warning disable VSTHRD010 
             return dte.Debugger.Breakpoints
                 .OfType<Breakpoint>().Any(b => b.FunctionName.StartsWith(fn));
+#pragma warning restore VSTHRD010 
             // TODO: somehow instruct debugger to break in method
         }
     }

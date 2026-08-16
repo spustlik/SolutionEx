@@ -5,11 +5,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Update="myfile.foo">
+    <None Update="Class1.html">
       <Generator>SolutionFileGenerator</Generator>
-      <LastGenOutput>myfile.oof</LastGenOutput>
+      <LastGenOutput>Class1.lmth</LastGenOutput>
     </None>
-    <None Update="myfile.oof">
+    <None Update="Class1.lmth">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Class1.html</DependentUpon>
+    </None>
+    <None Update="myfile.foo">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <Generator>SolutionFileGenerator</Generator>
+      <LastGenOutput>myfile.txt</LastGenOutput>
+    </None>
+    <None Update="myfile.txt">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>myfile.foo</DependentUpon>

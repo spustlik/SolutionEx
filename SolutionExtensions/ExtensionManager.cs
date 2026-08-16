@@ -2,12 +2,11 @@
 using EnvDTE80;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using SolutionExtensions.Extensions;
 using SolutionExtensions.Model;
-using SolutionExtensions.Reflector;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
@@ -124,6 +123,12 @@ namespace SolutionExtensions
         }
         public void SetDllPath(ExtensionItem item, string fileName)
         {
+            fileName = GetSolutionRelativePath(fileName);
+            item.DllPath = fileName;
+        }
+
+        public string GetSolutionRelativePath(string fileName)
+        {
             if (!fileName.Contains('%') && !fileName.Contains("$("))
             {
                 var solPath = Path.GetDirectoryName(GetSolutionFileName());
@@ -133,9 +138,9 @@ namespace SolutionExtensions
                     fileName = Path.Combine("$(SolutionDir)", relPath);
                 }
             }
-            item.DllPath = fileName;
-        }
 
+            return fileName;
+        }
 
         public string GetRealPath(string dllPath)
         {
@@ -180,7 +185,7 @@ namespace SolutionExtensions
             ExtensionRI ri = FindRI(item);
             if (ri == null || ri.Type == null) return;
             item.IsGenerator = ri.GenerateMethod != null;
-            if (String.IsNullOrEmpty(item.Title))            
+            if (String.IsNullOrEmpty(item.Title))
                 item.Title = ri.GetDescription();
             var ap = ri.FindArgumentProperty();
             if (ap.propertyInfo == null) return;
@@ -256,7 +261,7 @@ namespace SolutionExtensions
             var dte = package.GetService<DTE, DTE>();
             var ri = FindRI(item);
             if (ri != null) throw new InvalidOperationException($"Invalid Reflection information of item");
-            ExtensionObject.RunExtension(ri, dte, package, argument);
+            ExtensionObject.Run(ri, dte, package, argument);
         }
 
         public bool IsDllPathInSolutionScope(ExtensionItem item)
@@ -311,5 +316,64 @@ namespace SolutionExtensions
             return CheckResult.Ok;
         }
 
+        public (int removed, int added) AddFilesToItem(ExtensionItem item, IEnumerable<ExtensionItem> extensions, string[] addFiles)
+        {
+            int added = 0;
+            foreach (var fn in addFiles)
+            {
+                if (item.Files.Contains(fn))
+                    continue;
+                item.Files.Add(fn);
+                added++;
+            }
+            int removed = 0;
+            foreach (var gen in extensions.Where(ex => ex.IsGenerator))
+            {
+                if (gen == item) continue;
+                foreach (var existing in addFiles)
+                {
+                    var index = gen.Files.IndexOf(existing);
+                    if (index < 0) continue;
+                    gen.Files.RemoveAt(index);
+                    removed++;
+                }
+            }
+            return (removed, added);
+        }
+
+        public string RunGeneratorOnFile(string inputPath, string defaultNamespace, IVsGeneratorProgress progress, out string extension)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            extension = null;
+            package.Log($"Find generator for file {inputPath}");
+            var fn = GetSolutionRelativePath(inputPath);
+            var item = package.Model.Extensions
+                .Where(ex=>ex.IsGenerator)
+                .Where(ex=>ex.Files.Contains(fn, StringComparer.OrdinalIgnoreCase))
+                .FirstOrDefault();
+            package.Log($"Result: {item?.Title} {item?.DllPath}.{item?.ClassName}");
+            try
+            {
+                if (item == null)
+                    throw new Exception($"Generator for {fn} cannot be found");
+                if (CompileIfNeeded(item))
+                    package.Log($"Extension recompiled");
+                var ri = FindRI(item);
+                if (ri == null)
+                    throw new InvalidOperationException($"Invalid Reflection information of item");
+                //ExtensionObject.RunExtension(ri, dte, package, argument);
+                var dte = package.GetService<DTE,DTE>();
+                var content = File.ReadAllText(inputPath);
+                var generated = ExtensionObject.Generate(ri, dte, content, inputPath, defaultNamespace, out extension);
+                package.Log($"Generated .{extension} file of {generated.Length} chars from {fn} of {content.Length} chars");
+                return generated;
+            }
+            catch(Exception ex)
+            {
+                package.Log($"Error: {ex.Message}\n{ex}");
+                progress.GeneratorError(0, 1, ex.Message, 0, 0);
+                return null;
+            }
+        }
     }
 }

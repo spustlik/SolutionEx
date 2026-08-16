@@ -2,7 +2,7 @@
   "profiles": {
     "SolutionExtensions": {
       "commandName": "VsixDebugger",
-      "commandLineArgs": "SampleSol/ClassLibrary1.sln"
+      "commandLineArgs": "D:\\GitHub\\SolutionEx\\SampleSol\\ClassLibrary1\\ClassLibrary1.sln"
     }
   }
 }

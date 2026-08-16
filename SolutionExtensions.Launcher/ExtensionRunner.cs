@@ -29,7 +29,7 @@ namespace SolutionExtensions.Launcher
         {
             if (breakDebugger)
                 Debugger.Break();
-            ExtensionObject.RunExtension(ri, dte, package, argument);
+            ExtensionObject.Run(ri, dte, package, argument);
         }
     }
 }

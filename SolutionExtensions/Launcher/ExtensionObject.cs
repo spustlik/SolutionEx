@@ -9,11 +9,9 @@ using System.Text;
 
 namespace SolutionExtensions
 {
-
     public static class ExtensionObject
     {
-
-        public static void RunExtension(ExtensionRI ri, DTE dte, object package, string argument)
+        public static void Run(ExtensionRI ri, DTE dte, object package, string argument)
         {
             var method = ri.RunMethod;
             //var (method, type) = FindExtensionMethod(assembly, className, throwIfNotFound: true);
@@ -32,6 +30,36 @@ namespace SolutionExtensions
             try
             {
                 method.Invoke(instance, parameters);
+            }
+            catch (TargetInvocationException tex)
+            {
+                throw tex.InnerException;
+            }
+        }
+
+        public static string Generate(ExtensionRI ri, DTE dte, string content, string inputPath, string defaultNamespace, out string extension)
+        {
+            // string Generate(DTE dte, string input, string inputFileName, string ns)
+            var method = ri.GenerateMethod;
+            //var (method, type) = FindExtensionMethod(assembly, className, throwIfNotFound: true);
+            var parameters = new object[method.GetParameters().Length];
+            parameters[0] = dte;
+            if (parameters.Length > 1)
+                parameters[1] = content;
+            if (parameters.Length > 2)
+                parameters[2] = inputPath;
+            if (parameters.Length > 3)
+                parameters[3] = defaultNamespace;
+            extension = ".cs";
+            var instance = method.IsStatic ? null : Activator.CreateInstance(ri.Type);
+            var ai = ri.FindExtensionProperty();
+            if (ai.propertyInfo != null) {
+                var value = ai.propertyInfo.GetValue(instance);
+                extension = Convert.ChangeType(value, typeof(string)) as string;
+            }
+            try
+            {
+                return method.Invoke(instance, parameters) as string;
             }
             catch (TargetInvocationException tex)
             {
@@ -165,6 +193,11 @@ namespace SolutionExtensions
             var description = propertyInfo?.GetDescription();
             return (propertyInfo, description, defaultValue);
         }
+        public (PropertyInfo propertyInfo, object _) FindExtensionProperty()
+        {
+            var propertyInfo = Type.GetProperty("Extension");
+            return (propertyInfo, null);
+        }
 
         private static string DumpType(Type type)
         {
@@ -223,7 +256,6 @@ namespace SolutionExtensions
                 return true;
             return false;
         }
-
 
     }
 }

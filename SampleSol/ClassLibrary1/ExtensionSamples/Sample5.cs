@@ -7,13 +7,12 @@ using System.Threading.Tasks;
 
 namespace ExtensionSamples
 {
-    internal class Sample4
+    internal class Sample5
     {
-        //prop or field (instance or static), or out param?, NO const!
-        public string Extension => ".txt";
+        public string Extension => ".xyz";
         public string Generate(DTE dte, string input, string inputFileName,string ns)
         {
-            return $"{DateTime.Now}: from solution generator: input file {inputFileName} length {input.Length}, namespace {ns}";
+            return $"Some xyz output";
         }
     }
 }

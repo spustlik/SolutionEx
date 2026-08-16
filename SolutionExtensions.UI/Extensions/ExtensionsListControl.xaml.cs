@@ -92,6 +92,7 @@ namespace SolutionExtensions.UI.Extensions
             ExtensionsService = extensionsService;
             ViewModel.Model = model;
             ViewModel.Model.Extensions.OnCollectionItemChanged(null, ViewModelExtensions_PropertyChanged);
+            ViewModel.Model.Extensions.OnCollectionItemChanged(nameof(ExtensionItem.Files), ViewModelExtensions_PropertyChanged);
             ViewModel.Model.Extensions.CollectionChanged += ViewModelExtensions_CollectionChanged;
             _mover = MoveCollectionHelper.Create(this, ViewModel.Model.Extensions);
             _mover.MoveCompleted += mover_MoveCompleted;
