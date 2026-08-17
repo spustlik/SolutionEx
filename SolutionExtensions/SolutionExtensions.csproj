@@ -15,9 +15,30 @@
   <ItemGroup>
     <None Remove="ColorDump\ColorWindow.xaml" />
     <None Remove="commands.vsct" />
+    <None Remove="Images\dtereflection.png" />
+    <None Remove="Images\extlist.png" />
+    <None Remove="Images\logo.png" />
+    <None Remove="Images\menu.png" />
+    <None Remove="overview.md" />
     <None Remove="Themes\VsStyles.xaml" />
     <None Remove="ToolWindows\ExtensionsListToolWindow.xaml" />
     <None Remove="ToolWindows\ReflectorToolWindow.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Images\dtereflection.png">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Images\extlist.png">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Images\logo.png">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Images\menu.png">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="overview.md" />
   </ItemGroup>
   <ItemGroup>
     <ProjectCapability Include="CreateVsixContainer" />
@@ -70,6 +91,11 @@
     <None Update="commands.t4">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>commands.vsct</LastGenOutput>
+    </None>
+    <None Update="Images\logo.xcf">
+    </None>
+    <None Update="packageManifest.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>

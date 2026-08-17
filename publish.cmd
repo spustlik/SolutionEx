@@ -13,7 +13,7 @@ rem SET all variables to allow skipping
 SET SRC=%~dp0
 SET LAUNCHER=%SRC%\SolutionExtensions.Launcher\bin\release
 SET X=%SRC%\SolutionExtensions\SolutionExtensions.csproj
-SET RES=%SRC%\SolutionExtensions\bin\release
+SET RES=%SRC%\SolutionExtensions\bin\release\net48
 
 SET LOG=%~dp0\publish.log
 DEL %LOG% >nul
