@@ -53,7 +53,8 @@ namespace SolutionExtensions
             extension = ".cs";
             var instance = method.IsStatic ? null : Activator.CreateInstance(ri.Type);
             var ai = ri.FindExtensionProperty();
-            if (ai.propertyInfo != null) {
+            if (ai.propertyInfo != null)
+            {
                 var value = ai.propertyInfo.GetValue(instance);
                 extension = Convert.ChangeType(value, typeof(string)) as string;
             }
@@ -69,7 +70,11 @@ namespace SolutionExtensions
 
         public static string[] GetExtensionClassNames(Assembly assembly)
         {
-            return assembly.GetTypes().Where(t => ExtensionRI.IsExtensionClass(t)).Select(t => t.FullName).ToArray();
+            return assembly.GetTypes()
+                .Where(t => ExtensionRI.IsExtensionClass(t))
+                .Select(t => t.FullName)
+                .OrderBy(s => s)
+                .ToArray();
         }
         public static Assembly LoadVersionedAssembly(string dllPath)
         {
@@ -128,7 +133,6 @@ namespace SolutionExtensions
                 return true;
             }
         }
-
     }
 
     /// <summary>

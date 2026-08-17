@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TextTemplating.VSHost;
 using SolutionExtensions.Commands;
 using SolutionExtensions.Model;
 using SolutionExtensions.ToolWindows;
+using SolutionExtensions.UI;
 using SolutionExtensions.UI.Themes;
 using System;
 using System.Collections.Generic;
@@ -164,6 +165,11 @@ namespace SolutionExtensions
             var vsShell = ServiceProvider.GlobalProvider.GetService<SVsShell, IVsShell>();
             var pkg = vsShell.GetPackages().FirstOrDefault(p => p.GetType().GUID == typeof(SolutionExtensionsPackage).GUID);
             return pkg as SolutionExtensionsPackage;
+        }
+
+        public IDisposable WaitCursor()
+        {
+            return new WaitCursorScope();
         }
     }
 }

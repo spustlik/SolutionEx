@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace SolutionExtensions.ToolWindows
 {
@@ -11,5 +12,6 @@ namespace SolutionExtensions.ToolWindows
         public ReflectorToolWindowPane() : base(CAPTION, new ReflectorToolWindow())
         {
         }
+
     }
 }

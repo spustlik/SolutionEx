@@ -24,7 +24,7 @@ namespace SolutionExtensions.Extensions
                 return;
             if (selected.Length > 1)
             {
-                MessageBox.Show($"More selected items are no supported for now", "Error", MessageBoxButton.OK);
+                MessageBoxEx.Instance.ShowError($"More selected items are no supported for now");
                 return;
             }
             var item = selected.First();
@@ -32,20 +32,20 @@ namespace SolutionExtensions.Extensions
             var s = GetStatusMessage(r, item, nestTo);
             if (r == NestStatus.AlreadyNested)
             {
-                if (MessageBox.Show(s + "\nDo you want to unnest them?", "Question", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                if (MessageBoxEx.Instance.ShowQuestion(s + "\nDo you want to unnest them?") != MessageBoxResult.Yes)
                     return;
                 if (!UnNest(item))
                 {
-                    MessageBox.Show($"Error unnesting {item.Name}", "Error", MessageBoxButton.OK, MessageBoxImage.Stop);
+                    MessageBoxEx.Instance.ShowError($"Error unnesting {item.Name}");
                 }
                 return;
             }
             if (r != NestStatus.IsPossible)
             {
-                MessageBox.Show(s, "Error", MessageBoxButton.OK, MessageBoxImage.Stop);
+                MessageBoxEx.Instance.ShowError(s);
                 return;
             }
-            if (MessageBox.Show(s + "\nAre you sure?", "Confirmation", MessageBoxButton.YesNoCancel, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            if (MessageBoxEx.Instance.ShowQuestion(s + "\nAre you sure?") != MessageBoxResult.Yes)
                 return;
             Log($"nesting {item.Name} to {nestTo.Name}");
             NestTo(nestTo, item);

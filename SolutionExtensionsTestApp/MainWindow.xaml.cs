@@ -19,7 +19,7 @@ namespace SolutionExtensionsTestApp
 
         private void Current_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
-            if (MessageBox.Show(e.Exception.Message + "\nDo you want to exit?", "Unexpected error", MessageBoxButton.YesNoCancel, MessageBoxImage.Error) != MessageBoxResult.Yes)
+            if (MessageBoxEx.Instance.Show(e.Exception.Message + "\nDo you want to exit?", "Unexpected error", MessageBoxButton.YesNoCancel, MessageBoxImage.Error) != MessageBoxResult.Yes)
             {
                 e.Handled = true;
                 return;
@@ -47,7 +47,7 @@ namespace SolutionExtensionsTestApp
         {
             var s = ThemeKeys.DumpCurrentValues(this);
             Clipboard.SetText(s);
-            //MessageBox.Show(s, "Copied to clipboard");
+            //MessageBoxEx.Instance.Show(s, "Copied to clipboard");
             var fn = Path.Combine(Path.GetTempPath(), "theme.xaml");
             File.WriteAllText(fn, s);
             Process.Start("notepad.exe", fn);

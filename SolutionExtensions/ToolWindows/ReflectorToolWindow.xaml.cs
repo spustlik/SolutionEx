@@ -94,9 +94,13 @@ namespace SolutionExtensions.ToolWindows
             }
         }
 #pragma warning disable VSTHRD010
-        private void DumpDTE_Click(object sender, RoutedEventArgs e)
+        public void DumpDTE()
         {
             DumpObj("DTE", () => Package.GetService<DTE, DTE>());
+        }
+        private void DumpDTE_Click(object sender, RoutedEventArgs e)
+        {
+            DumpDTE();
         }
 
         private void DumpAD_Click(object sender, RoutedEventArgs e)

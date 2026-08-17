@@ -49,10 +49,29 @@ public class MyExtension
     [Description("My great extension")]
     public void Run(DTE dte)
     {
-        MessageBox.Show($"This is argument:{Argument}");
+        MessageBoxEx.Instance.Show($"This is argument:{Argument}");
     }
 }
 ```
+### Create Generator
+Instead of creating extension, you can create file generator. 
+It works like any other CustomTool, but what to generate is specified in your class
+and configuration of which file calls which generator.
+```
+public class MyExtension
+{
+    //specify Extension of generated file
+    public string Extension => ".txt";
+    //[Description("My great generator")]
+    //inputFileName and defaultNameSpace are optional
+    public string Generate(DTE dte, string input, string inputFileName, string defaultNameSpace)
+    {
+        return "#this is some generated content"
+    }
+}
+```
+
+
 * commit and share with others in team, it is possible to share compiled assembly also
 * WARNING: `package` argument is `IServiceProvider` when debugging, 
 * else inherits from `AsyncPackage`, `Package`, and `IServiceProvider`

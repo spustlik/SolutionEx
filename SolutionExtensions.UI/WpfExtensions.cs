@@ -9,13 +9,13 @@ namespace SolutionExtensions.UI
 {
     public static class WpfExtensions
     {
-        public static void ShowException(this Control _, Exception ex, string suffix = null, string title = null)
+        public static void ShowException(this Control _, Exception ex, string suffix = null, string caption = null)
         {
             if (suffix != null)
                 suffix = "\n" + suffix;
-            if (string.IsNullOrEmpty(title))
-                title = "Error";
-            MessageBox.Show(ex.Message + suffix, title, MessageBoxButton.OK, MessageBoxImage.Error);
+            if (string.IsNullOrEmpty(caption))
+                caption = "Error";
+            MessageBoxEx.Instance.ShowError(ex.Message + suffix, caption);
         }
         /// <summary>
         /// returns name of resource key, if property is set by DynamicResource
@@ -80,7 +80,7 @@ namespace SolutionExtensions.UI
             }
             return p.FindAncestor(ancestorType, level);
         }
-        public static FrameworkElement FindAncestorOrSelf(this FrameworkElement element, Func<FrameworkElement,bool> predicate)
+        public static FrameworkElement FindAncestorOrSelf(this FrameworkElement element, Func<FrameworkElement, bool> predicate)
         {
             if (predicate(element))
                 return element;
@@ -96,6 +96,30 @@ namespace SolutionExtensions.UI
                 }.Contains(key);
         }
 
+    }
+
+
+    public class WaitCursorScope : IDisposable
+    {
+        public WaitCursorScope()
+        {
+            System.Windows.Input.Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                System.Windows.Input.Mouse.OverrideCursor = null;
+            }
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
     }
 }
 

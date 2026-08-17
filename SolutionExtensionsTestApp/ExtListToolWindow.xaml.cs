@@ -63,7 +63,7 @@ namespace SolutionExtensionsTestApp
 
         void IExtensionsService.Run(ExtensionItem item, bool debug)
         {
-            MessageBox.Show(debug ? "Debug extension" : "Run extension");
+            MessageBoxEx.Instance.Show(debug ? "Debug extension" : "Run extension");
         }
 
         bool IExtensionsService.ShowBrowseDll(ExtensionItem item, bool force)

@@ -57,6 +57,7 @@
     <Compile Include="Extensions\ExtensionsListControl.xaml.cs">
       <DependentUpon>ExtensionsListControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="MessageBoxExtensions.cs" />
     <Compile Include="Model\ExtensionItem.cs" />
     <Compile Include="MoveAdorner.cs" />
     <Compile Include="MoveCollectionHelper.cs" />

@@ -5,11 +5,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="myfile.xyz" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="Class1.html">
       <Generator>SolutionFileGenerator</Generator>
-      <LastGenOutput>Class1.lmth</LastGenOutput>
+      <LastGenOutput>Class1.txt</LastGenOutput>
+      <CustomToolNamespace>myns</CustomToolNamespace>
     </None>
-    <None Update="Class1.lmth">
+    <None Update="Class1.txt">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Class1.html</DependentUpon>
@@ -24,6 +29,9 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>myfile.foo</DependentUpon>
+    </None>
+    <None Update="nogen.foo">
+      <Generator>SolutionFileGenerator</Generator>
     </None>
   </ItemGroup>
 

@@ -161,7 +161,7 @@ namespace SolutionExtensions.ColorDump
         {
             var s = ThemeKeys.DumpCurrentValues(this);
             Clipboard.SetText(s);
-            MessageBox.Show(s.Substring(0,Math.Min(100,s.Length)), "Copied to clipboard");
+            MessageBoxEx.Instance.Show(s.Substring(0,Math.Min(100,s.Length)), "Copied to clipboard");
         }
     }
 }

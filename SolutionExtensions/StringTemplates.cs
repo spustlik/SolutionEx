@@ -64,7 +64,7 @@ namespace $(namespace)
         /// <param name=""package"">Reference to executing package, you can change it to AsyncPackage,IAsyncServiceProvider</param>
         public void Run(DTE dte, IServiceProvider package)
         {
-            MessageBox.Show(""Hello from $(className)"");
+            MessageBoxEx.Instance.Show(""Hello from $(className)"");
         }
     }
 }";

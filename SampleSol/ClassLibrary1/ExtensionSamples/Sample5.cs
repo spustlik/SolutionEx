@@ -12,7 +12,7 @@ namespace ExtensionSamples
         public string Extension => ".xyz";
         public string Generate(DTE dte, string input, string inputFileName,string ns)
         {
-            return $"Some xyz output";
+            return $"Some xyz output {DateTime.Now}";
         }
     }
 }

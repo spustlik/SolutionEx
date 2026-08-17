@@ -1,7 +1,10 @@
-﻿using System;
+﻿using EnvDTE;
+using EnvDTE100;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using Process = System.Diagnostics.Process;
 
 namespace SolutionExtensions.Launcher
 {
@@ -14,16 +17,39 @@ namespace SolutionExtensions.Launcher
         public static readonly string PREPARE = "[PREPARE]";
         public static readonly string RUN = "[RUN]";
         public static readonly string LOG = "[LOG]";
+        public static readonly string RESULT_EXT = "EXTENSION";
+        public static readonly string RESULT_FILE = "OUTPUTFILE";
 
-        public static Process RunExtension(
-            string launchedExecutable,
+
+        private StringBuilder output = new StringBuilder();
+        public string GetOutput() { return output.ToString(); }
+        private bool waitingForDebugger = false;
+        private string launcherExe;
+
+        public LauncherProcess(string launcherExe)
+        {
+            this.launcherExe = launcherExe;
+        }
+        public Action<string> OnOutputLine { get; set; }
+        private void LauncherProcess_OnOutputData(string line)
+        {
+            if (string.IsNullOrEmpty(line))
+                return;
+            if (!line.Contains("\n"))
+                line += "\n";
+            output.Append(line);
+            if (line.StartsWith(LauncherProcess.WAIT))
+                waitingForDebugger = true;
+            this.OnOutputLine?.Invoke(line);
+        }
+
+        public Process CreateRunProcess(
             string dllPath,
             string className,
             string dteMonikerName,
             string packageId,
-            string argument,
             bool waitForDebugger,
-            Action<string> onOutputData)
+            string argument)
         {
             var args = new List<string>()
             {
@@ -35,8 +61,34 @@ namespace SolutionExtensions.Launcher
             };
             if (waitForDebugger)
                 args.Add("/waitfordebugger");
-            //args.Add("/break");
-            //args.Add("/waitforenter");
+            return CreateProcess(launcherExe, LauncherProcess_OnOutputData, args);
+        }
+        public Process CreateGeneratorProcess(
+            string dllPath,
+            string className,
+            string dteMonikerName,
+            string packageId,
+            bool waitForDebugger,
+            string inputFilePath,
+            string defaultNamespace)
+        {
+            var args = new List<string>()
+            {                
+                $"\"{dllPath}\"",
+                className,
+                dteMonikerName,
+                packageId,
+                $"\"{inputFilePath?.Replace("\"","\"\"")}\"",
+                defaultNamespace,
+                "/generate"
+            };
+            if (waitForDebugger)
+                args.Add("/waitfordebugger");
+            return CreateProcess(launcherExe, LauncherProcess_OnOutputData, args);
+        }
+
+        private static Process CreateProcess(string launchedExecutable, Action<string> onOutputData, List<string> args)
+        {
             var p = new Process();
             p.StartInfo = new ProcessStartInfo(launchedExecutable)
             {
@@ -48,9 +100,23 @@ namespace SolutionExtensions.Launcher
             };
             p.EnableRaisingEvents = true;
             p.OutputDataReceived += (_, e) => onOutputData(e.Data);
-            p.Start();
-            p.BeginOutputReadLine();
             return p;
+        }
+
+        public void StartAndWait(Process process, bool waitForDebug)
+        {
+            process.Start();
+            process.BeginOutputReadLine();
+            //wait for launcher wait
+            while (!process.HasExited)
+            {
+                if (waitingForDebugger) break;
+                process.WaitForExit(100);
+            }
+            if (!waitForDebug)
+                return;
+            if (process.HasExited)
+                throw new Exception($"Launcher exited with {process.ExitCode}\n{output}");
         }
 
     }

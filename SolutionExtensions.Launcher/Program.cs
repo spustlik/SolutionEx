@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace SolutionExtensions.Launcher
 {
-    public class Program
+    public partial class Program
     {
         static void Main(string[] args)
         {
@@ -20,15 +20,16 @@ namespace SolutionExtensions.Launcher
             Log($"Extension launcher v{ver}, ({cfg})");
             if (args.Length < 4)
             {
-                Console.WriteLine($"Needs 4 arguments");
+                Console.WriteLine($"Needs at least 4 arguments");
                 return;
             }
             try
             {
-                var cmdLine = ParseArgs(args);
+                var cmdLine = Arguments.Parse(args);
                 switch (cmdLine.Action)
                 {
                     case ActionEnum.Run: Run(cmdLine); break;
+                    case ActionEnum.Generate: Generate(cmdLine); break;
                     case ActionEnum.DumpMonikers: DumpMonikers(cmdLine); break;
                     default:
                         Console.WriteLine($"Unknown arguments");
@@ -64,31 +65,45 @@ namespace SolutionExtensions.Launcher
             }
         }
 
+        private static void Generate(Arguments cmd)
+        {
+            ExtensionRI ri = PrepareRI(cmd, x => x.GenerateMethod);
+            WaitForDebugger(cmd);
+            var dte = GetDTE(cmd);
+            object package = GetPackage(dte, cmd);
+            Console.WriteLine($"Loading generator file");
+            var runner = new ExtensionRunner(ri, dte, package).Assign(cmd);
+            var fn = cmd.GeneratorFilePath;
+            if (!File.Exists(fn))
+                throw new Exception($"Generated file doesn't exist: {fn}");
+            var c = File.ReadAllText(fn);
+            runner.GeneratorContent = c;
+            Console.WriteLine($"{LauncherProcess.RUN}: Running generator");
+            runner.Generate();
+            Console.WriteLine($"{LauncherProcess.DONE}");
+            Console.WriteLine($"{LauncherProcess.RESULT_EXT}:{runner.GeneratorExtension}");
+            var tempFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString()+".bin");
+            File.WriteAllText(tempFile, runner.GeneratorResult);
+            Console.WriteLine($"{LauncherProcess.RESULT_FILE}:{tempFile}");
+        }
+
+
         private static void Run(Arguments cmd)
         {
-            Log($"Arguments: dllPath={cmd.DllPath},className={cmd.ClassName},moniker={cmd.MonikerName},package={cmd.PackageId}");
-            if (!File.Exists(cmd.DllPath))
-                throw new ApplicationException($"File doesn't exists: {cmd.DllPath}");
-            var assembly = Assembly.LoadFrom(cmd.DllPath);
-            var ri = new ExtensionRI(assembly, cmd.ClassName) { ThrowIfNotFound= true };
-            var par = ri.RunMethod.GetParameters().Select(p => p.Name + ": " + GetTypeStr(p.ParameterType)).ToArray();
-            Log($"{ri.Type.FullName}.{ri.RunMethod.Name}({String.Join(", ", par)}) found");
-
-            //wait for debugger attach
-            if (cmd.WaitForDebugger)
-            {
-                var timeOut = DateTime.Now.AddMinutes(1);
-                Console.WriteLine($"{LauncherProcess.WAIT}: Waiting for debugger to attach");
-                while (!Debugger.IsAttached)
-                {
-                    Thread.Sleep(100);
-                    if (DateTime.Now > timeOut)
-                        throw new ApplicationException($"Waiting for debugger timeout");
-                }
-            }
-            //instantiate dte from moniker
-            Console.WriteLine($"{LauncherProcess.PREPARE}: Getting running DTE from ${cmd.MonikerName}");
+            ExtensionRI ri = PrepareRI(cmd, x => x.RunMethod);
+            WaitForDebugger(cmd);
             var dte = GetDTE(cmd);
+            object package = GetPackage(dte, cmd);
+            //run extension
+            Console.WriteLine($"{LauncherProcess.RUN}: Running extension");
+            //to simplify code, which will break
+            var runner = new ExtensionRunner(ri, dte, package).Assign(cmd);
+            runner.Run();
+            Console.WriteLine($"{LauncherProcess.DONE}");
+        }
+
+        private static object GetPackage(EnvDTE.DTE dte, Arguments cmd)
+        {
             object package = null;
             try
             {
@@ -103,16 +118,42 @@ namespace SolutionExtensions.Launcher
             {
                 Console.WriteLine($"WARNING: {ex.Message}");
             }
-            //run extension
-            Console.WriteLine($"{LauncherProcess.RUN}: Running extension");
-            //to simplify code, which will break
-            var runner = new ExtensionRunner(ri, dte, package, cmd.Argument, cmd.BreakDebugger);
-            runner.Run();
-            Console.WriteLine($"{LauncherProcess.DONE}");
+
+            return package;
+        }
+
+        private static void WaitForDebugger(Arguments cmd)
+        {
+            if (!cmd.WaitForDebugger)
+                return;
+            //wait for debugger attach
+            var timeOut = DateTime.Now.AddMinutes(1);
+            Console.WriteLine($"{LauncherProcess.WAIT}: Waiting for debugger to attach");
+            while (!Debugger.IsAttached)
+            {
+                Thread.Sleep(100);
+                if (DateTime.Now > timeOut)
+                    throw new ApplicationException($"Waiting for debugger timeout");
+            }
+        }
+
+        private static ExtensionRI PrepareRI(Arguments cmd, Func<ExtensionRI, MethodInfo> getMethod)
+        {
+            Log($"Arguments: dllPath={cmd.DllPath},className={cmd.ClassName},moniker={cmd.MonikerName},package={cmd.PackageId}");
+            if (!File.Exists(cmd.DllPath))
+                throw new ApplicationException($"File doesn't exists: {cmd.DllPath}");
+            var assembly = Assembly.LoadFrom(cmd.DllPath);
+            var ri = new ExtensionRI(assembly, cmd.ClassName) { ThrowIfNotFound = true };
+            var method = getMethod(ri);
+            var par = method.GetParameters().Select(p => p.Name + ": " + GetTypeStr(p.ParameterType)).ToArray();
+            Log($"{ri.Type.FullName}.{method.Name}({String.Join(", ", par)}) found");
+            return ri;
         }
 
         private static EnvDTE.DTE GetDTE(Arguments cmd)
         {
+            //instantiate dte from moniker
+            Console.WriteLine($"{LauncherProcess.PREPARE}: Getting running DTE from ${cmd.MonikerName}");
             var rot = new RunningComObjects();
             var dteCom = rot.GetRunningComObject(cmd.MonikerName);
             if (dteCom == null)
@@ -186,56 +227,6 @@ namespace SolutionExtensions.Launcher
             if (sp == null) throw new Exception($"Package is not IServiceProvider");
             return sp;
             */
-        }
-
-        enum ActionEnum
-        {
-            Help,
-            Run,
-            DumpMonikers
-        }
-        class Arguments
-        {
-            public ActionEnum Action = ActionEnum.Help;
-            public string DllPath;
-            public string ClassName;
-            public string MonikerName;
-            public string PackageId;
-            public string Argument;
-            public bool WaitForDebugger;
-            public bool BreakDebugger;
-            public bool WaitForEnter;
-        }
-        private static Arguments ParseArgs(string[] args)
-        {
-            var switches = args
-                .Where(x => x.StartsWith("/"))
-                .Select(x => x.TrimStart('/').Trim())
-                .Select(x => x.Split(new[] { ':' }, 2))
-                .ToDictionary(parts => parts[0].Trim().ToUpperInvariant(), parts => parts.Skip(1));
-            var strings = args.Where(x => !x.StartsWith("/")).ToArray();
-
-            var r = new Arguments();
-            r.WaitForDebugger = switches.ContainsKey("WAITFORDEBUGGER");
-            r.BreakDebugger = switches.ContainsKey("BREAK");
-            r.WaitForEnter = switches.ContainsKey("WAITFORENTER");
-            if (switches.ContainsKey("DUMPMONIKERS"))
-            {
-                r.Action = ActionEnum.DumpMonikers;
-            }
-            if (strings.Length >= 4)
-            {
-                r.DllPath = strings[0];
-                r.ClassName = strings[1];
-                r.MonikerName = strings[2];
-                r.PackageId = strings[3];
-                r.Action = ActionEnum.Run;
-            }
-            if (strings.Length > 4)
-            {
-                r.Argument = strings[4];
-            }
-            return r;
         }
 
         private static string GetTypeStr(Type t)

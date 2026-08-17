@@ -1,4 +1,7 @@
 ﻿using Microsoft.VisualStudio.Shell;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 
 namespace SolutionExtensions

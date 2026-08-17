@@ -87,6 +87,7 @@
     <Compile Include="..\SolutionExtensions\OleExtensions.cs">
       <Link>Linked\OleExtensions.cs</Link>
     </Compile>
+    <Compile Include="Arguments.cs" />
     <Compile Include="ExtensionRunner.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

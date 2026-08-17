@@ -1,4 +1,5 @@
 ﻿using EnvDTE;
+using Microsoft.VisualStudio.RpcContracts.OpenDocument;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -34,7 +35,7 @@ namespace SolutionExtensions
                 String.Join("\n", nonAsciiFiles.Take(3).Select(f => Path.GetFileName(f))) +
                 $"...\n" +
                 $"Do you want to convert them from {Encoding.Default.EncodingName} to UTF-8?";
-            if (MessageBox.Show(msg, "Check items", MessageBoxButton.YesNoCancel, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            if (MessageBoxEx.Instance.ShowQuestion(msg, caption: "Check items") != MessageBoxResult.Yes)
                 return;
             foreach (var f in nonAsciiFiles)
             {
