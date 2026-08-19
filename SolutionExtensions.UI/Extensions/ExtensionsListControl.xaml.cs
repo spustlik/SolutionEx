@@ -103,7 +103,7 @@ namespace SolutionExtensions.UI.Extensions
             {
                 Debug.WriteLine($"[ExtListControl] ViewModel @OnAnyChanged {args.Action} {args.PathText}");
                 ThrottleUpdateModel();
-                if (args.PathList.Last() == nameof(ExtensionItem.Files))
+                if (args.GetPropertyName() == nameof(ExtensionItem.Files))
                 {
                     //sender is collection 
                     ThrottleValidate();
@@ -111,7 +111,7 @@ namespace SolutionExtensions.UI.Extensions
                 if (sender is ExtensionItem item)
                 {
                     ThrottleValidate();
-                    if (args.PathList.Last() == nameof(ExtensionItem.ClassName))
+                    if (args.GetPropertyName() == nameof(ExtensionItem.ClassName))
                     {
                         ExtensionsService.UpdateItemFromDll(item);
                     }

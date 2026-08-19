@@ -30,7 +30,6 @@ Your extension is just compiled assembly and should be in your solution.
 * add your new extension, pick dll, choose class name, change title, add shortcut if you want
 * execute your extension using `Run` button, or assigned key shortcut, or using `Debug`
 
-
 ### Add description
 * add `[Description("caption")]` attribute to Run method or class to allow inspection of caption
 
@@ -98,6 +97,7 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * `Create GUID` - just creates new GUID and copies into clipboard
 * `Fix Encoding` - changes encoding of all text files with non-ascii characters to UTF8
 ### Version history
+* 1.6.2 - fixes, refactoring
 * 1.5 - VS 2026, generators
 * 1.4.1 - fixed bug shen adding new extension, or dll is not found
 * 1.4 - fixed bug when solution folders and compile used, argument description is used on tool editor

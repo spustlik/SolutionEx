@@ -56,16 +56,19 @@ namespace SolutionExtensions.Model
         public ChangeAction Action { get; }
         //list of part of path, last item contains name of changed property
         public string[] PathList { get; }
-        //returns parhlist, but with collection items as "[]"
+        //returns pathlist, but with collection items as "[]"
         public string[] GetNormalizedPathList()
         {
-            string Normalize(string s)
-            {
-                if (s.StartsWith("[") && s.EndsWith("]"))
-                    return "[]";
-                return s;
-            }
-            return PathList.Select(x => Normalize(x)).ToArray();
+            return PathList.Select(x => NormalizePathPart(x)).ToArray();
+        }
+        
+        //returns propertyName of last part of path
+        public string GetPropertyName()
+        {
+            if (PathList.Length == 0) return null;
+            var s = NormalizePathPart(PathList.Last());
+            if (s == "[]") return null;
+            return s;
         }
         public string PathText => String.Join(".", PathList);
         //if action is CollectionChanged, this contains original event args of NotifyCollectionChanged event
@@ -80,6 +83,13 @@ namespace SolutionExtensions.Model
             PathList = path;
             CollectionChangedArgs = collectionChangedArgs;
         }
+        private string NormalizePathPart(string s)
+        {
+            if (s.StartsWith("[") && s.EndsWith("]"))
+                return "[]";
+            return s;
+        }
+
     }
     public delegate void OnChange(object sender, ChangeEventArgs e);
 
