@@ -20,14 +20,14 @@ namespace SolutionExtensions.UI
         public MoveItemArgs(object source, int index)
         {
             Item = source;
-            NewIndex= index;
+            NewIndex = index;
         }
     }
     public class MoveCollectionHelper
     {
         private readonly UIElement owner;
-        private readonly IList list;
-        private readonly Type collectionItemType;
+        protected readonly IList list;
+        protected readonly Type collectionItemType;
         private Point start;
         private FrameworkElement movingElement;
         private FrameworkElement movingOverElement;
@@ -35,7 +35,7 @@ namespace SolutionExtensions.UI
         public event EventHandler<MoveItemArgs> MoveCompleted;
         public static MoveCollectionHelper Create<T>(UIElement owner, ObservableCollection<T> collection)
         {
-            return new MoveCollectionHelper(owner, collection, typeof(T));
+            return new MoveCollectionHelper<T>(owner, collection);
         }
         public MoveCollectionHelper(UIElement owner, IList list, Type itemType)
         {
@@ -102,7 +102,10 @@ namespace SolutionExtensions.UI
             if (item != movingElement.DataContext)
             {
                 //replace adorners with new item
-                MoveAdorner.AddOrUpdate(movingOverElement, e.GetPosition(movingOverElement));
+                var adorner = MoveAdorner.AddOrUpdate(movingOverElement, e.GetPosition(movingOverElement));
+                //var si = list.IndexOf(movingElement.DataContext);
+                //var di = list.IndexOf(movingOverElement.DataContext);
+                //adorner.DebugText = $"from #{si} ({movingElement.DataContext}) {(adorner.IsTop?"before":"after")} #{di} ({movingOverElement.DataContext})";
             }
             e.Handled = true;
             return;
@@ -149,6 +152,12 @@ namespace SolutionExtensions.UI
             if (!HasItemType(dstItem) || !HasItemType(srcItem))
                 return;
             log($"End of moving from {GetItemPos(srcItem)} {(moveAfter ? "after" : "before")} {GetItemPos(dstItem)}");
+            int i = MoveItemsInList(srcItem, dstItem, moveAfter);
+            this.MoveCompleted?.Invoke(this, new MoveItemArgs(srcItem, i));
+        }
+
+        protected virtual int MoveItemsInList(object srcItem, object dstItem, bool moveAfter)
+        {
             list.Remove(srcItem);
             var i = list.IndexOf(dstItem);
             if (moveAfter) i++;
@@ -159,8 +168,9 @@ namespace SolutionExtensions.UI
             }
             else
                 list.Insert(i, srcItem);
-            this.MoveCompleted?.Invoke(this, new MoveItemArgs(srcItem, i));
+            return i;
         }
+
         private int GetItemPos(object item)
         {
             if (item == null) return int.MinValue;
@@ -178,6 +188,27 @@ namespace SolutionExtensions.UI
             var vec = new Vector(start.X - pt.X, start.Y - pt.Y);
             return vec.Length;
         }
+    }
 
+    public class MoveCollectionHelper<T> : MoveCollectionHelper
+    {
+        public MoveCollectionHelper(UIElement owner, ObservableCollection<T> collection)
+            : base(owner, collection, typeof(T))
+        {
+        }
+
+        protected override int MoveItemsInList(object srcItem, object dstItem, bool moveAfter)
+        {
+            if (list is ObservableCollection<T> oc)
+            {
+                var srcIndex = list.IndexOf(srcItem);
+                var dstIndex = list.IndexOf(dstItem);
+                if (moveAfter) dstIndex++;
+                if(srcIndex<dstIndex) dstIndex--;
+                oc.Move(srcIndex, dstIndex);
+                return dstIndex;
+            }
+            return base.MoveItemsInList(srcItem, dstItem, moveAfter);
+        }
     }
 }

@@ -186,47 +186,12 @@ namespace SolutionExtensions.Launcher
             }
         }
 
-        private static IVsPackage FindPackage(string id, EnvDTE.DTE dte)
-        {
-            //this is not working and will never 
-            //because IServiceProvider,nor AsyncPackage,Package is not COM interfaces
-            var svc = dte.GetOLEServiceProvider(throwIfNotFound: true);
-            var shell = svc.QueryService<SVsShell>() as IVsShell;
-            if (shell == null)
-                return null;
-            if (!Guid.TryParse(id, out var guid))
-                return null;
-            //var queryService = svc.QueryService<SVsPackageInfoQueryService>() as IVsPackageInfoQueryService;
-            //if (queryService == null)
-            //    return null;
-            //var info = queryService.GetPackageInfo(guid);
-            var package = shell.GetPackages()
-                .FirstOrDefault(p => p.GetType().GUID == guid);
-            var ap = shell.GetPackages().OfType<IServiceProvider>().ToArray();
-            return package;
-        }
-
         private static IServiceProvider GetServiceProvider(string id, EnvDTE.DTE dte)
         {
 
             var svc = dte.GetOLEServiceProvider(throwIfNotFound: true);
             var sp = new ServiceProviderOle(svc);
             return sp;
-            /*
-            var shell = svc.QueryService<SVsShell>() as IVsShell;
-            if (shell == null) throw new Exception($"Cannot get VSShell from DTE");
-            var packages = shell.GetPackages().ToArray();
-            var guid = new Guid(id);
-
-            //not working, all objects are COM
-            //var found = packages.FirstOrDefault(p => p.GetType().GUID == guid);
-            //not working either
-            var found = packages.Select(x => ReflectionCOM.QueryInterface(x, guid)).FirstOrDefault(x => x != null);               
-            if (found == null) throw new Exception($"Cannot find package {guid}");
-            var sp = found as IServiceProvider;
-            if (sp == null) throw new Exception($"Package is not IServiceProvider");
-            return sp;
-            */
         }
 
         private static string GetTypeStr(Type t)

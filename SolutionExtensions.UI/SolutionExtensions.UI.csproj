@@ -59,6 +59,7 @@
     </Compile>
     <Compile Include="MessageBoxExtensions.cs" />
     <Compile Include="Model\ExtensionItem.cs" />
+    <Compile Include="Model\SimpleDataObjectBinderExtensions.cs" />
     <Compile Include="MoveAdorner.cs" />
     <Compile Include="MoveCollectionHelper.cs" />
     <Compile Include="Reflection\ReflectionBuilderCS.cs" />

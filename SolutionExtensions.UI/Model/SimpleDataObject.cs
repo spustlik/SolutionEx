@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
 
@@ -194,41 +195,5 @@ namespace SolutionExtensions.Model
             DoPropertyChanged(nameof(IsValid));
         }
     }
-
-    public static class SimpleDataObjectExtensions
-    {
-        public static void OnCollectionItemChanged<T>(this ObservableCollection<T> collection,
-            string propertyPrefix, Action<object, PropertyChangedEventArgs> itemPropertyChanged)
-        {
-            if (propertyPrefix !=null && !propertyPrefix.EndsWith("."))
-                propertyPrefix += ".";
-            void CollectionItem_Changed(object sender, PropertyChangedEventArgs e)
-            {
-                itemPropertyChanged(sender, new PropertyChangedEventArgs(propertyPrefix + e.PropertyName));
-            }
-            void subscribe(IList list, bool add)
-            {
-                foreach (var pc in list.OfType<INotifyPropertyChanged>())
-                {
-                    if (add)
-                        pc.PropertyChanged += CollectionItem_Changed;
-                    else
-                        pc.PropertyChanged -= CollectionItem_Changed;
-                }
-            }
-            void Collection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-            {
-                if (e.Action == NotifyCollectionChangedAction.Move)
-                    return; //not interesting
-                //Reset,Add,Remove,Replace:
-                if (e.OldItems != null)
-                    subscribe(e.OldItems, false);
-                if (e.NewItems != null)
-                    subscribe(e.NewItems, true);
-            }
-            collection.CollectionChanged += Collection_CollectionChanged;
-            subscribe(collection, true);
-        }
-
-    }
+    
 }

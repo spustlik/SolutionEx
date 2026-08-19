@@ -99,9 +99,9 @@ namespace SolutionExtensions.UI
     }
 
 
-    public class WaitCursorScope : IDisposable
+    public class WpfWaitCursorScope : IDisposable
     {
-        public WaitCursorScope()
+        public WpfWaitCursorScope()
         {
             System.Windows.Input.Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
         }

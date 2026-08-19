@@ -11,6 +11,7 @@ namespace SolutionExtensions.UI
         {
         }
         public bool IsTop { get; private set; }
+        public string DebugText { get; set; }
         public static MoveAdorner Add(UIElement element)
         {
             var layer = AdornerLayer.GetAdornerLayer(element);
@@ -47,11 +48,29 @@ namespace SolutionExtensions.UI
         protected override void OnRender(DrawingContext ctx)
         {
             var rect = new Rect(AdornedElement.RenderSize);
-            var pen = new Pen(new SolidColorBrush(Colors.Red), 3.0);
+            var brush = Brushes.Red;
+            var pen = new Pen(brush, 3.0);
             if (IsTop)
                 DrawInsertLine(ctx, pen, rect.TopLeft, rect.TopRight);
             else
                 DrawInsertLine(ctx, pen, rect.BottomLeft, rect.BottomRight);
+            //if (IsTop)
+            //    DrawInsertArrow(ctx, pen, rect.TopLeft, rect.TopRight);
+            //else
+            //    DrawInsertArrow(ctx, pen, rect.BottomLeft, rect.BottomRight);
+            if (DebugText != null)
+            {
+                var fmt = new FormattedText(
+                    DebugText,
+                    System.Globalization.CultureInfo.CurrentUICulture,
+                    FlowDirection.LeftToRight,
+                    new Typeface("Arial"),
+                    8, brush, 1.25);
+                var pos = IsTop ? rect.TopLeft : rect.BottomLeft;
+                pos.X = rect.Width / 2 - fmt.Width / 2;
+                pos.Y += 3;
+                ctx.DrawText(fmt, pos);
+            }
         }
 
         private void DrawInsertLine(DrawingContext ctx, Pen pen, Point ps, Point pe)
@@ -59,7 +78,7 @@ namespace SolutionExtensions.UI
             ctx.DrawLine(pen, ps, pe);
         }
         private void DrawInsertArrow(DrawingContext ctx, Pen pen, Point ps, Point pe)
-        { 
+        {
             Point add(Point p, double x, double y) => Point.Add(p, new Vector(x, y));
             var arrow = new Size(10, 6);
             var ofs = arrow.Width;

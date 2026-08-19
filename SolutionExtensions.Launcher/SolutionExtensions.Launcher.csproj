@@ -75,6 +75,9 @@
     <Compile Include="..\SolutionExtensions.UI\Reflection\ReflectionHelper.cs">
       <Link>Linked\ReflectionHelper.cs</Link>
     </Compile>
+    <Compile Include="..\SolutionExtensions\Helpers\OleExtensions.cs">
+      <Link>Linked\OleExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\SolutionExtensions\Launcher\ExtensionObject.cs">
       <Link>Linked\ExtensionObject.cs</Link>
     </Compile>
@@ -83,9 +86,6 @@
     </Compile>
     <Compile Include="..\SolutionExtensions\Launcher\RunningComObjects.cs">
       <Link>Linked\RunningComObjects.cs</Link>
-    </Compile>
-    <Compile Include="..\SolutionExtensions\OleExtensions.cs">
-      <Link>Linked\OleExtensions.cs</Link>
     </Compile>
     <Compile Include="Arguments.cs" />
     <Compile Include="ExtensionRunner.cs" />

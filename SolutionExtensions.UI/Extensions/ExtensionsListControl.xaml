@@ -25,7 +25,7 @@
                             <Border Padding="0" Margin="0" 
                                 CornerRadius="2"                                
                                 Background="{StaticResource {x:Static themes:ThemeKeys.Mover_Fill}}"
-                                Cursor="{x:Static Cursors.SizeNS}">
+                                Cursor="{x:Static Cursors.SizeAll}">
                                 <TextBlock Text="⣿" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="1,0,2,2" />
                             </Border>
                         </ControlTemplate>
@@ -57,10 +57,10 @@
                                 <!--G -->
                                 <Border VerticalAlignment="Stretch" ToolTip="Generator"
                                         Visibility="{Binding IsGenerator, Converter={StaticResource boolToVisi}}">
-                                    <Border BorderBrush="{Binding Foreground, ElementName=text}" 
+                                    <Border BorderBrush="{Binding Foreground, ElementName=textg}" 
                                             BorderThickness="1" CornerRadius="0" >
                                         <TextBlock Padding="5,0" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                   FontSize="10" FontWeight="Bold">
+                                                   FontSize="10" FontWeight="Bold" x:Name="textg">
                                             <Run>G</Run>
                                         </TextBlock>
                                     </Border>
@@ -69,10 +69,10 @@
                                 <Label FontWeight="Bold" Content="{Binding Title}" Padding="3,0"/>
                                 <Label Content="(no name)" Visibility="{Binding Title, Converter={StaticResource emptyToVisi}}"/>
                                 <ContentControl Visibility="{Binding IsGenerator, Converter={StaticResource notBoolToVisi}}">
-                                    <Border CornerRadius="5" BorderThickness="1" BorderBrush="{Binding Foreground,ElementName=text}"
+                                    <Border CornerRadius="5" BorderThickness="1" BorderBrush="{Binding Foreground,ElementName=textsc}"
                                         VerticalAlignment="Center" Padding="5,0"
                                         Visibility="{Binding ShortCutKey,Converter={StaticResource notEmptyToVisi}}">
-                                        <TextBlock Text="{Binding ShortCutKey}" FontFamily="Consolas" x:Name="text"/>
+                                        <TextBlock Text="{Binding ShortCutKey}" FontFamily="Consolas" x:Name="textsc"/>
                                     </Border>
                                 </ContentControl>
                             </StackPanel>
@@ -101,9 +101,9 @@
                     <Setter.Value>
                         <Border BorderBrush="{Binding Foreground, ElementName=text}" BorderThickness="1" >
                             <StackPanel Orientation="Vertical">
-                                <Rectangle Height="3" Fill="{Binding Foreground,ElementName=text}"/>
+                                <Rectangle Height="3" Fill="{Binding Foreground,ElementName=texta}"/>
                                 <Rectangle Height="3" Fill="Red"/>
-                                <TextBlock Text="?" Padding="4,0" x:Name="text" FontSize="9"/>
+                                <TextBlock Text="?" Padding="4,0" x:Name="texta" FontSize="9"/>
                             </StackPanel>
                         </Border>
                     </Setter.Value>
@@ -116,6 +116,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
@@ -146,13 +147,6 @@
                     <ContextMenu ItemsSource="{Binding MenuItems}"/>
                 </Button.ContextMenu>
             </Button>
-            <Label x:Name="debugBtn" Content="(Debug)" VerticalAlignment="Bottom"
-                    FontFamily="Consolas" FontSize="9">
-                <Label.ContextMenu>
-                    <ContextMenu>
-                    </ContextMenu>
-                </Label.ContextMenu>
-            </Label>
         </StackPanel>
         <!-- list of extensions -->
         <ListBox Grid.Row="1" 
@@ -216,15 +210,15 @@
                 <TextBox Text="{Binding SelectedItem.Title, UpdateSourceTrigger=PropertyChanged}"/>
                 <StackPanel 
                     Visibility="{Binding SelectedItem.IsGenerator, Converter={StaticResource notBoolToVisi}}">
-                        <Label Content="Key Shortcut 🛈" ToolTip="If you want to use key gesture, use comma ',' separator. Or use ';' to allow more options. "/>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBox Text="{Binding SelectedItem.ShortCutKey, UpdateSourceTrigger=PropertyChanged}"/>
-                            <TextBox Grid.Column="1" Text="&lt;Press key here&gt;" KeyDown="Shortcut_KeyDown" PreviewKeyDown="Shortcut_KeyDown"/>
-                        </Grid>
+                    <Label Content="Key Shortcut 🛈" ToolTip="If you want to use key gesture, use comma ',' separator. Or use ';' to allow more options. "/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Text="{Binding SelectedItem.ShortCutKey, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox Grid.Column="1" Text="&lt;Press key here&gt;" KeyDown="Shortcut_KeyDown" PreviewKeyDown="Shortcut_KeyDown"/>
+                    </Grid>
                 </StackPanel>
                 <Label Content="DLL Path 🛈" ToolTip="You can use $(SolutionDir),$(Self) or any environment variable like %APP_MY_PATH%."/>
                 <Grid>
@@ -266,12 +260,12 @@
                     </Grid>
                 </StackPanel>
                 <Label Content="Options"/>
-                        <StackPanel Orientation="Horizontal" Margin="10,3,0,0">
-                            <CheckBox IsChecked="{Binding SelectedItem.OutOfProcess}" Content="Out of process 🛈" ToolTip="Extension is executed using anothe process, so all dlls are always reloaded and not locked."/>
-                            <FrameworkElement Width="15"/>
-                            <CheckBox IsChecked="{Binding SelectedItem.CompileBeforeRun}" Content="Compile 🛈" ToolTip="Before Running extension, it will be tried to compile containing project. Disable to make it faster."/>
-                            <FrameworkElement Width="15"/>
-                        </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="10,3,0,0">
+                    <CheckBox IsChecked="{Binding SelectedItem.OutOfProcess}" Content="Out of process 🛈" ToolTip="Extension is executed using anothe process, so all dlls are always reloaded and not locked."/>
+                    <FrameworkElement Width="15"/>
+                    <CheckBox IsChecked="{Binding SelectedItem.CompileBeforeRun}" Content="Compile 🛈" ToolTip="Before Running extension, it will be tried to compile containing project. Disable to make it faster."/>
+                    <FrameworkElement Width="15"/>
+                </StackPanel>
             </StackPanel>
         </StackPanel>
     </Grid>

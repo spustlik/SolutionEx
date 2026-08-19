@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO.Packaging;
 using System.Linq;
 using System.Text;
@@ -43,7 +44,6 @@ namespace SolutionExtensions.UI.Extensions
             set => Set(ref _model, value);
         }
         #endregion
-
         public ObservableCollection<Control> MenuItems { get; private set; } = new ObservableCollection<Control>();
         public void AddMenuItem(string header, RoutedEventHandler click, string tooltip = null)
         {
@@ -80,20 +80,44 @@ namespace SolutionExtensions.UI.Extensions
         {
             InitializeComponent();
             DataContext = new VM();
-            debugBtn.Visibility = Visibility.Collapsed;
-#if DEBUG
-            debugBtn.Visibility = Visibility.Visible;
-#endif
-            ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+            ViewModel.PropertyChanged += (_, args) =>
+            {
+                if (args.PropertyName == nameof(VM.SelectedItem))
+                {
+                    if (ViewModel.SelectedItem != null)
+                        ExtensionsService.UpdateItemFromDll(ViewModel.SelectedItem);
+                    this.Validate();
+                }
+            };
         }
-
         public void Init(ExtensionsModel model, IExtensionsService extensionsService)
         {
             ExtensionsService = extensionsService;
             ViewModel.Model = model;
-            ViewModel.Model.Extensions.OnCollectionItemChanged(null, ViewModelExtensions_PropertyChanged);
-            ViewModel.Model.Extensions.OnCollectionItemChanged(nameof(ExtensionItem.Files), ViewModelExtensions_PropertyChanged);
-            ViewModel.Model.Extensions.CollectionChanged += ViewModelExtensions_CollectionChanged;
+
+            ViewModel.Model.Extensions.CollectionChanged += (s,e) =>
+            {
+                ThrottleUpdateModel();
+            };
+            ViewModel.Model.Extensions.OnAnyChanged((sender, args) =>
+            {
+                Debug.WriteLine($"[ExtListControl] ViewModel @OnAnyChanged {args.Action} {args.PathText}");
+                ThrottleUpdateModel();
+                if (args.PathList.Last() == nameof(ExtensionItem.Files))
+                {
+                    //sender is collection 
+                    ThrottleValidate();
+                }
+                if (sender is ExtensionItem item)
+                {
+                    ThrottleValidate();
+                    if (args.PathList.Last() == nameof(ExtensionItem.ClassName))
+                    {
+                        ExtensionsService.UpdateItemFromDll(item);
+                    }
+                }
+            });
+
             _mover = MoveCollectionHelper.Create(this, ViewModel.Model.Extensions);
             _mover.MoveCompleted += mover_MoveCompleted;
         }
@@ -103,32 +127,6 @@ namespace SolutionExtensions.UI.Extensions
             ViewModel.SelectedItem = e.Item as ExtensionItem;
         }
 
-        private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(VM.SelectedItem))
-            {
-                if(ViewModel.SelectedItem!=null)
-                    ExtensionsService.UpdateItemFromDll(ViewModel.SelectedItem);
-                this.Validate();
-            }
-        }
-        private void ViewModelExtensions_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            //Package.Log($"ViewModelExtensions_PropertyChanged: {e.PropertyName}");
-            var item = sender as ExtensionItem;
-            if (e.PropertyName == nameof(ExtensionItem.ClassName))
-            {
-                ExtensionsService.UpdateItemFromDll(item);
-            }
-            ThrottleValidate();
-            ThrottleUpdateModel();
-        }
-
-        private void ViewModelExtensions_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            //Package.Log($"ViewModelExtensions_CollectionChanged: {e.Action}");
-            ThrottleUpdateModel();
-        }
         private void ThrottleValidate()
         {
             _validator.Invoke(() => Validate());
@@ -136,10 +134,7 @@ namespace SolutionExtensions.UI.Extensions
 
         private void ThrottleUpdateModel()
         {
-            _saver.Invoke(() =>
-            {
-                ExtensionsService.Save(ViewModel.Model);
-            });
+            _saver.Invoke(() => ExtensionsService.Save(ViewModel.Model));
         }
 
         private void AddItem_Click(object sender, System.Windows.RoutedEventArgs e)
