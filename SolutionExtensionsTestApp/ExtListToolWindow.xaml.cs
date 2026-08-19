@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using SolutionExtensions;
 using SolutionExtensions.Model;
 using SolutionExtensions.UI.Extensions;
 using System;
@@ -18,6 +19,7 @@ namespace SolutionExtensionsTestApp
         {
             InitializeComponent();
             extensionList.ViewModel.AddMenuItem("Reload", Load_Click);
+            extensionList.ViewModel.AddMenuItem("(dbg) Change VM", ChangeVM_Click);
         }
         private void UserControl_Initialized(object sender, EventArgs e)
         {
@@ -30,11 +32,24 @@ namespace SolutionExtensionsTestApp
         {
             Load(extensionList.ViewModel.Model);
         }
-
+        private void ChangeVM_Click(object sender, RoutedEventArgs e)
+        {
+            extensionList.ViewModel.Model.Extensions[1].Argument = "Arg";
+            extensionList.ViewModel.Model.Extensions[1].Title= "Tit";
+            extensionList.ViewModel.Model.Extensions[1].ArgumentTitle= "ArgTit";
+            extensionList.ViewModel.Model.Extensions[1].ClassName = "MyClass";
+            extensionList.ViewModel.Model.Extensions[1].CompileBeforeRun = true;
+            extensionList.ViewModel.Model.Extensions[1].DllPath = "MyDll.dll";
+            extensionList.ViewModel.Model.Extensions[1].ShortCutKey = "ALT+1";
+            extensionList.ViewModel.Model.Extensions[1].CompileBeforeRun = true;
+            extensionList.ViewModel.Model.Extensions[1].Files.Add("karel");
+            extensionList.ViewModel.Model.Extensions[1].Files[0]="pepa";
+        }
         /** svc interface **/
         void IExtensionsService.UpdateItemFromDll(ExtensionItem item)
         {
-            item.Title = item.ClassName + " extension";
+            if(item.Title==null)
+                item.Title = item.ClassName + " extension";
             if (item.ClassName == "Class1")
             {
                 item.ArgumentTitle = "My Parameter";
@@ -46,7 +61,7 @@ namespace SolutionExtensionsTestApp
             
         }
 
-        private string GetFileName() => Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "solex.cfg");
+        private string GetFileName() => Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "../../solex.cfg");
 
         private void Load(ExtensionsModel model)
         {
@@ -63,6 +78,12 @@ namespace SolutionExtensionsTestApp
 
         void IExtensionsService.Run(ExtensionItem item, bool debug)
         {
+            if (item.IsGenerator)
+            {
+                item.Files.Add("newfile.xxx");
+                MessageBoxEx.Instance.Show("File added");
+                return;
+            }
             MessageBoxEx.Instance.Show(debug ? "Debug extension" : "Run extension");
         }
 

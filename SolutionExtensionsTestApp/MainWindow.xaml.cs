@@ -1,4 +1,5 @@
-﻿using SolutionExtensions.UI;
+﻿using SolutionExtensions;
+using SolutionExtensions.UI;
 using SolutionExtensions.UI.Themes;
 using System.Diagnostics;
 using System.IO;
