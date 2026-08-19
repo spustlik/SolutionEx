@@ -1,22 +1,16 @@
 ﻿using EnvDTE;
-using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.TextTemplating.VSHost;
 using SolutionExtensions.Commands;
 using SolutionExtensions.Model;
-using SolutionExtensions.ToolWindows;
-using SolutionExtensions.UI;
-using SolutionExtensions.UI.Themes;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Packaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Controls;
 using Task = System.Threading.Tasks.Task;
 
 namespace SolutionExtensions
@@ -94,11 +88,20 @@ namespace SolutionExtensions
             }
             dte.Events.DTEEvents.OnStartupComplete += DTEEvents_OnStartupComplete;
             VsThemeKeys.Init();
+            AddToOutputPane($"---Started at {DateTime.Now}", clear: true);
+            var manifest = VsixXmlManifest.Load(this);
+            if (manifest != null)
+            {
+                AddToOutputPane($"{manifest.DisplayName}");
+                AddToOutputPane($"  Version: {manifest.Version}");
+                AddToOutputPane($"  From: {manifest.ManifestDateTime:d}");
+            }
+
         }
 
         private void DTEEvents_OnStartupComplete()
         {
-            AddToOutputPane($"---Started at {DateTime.Now}", clear: true);
+            AddToOutputPane($"DTE StartupComplete at {DateTime.Now}");
         }
 
 
@@ -167,9 +170,5 @@ namespace SolutionExtensions
             return pkg as SolutionExtensionsPackage;
         }
 
-        public IDisposable WaitCursor()
-        {
-            return new WaitCursorScope();
-        }
     }
 }

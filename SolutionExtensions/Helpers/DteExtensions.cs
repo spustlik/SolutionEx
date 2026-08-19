@@ -3,15 +3,14 @@ using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Threading;
-using SolutionExtensions.ToolWindows;
+using SolutionExtensions.UI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
-using System.Threading;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using System.Windows.Controls;
 
 namespace SolutionExtensions
 {
@@ -244,15 +243,6 @@ namespace SolutionExtensions
             }
         }
 
-        /// <summary>
-        /// use using (new Microsoft.VisualStudio.Modeling.Shell.WaitCursor())
-        /// </summary>
-        public static void SetWaitCursor(this DTE dte)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            var vsShell = ServiceProvider.GlobalProvider.GetService<SVsUIShell, IVsUIShell>();
-            vsShell.SetWaitCursor();
-        }
         public static Command GetCommandByName(this DTE dte, string name)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -281,6 +271,39 @@ namespace SolutionExtensions
                 yield return item.FileNames[(short)i];
             }
         }
+
+        public static IDisposable WaitCursor(this Package package)
+        {
+            return new WpfWaitCursorScope();
+        }
+
+        
+        [Obsolete("Use using package.WaitCursor")]
+        /// <summary>
+        /// use using (new Microsoft.VisualStudio.Modeling.Shell.WaitCursor())
+        /// </summary>
+        public static void SetWaitCursor(this DTE dte)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var vsShell = ServiceProvider.GlobalProvider.GetService<SVsUIShell, IVsUIShell>();
+            vsShell.SetWaitCursor();
+        }
+        public static IEnumerable<IVsPackage> GetPackages(this IVsShell shell)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var hr = shell.GetPackageEnum(out var packagesEnum);
+            Marshal.ThrowExceptionForHR(hr);
+            packagesEnum.Reset();
+            while (true)
+            {
+                var list = new IVsPackage[1];
+                var r = packagesEnum.Next((uint)list.Length, list, out var fetched);
+                Marshal.ThrowExceptionForHR(hr);
+                if (fetched == 0)
+                    break;
+                yield return list[0];
+            }
+        }
         public static string StringToConst(string s)
         {
             var types = new[] { typeof(EnvDTE.Constants) };
@@ -297,33 +320,5 @@ namespace SolutionExtensions
             return s;
         }
 
-        static void addFile(DTE dte, string fn)
-        {
-            //not working, nees template or file to create new project item
-            ThreadHelper.ThrowIfNotOnUIThread();
-            //ok:var template1 = dte.Solution.ProjectItemsTemplatePath("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}");
-            //err:var template = dte.Solution.ProjectItemsTemplatePath("{66A2671D-8FB5-11D2-AA7E-00C04F688DDE}");// EnvDTE.Constants.vsProjectKindMisc);
-            try
-            {
-                var proj = dte.Solution.FindProjectMiscItems() ?? dte.Solution.AddProjectMiscItems();
-                var pi = proj.FindProjectItem(fn);
-                if (pi != null)
-                    pi = proj.ProjectItems.AddFromFile(fn);
-                dte.Documents.Open(fn);
-                //var doc = dte.Documents.Add(null);// arg invalid
-                //var doc = dte.Documents.Add(EnvDTE.Constants.vsDocumentKindText);//arg invalid
-                //var doc = dte.Documents.Add(EnvDTE.Constants.vsDocumentKindText.Trim('{', '}'));//arg invalid
-                var doc = dte.Documents.Add(fn);
-                doc.Activate();
-                //(doc.Selection as EnvDTE.TextSelection).Insert(dumpRoot.ToString());
-            }
-            catch (Exception ex)
-            {
-                dte.AddToOutputPane($"Error:" + ex, typeof(SolutionExtensionsPackage).Namespace);
-            }
-
-            //dte.Solution.AddFromFile(fn);//needs path to template
-
-        }
     }
 }

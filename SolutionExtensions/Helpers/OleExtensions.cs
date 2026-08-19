@@ -16,21 +16,6 @@ namespace SolutionExtensions
                 throw new Exception($"DTE is not providing OLE service provider");
             return svcOle;
         }
-        public static IEnumerable<IVsPackage> GetPackages(this IVsShell shell)
-        {
-            var hr = shell.GetPackageEnum(out var packagesEnum);
-            Marshal.ThrowExceptionForHR(hr);
-            packagesEnum.Reset();
-            while (true)
-            {
-                var list = new IVsPackage[1];
-                var r = packagesEnum.Next((uint)list.Length, list, out var fetched);
-                Marshal.ThrowExceptionForHR(hr);
-                if (fetched == 0)
-                    break;
-                yield return list[0];
-            }
-        }
         public static object QueryService<T>(this Microsoft.VisualStudio.OLE.Interop.IServiceProvider serviceProvider)
         {
             return serviceProvider.QueryService(typeof(T).GUID);

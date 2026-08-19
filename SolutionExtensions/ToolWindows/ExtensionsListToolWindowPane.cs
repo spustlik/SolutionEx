@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.Shell;
+using System;
 using System.Runtime.InteropServices;
 
 namespace SolutionExtensions.ToolWindows
@@ -10,6 +11,10 @@ namespace SolutionExtensions.ToolWindows
 
         public ExtensionsListToolWindowPane() : base(CAPTION, new ExtensionsListToolWindow())
         {
+        }
+        public override void OnToolWindowCreated()
+        {
+            base.OnToolWindowCreated();
         }
     }
 }
