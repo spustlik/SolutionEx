@@ -5,7 +5,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="myfile.xyz" />
+    <None Include="myfile.xyz">
+      <Generator>SolutionFileGenerator</Generator>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Class1.cs">
+      <Generator>SolutionFileGenerator</Generator>
+      <LastGenOutput>Class1.xyz</LastGenOutput>
+    </Compile>
+    <Compile Update="Class2.cs">
+      <Generator>SolutionFileGenerator</Generator>
+      <LastGenOutput>Class2.xyz</LastGenOutput>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -18,6 +31,16 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Class1.html</DependentUpon>
+    </None>
+    <None Update="Class1.xyz">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Class1.cs</DependentUpon>
+    </None>
+    <None Update="Class2.xyz">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Class2.cs</DependentUpon>
     </None>
     <None Update="myfile.foo">
       <DesignTime>True</DesignTime>
