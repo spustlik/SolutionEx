@@ -75,6 +75,11 @@
                                         <TextBlock Text="{Binding ShortCutKey}" FontFamily="Consolas" x:Name="textsc"/>
                                     </Border>
                                 </ContentControl>
+                                <TextBlock Visibility="{Binding IsGenerator, Converter={StaticResource boolToVisi}}"
+                                    Padding="1,0" VerticalAlignment="Center" FontSize="8"
+                                    Text="{Binding Files.Count, Mode=OneWay, StringFormat={}({0} assigned files)}"/>
+
+
                             </StackPanel>
 
                             <Grid Grid.Row="1" Opacity="0.8">
@@ -154,9 +159,7 @@
                  SelectedItem="{Binding SelectedItem}"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                  ItemTemplate="{StaticResource extensionItemTemplate}"
-                 cmt:ItemsSource2="{d:DesignData /_DesignData/ExtensionVM.xaml}"
-                 d:ItemsSource="{x:Static ui:SampleData.Extensions}"
-                 cmt:ItemsSource="{d:SampleData ItemCount=3}"
+                 d:ItemsSource="{x:Static ui:SampleData.Extensions}"                 
                  >
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
