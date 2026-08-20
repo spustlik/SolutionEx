@@ -92,9 +92,8 @@ namespace SolutionExtensions
             var manifest = VsixXmlManifest.Load(this);
             if (manifest != null)
             {
-                AddToOutputPane($"{manifest.DisplayName}");
-                AddToOutputPane($"  Version: {manifest.Version}");
-                AddToOutputPane($"  From: {manifest.ManifestDateTime:d}");
+                AddToOutputPane($"{manifest.DisplayName} v{manifest.Version} ({manifest.ManifestDateTime:d})");
+                AddToOutputPane($"  Location: {GetType().Assembly.Location}");
             }
 
         }

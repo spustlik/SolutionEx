@@ -327,7 +327,8 @@ namespace SolutionExtensions.ToolWindows
                 // but wanted to generate something else
                 if (debug)
                 {
-                    if(MessageBoxEx.Instance.ShowQuestion($"Selected item in Solution Explorer is:\n" +
+                    if(MessageBoxEx.Instance.ShowQuestion(
+                        $"Selected item in Solution Explorer is:\n" +
                         $"{selectedFiles.First().ProjectItem.Name}.\n" +
                         $"Are you sure you want to debug your generator with it?"
                         ) != MessageBoxResult.Yes)
@@ -339,6 +340,11 @@ namespace SolutionExtensions.ToolWindows
                 if (debug || item.OutOfProcess)
                 {
                     var file = selectedFiles.First();
+                    //var _ = Task.Run(async () =>
+                    //{
+                    //    await GenerateInnerUsingLauncherAsync(item, file, debug);
+                    //});
+                    Package.Log($"Calling Out-of-process generator");
                     var _ = GenerateInnerUsingLauncherAsync(item, file, debug);
                 }
                 else
@@ -356,16 +362,21 @@ namespace SolutionExtensions.ToolWindows
         private async Task GenerateInnerUsingLauncherAsync(ExtensionItem item, FileItem file, bool debug)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            Package.Log($"Creating debugger");
             var dbg = ExtensionDebugger.Create(item, Package, ExtensionManager, debug);
             var ns = file.ProjectItem.Properties.Item("CustomToolNamespace").Value as string;
             //we need to run generator in new proces to allow Debugging
+            Package.Log($"Calling generator in debugger");
             var (content, extension) = await dbg.GenerateAsync(file.ProjectItem.FileNames[0], ns);
             //so simulate generator run
             var genFile = Path.ChangeExtension(file.ProjectItem.FileNames[0], extension);
             var customToolOutput = file.ProjectItem.Properties.Item("CustomToolOutput").Value as string;
             var existing = file.ProjectItem.ProjectItems.FindProjectItem(pi => pi.FileNames[0] == genFile);
             if (existing == null)
+            {
+                Package.Log($"Output file {Path.GetFileName(genFile)} not exists, adding ");
                 existing = file.ProjectItem.ProjectItems.AddFromFile(genFile);
+            }
             file.ProjectItem.Properties.Item("CustomToolOutput").Value = genFile;
             Package.Log($"Done.");
         }

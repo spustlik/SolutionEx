@@ -260,7 +260,8 @@ namespace SolutionExtensions
         {
             var dte = package.GetService<DTE, DTE>();
             var ri = FindRI(item);
-            if (ri != null) throw new InvalidOperationException($"Invalid Reflection information of item");
+            if (ri == null) 
+                throw new InvalidOperationException($"Invalid Reflection information of item");
             ExtensionObject.Run(ri, dte, package, argument);
         }
 

@@ -65,14 +65,7 @@ namespace SolutionExtensions
         {
             var process = Launcher.CreateGeneratorProcess(dllPath, item.ClassName, monikerName, packageId, debug, inputFilePath, defaultNamespace);
             Launcher.StartAndWait(process, debug);
-            //var tcs = new TaskCompletionSource<(string content, string extension)>();
-            //process.Exited += (sender, args)=>
-            //{
-            //    tcs.SetResult((content, extension));
-            //};
-            //return tcs.Task;
             AttachVsDebugger(process);
-            //TODO:wait for process to end, read ext and result
             await process.WaitForExitAsync();
             string extension = null;
             string outputFile = null;

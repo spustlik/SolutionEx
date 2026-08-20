@@ -97,6 +97,7 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * `Create GUID` - just creates new GUID and copies into clipboard
 * `Fix Encoding` - changes encoding of all text files with non-ascii characters to UTF8
 ### Version history
+* 1.6.3 - fixes, more logging
 * 1.6.2 - fixes, refactoring
 * 1.5 - VS 2026, generators
 * 1.4.1 - fixed bug shen adding new extension, or dll is not found
