@@ -13,17 +13,24 @@ namespace SolutionExtensions
     {
         public static void Run(ExtensionRI ri, DTE dte, object package, string argument)
         {
+            if (ri == null)
+                throw new ArgumentNullException("ri");
             var method = ri.RunMethod;
+            if (method == null)
+                throw new ArgumentNullException("method");
             //var (method, type) = FindExtensionMethod(assembly, className, throwIfNotFound: true);
             var parameters = new object[method.GetParameters().Length];
             parameters[0] = dte;
             if (parameters.Length > 1)
                 parameters[1] = package;
+            if (ri.Type == null)
+                throw new ArgumentNullException("Type");
             var instance = method.IsStatic ? null : Activator.CreateInstance(ri.Type);
             if (!string.IsNullOrEmpty(argument))
             {
                 var ai = ri.FindArgumentProperty();
-                if (ai.propertyInfo == null) throw new Exception($"Missing Argument property on '{ri.Type.Name}'");
+                if (ai == default || ai.propertyInfo == null) 
+                    throw new Exception($"Missing Argument property on '{ri.Type.Name}'");
                 var argValue = Convert.ChangeType(argument, ai.propertyInfo.PropertyType);
                 ai.propertyInfo.SetValue(instance, argValue);
             }

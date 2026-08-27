@@ -8,6 +8,7 @@
     <None Include="myfile.xyz">
       <Generator>SolutionFileGenerator</Generator>
     </None>
+    <None Include="nogen.xyz" />
   </ItemGroup>
 
   <ItemGroup>
