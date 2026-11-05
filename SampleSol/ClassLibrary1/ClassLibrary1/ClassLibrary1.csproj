@@ -57,6 +57,15 @@
     <None Update="nogen.foo">
       <Generator>SolutionFileGenerator</Generator>
     </None>
+    <None Update="testCfg.sgen">
+      <Generator>SolutionConfiguredGenerator</Generator>
+      <LastGenOutput>testCfg.tst</LastGenOutput>
+    </None>
+    <None Update="testCfg.tst">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>testCfg.sgen</DependentUpon>
+    </None>
   </ItemGroup>
 
 </Project>

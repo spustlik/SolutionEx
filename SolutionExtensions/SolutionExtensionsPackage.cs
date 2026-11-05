@@ -41,11 +41,16 @@ namespace SolutionExtensions
     [ComVisible(true)]
     [CodeGeneratorRegistration(typeof(SolutionFileGenerator), 
         nameof(SolutionFileGenerator),
-        SolutionExtensionsPackage.PackageGuidString, 
+        PackageGuidString, 
         GeneratesDesignTimeSource = true)]
-    [ProvideObject(typeof(SolutionFileGenerator))]
+    [CodeGeneratorRegistration(typeof(SolutionConfiguredGenerator),
+        nameof(SolutionConfiguredGenerator),
+        PackageGuidString,
+        GeneratesDesignTimeSource = true)]
+    //[ProvideObject(typeof(SolutionFileGenerator))]
     //this is working, above not
-    [ProvideCodeGenerator(typeof(SolutionFileGenerator), nameof(SolutionFileGenerator), "Description of my generator", generatesDesignTimeSource: true)]
+    [ProvideCodeGenerator(typeof(SolutionFileGenerator), nameof(SolutionFileGenerator), "Generator calling own configured code", generatesDesignTimeSource: true)]
+    [ProvideCodeGenerator(typeof(SolutionConfiguredGenerator), nameof(SolutionConfiguredGenerator), "Generator calling configured script", generatesDesignTimeSource: true)]
     public sealed class SolutionExtensionsPackage : AsyncPackage
     {
         /// <summary>
@@ -108,6 +113,7 @@ namespace SolutionExtensions
         {
             Log($"Solution closing");
             Model.Extensions.Clear();
+            ExtensionManager.SyncToDte(Model);
         }
 
         void OnSolutionOpened()

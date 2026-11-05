@@ -20,6 +20,7 @@
     <None Remove="Images\logo.png" />
     <None Remove="Images\menu.png" />
     <None Remove="overview.md" />
+    <None Remove="SolutionExtensions.Launcher.Merged.exe" />
     <None Remove="Themes\VsStyles.xaml" />
     <None Remove="ToolWindows\ExtensionsListToolWindow.xaml" />
     <None Remove="ToolWindows\ReflectorToolWindow.xaml" />
@@ -39,6 +40,9 @@
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="overview.md" />
+    <Content Include="SolutionExtensions.Launcher.Merged.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectCapability Include="CreateVsixContainer" />
@@ -95,9 +99,6 @@
     <None Update="Images\logo.xcf">
     </None>
     <None Update="packageManifest.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="SolutionExtensions.Launcher.Merged.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -1,28 +1,22 @@
-﻿using EnvDTE;
-using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.OLE.Interop;
-using Microsoft.VisualStudio.Shell;
+﻿using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace SolutionExtensions
 {
-    [Guid(SolutionFileGenerator.ProgId)]
+
+    [Guid(ProgId)]
     [ComVisible(true)]
-    public class SolutionFileGenerator : IVsSingleFileGenerator, IObjectWithSite
+    public class SolutionFileGenerator : IVsSingleFileGenerator//, IObjectWithSite
     {
         public const string ProgId = "9ecce53a-2356-4fb4-a3ca-80f7059fe812";
         private string lastExtension;
 
         #region generator
-        int IVsSingleFileGenerator.DefaultExtension(
-            out string extension)
+        int IVsSingleFileGenerator.DefaultExtension(out string extension)
         {
             extension = lastExtension;
             return VSConstants.S_OK;
@@ -37,8 +31,6 @@ namespace SolutionExtensions
         {
             if (String.IsNullOrEmpty(fileContent))
                 fileContent = File.ReadAllText(filePath, Encoding.Default);
-
-
             var result = GenerateBytes(fileContent, filePath, defaultNamespace, pGenerateProgress);
             if (result == null)
             {
@@ -70,6 +62,7 @@ namespace SolutionExtensions
 
         #endregion
 
+        /*
         #region Site
         private object pUnkSite;
 
@@ -86,6 +79,7 @@ namespace SolutionExtensions
             ppvSite = ppv;
         }
         #endregion 
+        */
     }
 
 }

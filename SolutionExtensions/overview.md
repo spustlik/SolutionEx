@@ -97,6 +97,8 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * `Create GUID` - just creates new GUID and copies into clipboard
 * `Fix Encoding` - changes encoding of all text files with non-ascii characters to UTF8
 ### Version history
+* next - SolutionConfiguredGenerator
+* 1.6.5 - still missing launcher.exe, commands reset when solution changes
 * 1.6.4 - missing launcher.exe, params check
 * 1.6.3 - fixes, more logging
 * 1.6.2 - fixes, refactoring
@@ -123,7 +125,20 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * generate mermaid diagrams for DTE https://mermaid.js.org/intro/syntax-reference.html
 * some rich ui like Task Dialog
 * more args?
-* some file generator support
+* multi-file generator support
+* generator config/args for file
+* generator with config file, which starts generating 
+  * TODO: watch real source?
+  * TODO: what about output and extension
+```
+# config is defining variables, using functions
+SRC=$(SolutionDir)/myfolder/myclass.cs
+USEJSON=true
+EXE=$SEARCH($DTE(myProject)/**/MyProject.exe))
+# config can EXEC cmd or INVOKE dll class
+EXEC $(EXE) $(SRC) $(USEJSON)
+INVOKE mydll.dll MyClass. 
+```
 
 #### Notes
 * Debugging
@@ -141,5 +156,5 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
     * but can work only for methods reflection
 * Mono.Cecil
     * referenced only one dll, not whole package
-
+* config is stored in soluting scope as 
  

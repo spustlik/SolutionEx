@@ -48,17 +48,20 @@ namespace SolutionExtensions
             var item = FindItemByCmd(model, cmd);
             if (item != null)
             {
-                cmd.AddShortCutToCommand(item.ShortCutKey);
+                cmd.AddShortCutToCommand(item.ShortCutKey, clear: true);
                 if (oleCmd != null)
                 {
                     oleCmd.Text = item.Title;
+                    oleCmd.Enabled = true;
                     oleCmd.Visible = true;
                 }
             }
             else
             {
+                cmd.AddShortCutToCommand(null, clear: true);
                 if (oleCmd != null)
                 {
+                    oleCmd.Enabled = false;
                     oleCmd.Visible = false;
                 }
             }
@@ -260,7 +263,7 @@ namespace SolutionExtensions
         {
             var dte = package.GetService<DTE, DTE>();
             var ri = FindRI(item);
-            if (ri == null) 
+            if (ri == null)
                 throw new InvalidOperationException($"Invalid Reflection information of item");
             ExtensionObject.Run(ri, dte, package, argument);
         }
@@ -349,8 +352,8 @@ namespace SolutionExtensions
             package.Log($"Find generator for file {inputPath}");
             var fn = GetSolutionRelativePath(inputPath);
             var item = package.Model.Extensions
-                .Where(ex=>ex.IsGenerator)
-                .Where(ex=>ex.Files.Contains(fn, StringComparer.OrdinalIgnoreCase))
+                .Where(ex => ex.IsGenerator)
+                .Where(ex => ex.Files.Contains(fn, StringComparer.OrdinalIgnoreCase))
                 .FirstOrDefault();
             package.Log($"Result: {item?.Title} {item?.DllPath}.{item?.ClassName}");
             try
@@ -363,13 +366,13 @@ namespace SolutionExtensions
                 if (ri == null)
                     throw new InvalidOperationException($"Invalid Reflection information of item");
                 //ExtensionObject.RunExtension(ri, dte, package, argument);
-                var dte = package.GetService<DTE,DTE>();
+                var dte = package.GetService<DTE, DTE>();
                 var content = File.ReadAllText(inputPath);
                 var generated = ExtensionObject.Generate(ri, dte, content, inputPath, defaultNamespace, out extension);
                 package.Log($"Generated .{extension} file of {generated.Length} chars from {fn} of {content.Length} chars");
                 return generated;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 package.Log($"Error: {ex.Message}\n{ex}");
                 progress.GeneratorError(0, 1, ex.Message, 0, 0);

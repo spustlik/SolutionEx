@@ -226,6 +226,8 @@ namespace SolutionExtensions
             var bindings = ((object[])command.Bindings).Cast<string>().ToList();
             if (clear)
                 bindings.Clear();
+            if (shortCut == null)
+                return;
             //what about "Text Editor::Ctrl+E, Ctrl+E" ?
             if (!shortCut.Contains("::"))
                 shortCut = "Global::" + shortCut;

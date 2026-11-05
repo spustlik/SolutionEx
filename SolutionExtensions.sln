@@ -10,6 +10,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "libs", "libs", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 	ProjectSection(SolutionItems) = preProject
 		libs\Mono.Cecil.dll = libs\Mono.Cecil.dll
+		SolutionExtensions.extensions.cfg = SolutionExtensions.extensions.cfg
 		libs\SolutionExtensions.Launcher.Merged.exe = libs\SolutionExtensions.Launcher.Merged.exe
 		libs\SolutionExtensions.Launcher.Merged.pdb = libs\SolutionExtensions.Launcher.Merged.pdb
 	EndProjectSection
