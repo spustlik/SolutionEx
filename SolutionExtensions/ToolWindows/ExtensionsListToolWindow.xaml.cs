@@ -31,19 +31,63 @@ namespace SolutionExtensions.ToolWindows
         {
             Package = SolutionExtensionsPackage.GetGlobal();
             list.Init(Package.Model, this);
-            list.ViewModel.AddMenuItem("🔦DTE", ButtonDump_Click, "Inspect DTE objects...");
-            list.ViewModel.AddMenuItem("-", null);
-            list.ViewModel.AddMenuItem("Add new extension project to solution", AddProj_Click);
-            list.ViewModel.AddMenuItem("Add config as solution item", AddConfig_Click);
-            list.ViewModel.AddMenuItem("Validate all extensions", CheckAll_Click);
-            list.ViewModel.AddMenuItem("Assign selected file(s) to generator", AssignToGenerator_Click);
-#if DEBUG
-            list.ViewModel.AddMenuItem("-", null);
-            list.ViewModel.AddMenuItem("(DBG) Reload", Load_Click);
-            list.ViewModel.AddMenuItem("(DBG) Sync to VS", SyncToDte_Click);
-            list.ViewModel.AddMenuItem("(DBG) Save", Save_Click);
-            list.ViewModel.AddMenuItem("(DBG) Show colors", ShowColors_Click);
+            list.ViewModel.MoreMenuItems.AddMenuItem("🔦DTE", ButtonDump_Click, "Inspect DTE objects...");
+            list.ViewModel.MoreMenuItems.AddMenuItem("-", null);
+            list.ViewModel.MoreMenuItems.AddMenuItem("Add new extension project to solution", AddProj_Click);
+            list.ViewModel.MoreMenuItems.AddMenuItem("Add config as solution item", AddConfig_Click);
+            list.ViewModel.MoreMenuItems.AddMenuItem("Validate all extensions", CheckAll_Click);
+#if DEBUG                  
+            list.ViewModel.MoreMenuItems.AddMenuItem("-", null);
+            list.ViewModel.MoreMenuItems.AddMenuItem("(DBG) Reload", Load_Click);
+            list.ViewModel.MoreMenuItems.AddMenuItem("(DBG) Sync to VS", SyncToDte_Click);
+            list.ViewModel.MoreMenuItems.AddMenuItem("(DBG) Save", Save_Click);
+            list.ViewModel.MoreMenuItems.AddMenuItem("(DBG) Show colors", ShowColors_Click);
 #endif
+            list.ViewModel.PropertyChanged += VM_PropertyChanged;
+        }
+
+        private void VM_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(list.ViewModel.SelectedItem))
+            {
+                UpdateAssignMenu();
+            }
+        }
+
+        private void UpdateAssignMenu()
+        {
+            var menu = list.ViewModel.AssignMenuItems;
+            menu.Clear();
+            var item = list.ViewModel.SelectedItem;
+            if (item == null) return;
+            var selectedFiles = GetSolutionSelectedFiles().ToArray();
+            if (selectedFiles.Length > 0)
+            {
+                var selection = selectedFiles.Length == 1 ? selectedFiles[0].FileName : $"{selectedFiles.Length} selected files";
+                menu.AddMenuItem($"Assign {selection}", (s, e) => Assign_Click(item, selectedFiles));
+            }
+            if (item.Files.Count > 0)
+            {
+                if (menu.Count > 0) menu.AddMenuItem("-", null);
+                foreach (var f in item.Files)
+                {
+                    menu.AddMenuItem($"Remove {f}", (s, e) => UnAssign_Click(item, f));
+                }
+            }
+        }
+
+        private void UnAssign_Click(ExtensionItem item, string fn)
+        {
+            ExtensionManager.RemoveFiles(new[] { item }, new[] { fn });
+        }
+
+        private void Assign_Click(ExtensionItem item, FileItem[] selectedFiles)
+        {
+            if (!item.IsGenerator)
+                throw new Exception($"Selected extension is not generator");
+            if (selectedFiles.Length <= 0)
+                throw new Exception($"No item(s) selected");
+            AssignFiles(item, selectedFiles);
         }
 
         private void AddConfig_Click(object sender, RoutedEventArgs e)
@@ -207,7 +251,7 @@ namespace SolutionExtensions.ToolWindows
                     $"There should be breakpoint in your extension to stop debugger there.\n" +
                     $"Or add System.Diagnostics.Debugger.Break(); to your code.\n" +
                     $"Do you want to continue?",
-                    caption:"Breakpoint missing") != MessageBoxResult.Yes)
+                    caption: "Breakpoint missing") != MessageBoxResult.Yes)
                     return;
             }
 
@@ -216,9 +260,9 @@ namespace SolutionExtensions.ToolWindows
             try
             {
                 if (item.IsGenerator)
-                    GenerateInner(item, debug, argument);
-                else
-                    RunInner(item, debug, argument);
+                    throw new InvalidOperationException("Cannot run generator");
+                //GenerateInner(item, debug, argument);
+                RunInner(item, debug, argument);
             }
             catch (Exception ex)
             {
@@ -227,21 +271,6 @@ namespace SolutionExtensions.ToolWindows
                 _ = Package.ShowStatusBarErrorAsync(ex.Message);
                 this.ShowException(ex, "See output pane for details", title);
             }
-        }
-
-        private void AssignToGenerator_Click(object sender, RoutedEventArgs e)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            var item = (sender as FrameworkElement).DataContext as ExtensionItem ?? list.ViewModel.SelectedItem;
-            if (item == null)
-                return;
-            if (!item.IsGenerator)
-                throw new Exception($"Selected extension is not generator");
-            var selectedFiles = GetSelectedFiles().ToArray();
-            if (selectedFiles.Length <= 0)
-                throw new Exception($"No item(s) selected");
-            SetCustomTool(selectedFiles);
         }
 
         class FileItem
@@ -257,7 +286,7 @@ namespace SolutionExtensions.ToolWindows
                     FileName = extensionManager.GetSolutionRelativePath(ProjectItem.FileNames[0]);
             }
         }
-        private IEnumerable<FileItem> GetSelectedFiles()
+        private IEnumerable<FileItem> GetSolutionSelectedFiles()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 #pragma warning disable VSTHRD010 
@@ -270,22 +299,26 @@ namespace SolutionExtensions.ToolWindows
             return selectedItems;
 #pragma warning restore VSTHRD010 
         }
-        private void SetCustomTool(IEnumerable<FileItem> items)
+
+        private bool TrySetCustomTool(IEnumerable<FileItem> items)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-#pragma warning disable VSTHRD010 
+#pragma warning disable VSTHRD010
+            var allOk = true;
             foreach (var projectItem in items.Select(x => x.ProjectItem))
             {
-                var customTool = projectItem.Properties.Item("CustomTool").Value as string;
-                if (customTool != nameof(SolutionFileGenerator))
+                if (ExtensionManager.TrySetCustomTool(projectItem))
+                    Package.Log($"Added custom tool to item '{projectItem.Name}'");
+                else
                 {
-                    Package.Log($"Adding custom tool to item '{projectItem.Name}'");
-                    projectItem.Properties.Item("CustomTool").Value = nameof(SolutionFileGenerator);
+                    Package.Log($"Adding custom tool to item '{projectItem.Name}' failed");
+                    allOk = false;
                 }
             }
+            return allOk;
 #pragma warning restore VSTHRD010
         }
-        private void AssignFiles(IEnumerable<FileItem> items, ExtensionItem item)
+        private void AssignFiles(ExtensionItem item, IEnumerable<FileItem> items)
         {
             var (removed, added) = ExtensionManager.AddFilesToItem(item, Package.Model.Extensions, items.Select(si => si.FileName).ToArray());
             if (removed > 0)
@@ -300,7 +333,7 @@ namespace SolutionExtensions.ToolWindows
             Package.Log($"extension '{item.Title}' Generate() with argument '{argument}' and flags {String.Join(",", item.GetFlags())} from {Path.GetFileName(item.DllPath)},{item.ClassName}");
             if (ExtensionManager.CompileIfNeeded(item))
                 Package.Log($"Extension recompiled");
-            var selectedFiles = GetSelectedFiles().ToArray();
+            var selectedFiles = GetSolutionSelectedFiles().ToArray();
             if (selectedFiles.Length == 0)
                 throw new Exception("There are no selected item(s) in solution explorer.\nPlease select one or more and than Run again.");
             if (selectedFiles.Length > 1)
@@ -315,8 +348,8 @@ namespace SolutionExtensions.ToolWindows
                     return;
                 }
 
-                AssignFiles(selectedFiles, item);
-                SetCustomTool(selectedFiles);
+                AssignFiles(item, selectedFiles);
+                TrySetCustomTool(selectedFiles);
                 return;
             }
             {
@@ -327,7 +360,7 @@ namespace SolutionExtensions.ToolWindows
                 // but wanted to generate something else
                 if (debug)
                 {
-                    if(MessageBoxEx.Instance.ShowQuestion(
+                    if (MessageBoxEx.Instance.ShowQuestion(
                         $"Selected item in Solution Explorer is:\n" +
                         $"{selectedFiles.First().ProjectItem.Name}.\n" +
                         $"Are you sure you want to debug your generator with it?"
@@ -349,8 +382,8 @@ namespace SolutionExtensions.ToolWindows
                 }
                 else
                 {
-                    AssignFiles(selectedFiles, item);
-                    SetCustomTool(selectedFiles);
+                    AssignFiles(item, selectedFiles);
+                    TrySetCustomTool(selectedFiles);
                     dynamic o = selectedFiles.First().ProjectItem.Object;
                     o.RunCustomTool();
                     Package.Log($"Done.");

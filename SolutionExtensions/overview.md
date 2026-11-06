@@ -54,8 +54,8 @@ public class MyExtension
 ```
 ### Create Generator
 Instead of creating extension, you can create file generator. 
-It works like any other CustomTool, but what to generate is specified in your class
-and configuration of which file calls which generator.
+It works like any other CustomTool (warning that project type must support it).
+What to generate is specified in your class, which is stored in config.
 ```
 public class MyExtension
 {
@@ -97,7 +97,6 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * `Create GUID` - just creates new GUID and copies into clipboard
 * `Fix Encoding` - changes encoding of all text files with non-ascii characters to UTF8
 ### Version history
-* next - SolutionConfiguredGenerator
 * 1.6.5 - still missing launcher.exe, commands reset when solution changes
 * 1.6.4 - missing launcher.exe, params check
 * 1.6.3 - fixes, more logging
@@ -126,6 +125,8 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * some rich ui like Task Dialog
 * more args?
 * multi-file generator support
+* generator is not working in modern style projects
+    * try to watch documents save
 * generator config/args for file
 * generator with config file, which starts generating 
   * TODO: watch real source?
@@ -137,7 +138,7 @@ USEJSON=true
 EXE=$SEARCH($DTE(myProject)/**/MyProject.exe))
 # config can EXEC cmd or INVOKE dll class
 EXEC $(EXE) $(SRC) $(USEJSON)
-INVOKE mydll.dll MyClass. 
+INVOKE mydll.dll MyClass
 ```
 
 #### Notes

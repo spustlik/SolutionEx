@@ -1,7 +1,9 @@
 ﻿using EnvDTE;
+using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.TextTemplating.VSHost;
+using Newtonsoft.Json.Linq;
 using SolutionExtensions.Commands;
 using SolutionExtensions.Model;
 using System;
@@ -11,6 +13,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Task = System.Threading.Tasks.Task;
 
 namespace SolutionExtensions
@@ -39,18 +42,9 @@ namespace SolutionExtensions
     [ProvideToolWindow(typeof(ToolWindows.ExtensionsListToolWindowPane))]
     [ProvideToolWindow(typeof(ToolWindows.ReflectorToolWindowPane))]
     [ComVisible(true)]
-    [CodeGeneratorRegistration(typeof(SolutionFileGenerator), 
-        nameof(SolutionFileGenerator),
-        PackageGuidString, 
-        GeneratesDesignTimeSource = true)]
-    [CodeGeneratorRegistration(typeof(SolutionConfiguredGenerator),
-        nameof(SolutionConfiguredGenerator),
-        PackageGuidString,
-        GeneratesDesignTimeSource = true)]
-    //[ProvideObject(typeof(SolutionFileGenerator))]
-    //this is working, above not
+    [CodeGeneratorRegistration(typeof(SolutionFileGenerator), nameof(SolutionFileGenerator), PackageGuidString)]
+    //[ProvideObject(typeof(SolutionFileGenerator))] //not working    
     [ProvideCodeGenerator(typeof(SolutionFileGenerator), nameof(SolutionFileGenerator), "Generator calling own configured code", generatesDesignTimeSource: true)]
-    [ProvideCodeGenerator(typeof(SolutionConfiguredGenerator), nameof(SolutionConfiguredGenerator), "Generator calling configured script", generatesDesignTimeSource: true)]
     public sealed class SolutionExtensionsPackage : AsyncPackage
     {
         /// <summary>
@@ -58,6 +52,7 @@ namespace SolutionExtensions
         /// </summary>
         public const string PackageGuidString = "ac39d443-46d7-4bf6-9691-552e1d504216";
         private DTE dte;
+        private DocumentEvents docEvents;
         public ExtensionManager ExtensionManager { get; private set; }
         public ExtensionsModel Model { get; private set; }
         /// <summary>
@@ -76,22 +71,17 @@ namespace SolutionExtensions
             ExtensionManager = new ExtensionManager(this);
             Model = new ExtensionsModel();
             // err: AddToOutputPane("Started",true);
-            dte.Events.SolutionEvents.Opened += this.OnSolutionOpened;
+            dte.Events.DTEEvents.OnStartupComplete += DTEEvents_OnStartupComplete;
+            dte.Events.SolutionEvents.Opened += OnSolutionOpened;
             dte.Events.SolutionEvents.AfterClosing += OnSolutionAfterClosing;
             //this.RegisterToolWindows();
-            await CommandBase.InitializeAsync<CommandShow>(this);
-            var tasks = new List<Task>();
-            for (int i = 0; i <= CommandIds.Command_Extension50 - CommandIds.Command_Extension1; i++)
-            {
-                tasks.Add(CommandBase.InitializeAsync(this, new RunExtensionCommand(CommandIds.Command_Extension1 + i, i)));
-            }
-            await Task.WhenAll(tasks);
+            await InitCommandsAsync();
             if (dte.Solution != null)
             {
-                ExtensionManager.LoadFile(Model);
-                ExtensionManager.SyncToDte(Model);
+                SolutionOpen();
+                //ExtensionManager.LoadFile(Model);
+                //ExtensionManager.SyncToDte(Model);
             }
-            dte.Events.DTEEvents.OnStartupComplete += DTEEvents_OnStartupComplete;
             VsThemeKeys.Init();
             AddToOutputPane($"---Started at {DateTime.Now}", clear: true);
             var manifest = VsixXmlManifest.Load(this);
@@ -100,28 +90,39 @@ namespace SolutionExtensions
                 AddToOutputPane($"{manifest.DisplayName} v{manifest.Version} ({manifest.ManifestDateTime:d})");
                 AddToOutputPane($"  Location: {GetType().Assembly.Location}");
             }
+        }
 
+        private async Task InitCommandsAsync()
+        {
+            await CommandBase.InitializeAsync<CommandShow>(this);
+            var tasks = new List<Task>();
+            for (int i = 0; i <= CommandIds.Command_Extension50 - CommandIds.Command_Extension1; i++)
+            {
+                tasks.Add(CommandBase.InitializeAsync(this, new RunExtensionCommand(CommandIds.Command_Extension1 + i, i)));
+            }
+            await Task.WhenAll(tasks);
         }
 
         private void DTEEvents_OnStartupComplete()
         {
+            //never called
             AddToOutputPane($"DTE StartupComplete at {DateTime.Now}");
         }
 
 
-        void OnSolutionAfterClosing()
-        {
-            Log($"Solution closing");
-            Model.Extensions.Clear();
-            ExtensionManager.SyncToDte(Model);
-        }
-
         void OnSolutionOpened()
         {
+            SolutionOpen();
+        }
+
+        private void SolutionOpen()
+        {
             ThreadHelper.ThrowIfNotOnUIThread();
-            Log($"Solution opened: {dte.Solution.FullName}");
+            Log($"Solution open: {dte.Solution.FullName}");
             try
             {
+                this.docEvents = dte.Events.DocumentEvents;
+                docEvents.DocumentSaved += OnDocumentSaved;
                 Model.Extensions.Clear();
                 ExtensionManager.LoadFile(Model);
                 ExtensionManager.SyncToDte(Model);
@@ -131,6 +132,39 @@ namespace SolutionExtensions
                 AddToOutputPane($"Error syncing to dte:" + ex);
             }
         }
+
+        void OnSolutionAfterClosing()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            Log($"Solution closing");
+            Model.Extensions.Clear();
+            ExtensionManager.SyncToDte(Model);
+            if (docEvents != null)
+            {
+                docEvents.DocumentSaved -= OnDocumentSaved;
+                docEvents = null;
+            }
+        }
+        void OnDocumentSaved(Document document)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            AddToOutputPane($"DTE Document {document.Name} saved");
+            var gen = ExtensionManager.GetGeneratorsAssignedTo(Model.Extensions, document.FullName).FirstOrDefault();
+            if (gen == null)
+                return;
+            if (ExtensionManager.HasCustomTool(document.ProjectItem, out _, out _))
+                return;
+            AddToOutputPane($"  Item has no CustomTool, but is assigned to generator '{gen.Title}' [{gen.DllPath}], running");
+            var defNs = document.ProjectItem.ContainingProject.Properties.Item("DefaultNamespace")?.Value as string;
+            if (String.IsNullOrEmpty(defNs))
+                defNs = Path.GetFileNameWithoutExtension(document.ProjectItem.ContainingProject.Name);
+            var result = ExtensionManager.RunGeneratorOnFile(document.FullName, defNs,
+                (err) => MessageBoxEx.Instance.ShowError(err), out var ext);
+            var outputFileName = Path.ChangeExtension(document.FullName, ext);
+            File.WriteAllText(outputFileName, result);
+            AddToOutputPane($"  Output written to {outputFileName}");
+        }
+
 
         public void Log(string msg)
         {

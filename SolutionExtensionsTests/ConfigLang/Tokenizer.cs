@@ -2,22 +2,9 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.Serialization;
 
 namespace SolutionExtensions.ConfigLang
 {
-    /*
-     *     grammar:
-    comment=#[any]*
-    line=varSet|fnCall
-    varSet=$IDENT=expr
-    fnCall=$IDENT(expr[argEps])
-    argEps=,expr[argEps]|ε
-    IDENT=[LETTER]?[LETTER|DIGIT]*
-    expr=number|string
-    number=[DIGIT]+
-    string='[any]'|"[any]"   
-     */
     public enum Token
     {
         Eof,
@@ -38,7 +25,7 @@ namespace SolutionExtensions.ConfigLang
         }
         public Token Token { get; set; }
         public string String { get; set; }
-        public object Number { get; set; }
+        public object Number { get; set; } //int, float,double
         public int LineNumber { get; set; }
         public int Column { get; set; }
         public override string ToString() => $"{Token} {String}{Number} at {LineNumber + 1}:{Column + 1}";

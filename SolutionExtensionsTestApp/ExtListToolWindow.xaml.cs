@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using SolutionExtensions;
 using SolutionExtensions.Model;
+using SolutionExtensions.UI;
 using SolutionExtensions.UI.Extensions;
 using System;
 using System.IO;
@@ -18,8 +19,8 @@ namespace SolutionExtensionsTestApp
         public ExtListToolWindow()
         {
             InitializeComponent();
-            extensionList.ViewModel.AddMenuItem("Reload", Load_Click);
-            extensionList.ViewModel.AddMenuItem("(dbg) Change VM", ChangeVM_Click);
+            extensionList.ViewModel.MoreMenuItems.AddMenuItem("Reload", Load_Click);
+            extensionList.ViewModel.MoreMenuItems.AddMenuItem("(dbg) Change VM", ChangeVM_Click);
         }
         private void UserControl_Initialized(object sender, EventArgs e)
         {
@@ -35,20 +36,20 @@ namespace SolutionExtensionsTestApp
         private void ChangeVM_Click(object sender, RoutedEventArgs e)
         {
             extensionList.ViewModel.Model.Extensions[1].Argument = "Arg";
-            extensionList.ViewModel.Model.Extensions[1].Title= "Tit";
-            extensionList.ViewModel.Model.Extensions[1].ArgumentTitle= "ArgTit";
+            extensionList.ViewModel.Model.Extensions[1].Title = "Tit";
+            extensionList.ViewModel.Model.Extensions[1].ArgumentTitle = "ArgTit";
             extensionList.ViewModel.Model.Extensions[1].ClassName = "MyClass";
             extensionList.ViewModel.Model.Extensions[1].CompileBeforeRun = true;
             extensionList.ViewModel.Model.Extensions[1].DllPath = "MyDll.dll";
             extensionList.ViewModel.Model.Extensions[1].ShortCutKey = "ALT+1";
             extensionList.ViewModel.Model.Extensions[1].CompileBeforeRun = true;
             extensionList.ViewModel.Model.Extensions[1].Files.Add("karel");
-            extensionList.ViewModel.Model.Extensions[1].Files[0]="pepa";
+            extensionList.ViewModel.Model.Extensions[1].Files[0] = "pepa";
         }
         /** svc interface **/
         void IExtensionsService.UpdateItemFromDll(ExtensionItem item)
         {
-            if(item.Title==null)
+            if (item.Title == null)
                 item.Title = item.ClassName + " extension";
             if (item.ClassName == "Class1")
             {
@@ -58,7 +59,7 @@ namespace SolutionExtensionsTestApp
             {
                 item.ArgumentTitle = null;
             }
-            
+
         }
 
         private string GetFileName() => Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "../../solex.cfg");
@@ -78,15 +79,8 @@ namespace SolutionExtensionsTestApp
 
         void IExtensionsService.Run(ExtensionItem item, bool debug)
         {
-            if (item.IsGenerator)
-            {
-                item.Files.Add("newfile.xxx");
-                MessageBoxEx.Instance.Show("File added");
-                return;
-            }
             MessageBoxEx.Instance.Show(debug ? "Debug extension" : "Run extension");
         }
-
         bool IExtensionsService.ShowBrowseDll(ExtensionItem item, bool force)
         {
             var dlg = new OpenFileDialog();

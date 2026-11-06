@@ -55,7 +55,11 @@ namespace SolutionExtensions
         private string GenerateString(string inputContent, string inputPath, string defaultNamespace, IVsGeneratorProgress progress)
         {
             var package = SolutionExtensionsPackage.GetGlobal();
-            var result = package.ExtensionManager.RunGeneratorOnFile(inputPath, defaultNamespace, progress, out var ext);
+#pragma warning disable VSTHRD010 // Invoke single-threaded types on Main thread
+            var result = package.ExtensionManager.RunGeneratorOnFile(inputPath, defaultNamespace,
+                (err) => progress.GeneratorError(0, 1, err, 0, 0),
+                out var ext);
+#pragma warning restore VSTHRD010 // Invoke single-threaded types on Main thread
             lastExtension = ext;
             return result;
         }

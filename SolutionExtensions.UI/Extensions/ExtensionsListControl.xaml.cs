@@ -1,14 +1,8 @@
 ﻿using SolutionExtensions.Model;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.IO.Packaging;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -44,29 +38,11 @@ namespace SolutionExtensions.UI.Extensions
             set => Set(ref _model, value);
         }
         #endregion
-        public ObservableCollection<Control> MenuItems { get; private set; } = new ObservableCollection<Control>();
-        public void AddMenuItem(string header, RoutedEventHandler click, string tooltip = null)
-        {
-            if (header == "-")
-            {
-                MenuItems.Add(new Separator());
-                return;
-            }
-            var item = new MenuItem() { Header = header };
-            if (click != null) item.Click += click;
-            if (tooltip != null) item.ToolTip = tooltip;
-            MenuItems.Add(item);
-        }
-    }
+        public ObservableCollection<Control> MoreMenuItems { get; private set; } = new ObservableCollection<Control>();
+        public ObservableCollection<Control> AssignMenuItems { get; private set; } = new ObservableCollection<Control>();
+        public void AddMoreMenuItem(string header, RoutedEventHandler click, string tooltip = null) =>
+            MoreMenuItems.AddMenuItem(header, click, tooltip);
 
-    public interface IExtensionsService
-    {
-        void UpdateItemFromDll(ExtensionItem item);
-        void Save(ExtensionsModel model);
-        void Run(ExtensionItem item, bool debug);
-        bool ShowBrowseDll(ExtensionItem item, bool force);
-        string[] FindExtensionClasses(ExtensionItem item);
-        string GetValidation(ExtensionItem item);
     }
 
     public partial class ExtensionsListControl : UserControl
@@ -95,7 +71,7 @@ namespace SolutionExtensions.UI.Extensions
             ExtensionsService = extensionsService;
             ViewModel.Model = model;
 
-            ViewModel.Model.Extensions.CollectionChanged += (s,e) =>
+            ViewModel.Model.Extensions.CollectionChanged += (s, e) =>
             {
                 ThrottleUpdateModel();
             };
@@ -243,10 +219,10 @@ namespace SolutionExtensions.UI.Extensions
         {
             (sender as FrameworkElement).OpenContextMenu();
         }
-
         private void dragBorder_Initialized(object sender, EventArgs e)
         {
             _mover.AttachToMouseEvents(sender as UIElement);
         }
+
     }
 }

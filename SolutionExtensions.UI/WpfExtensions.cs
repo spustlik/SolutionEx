@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -48,6 +50,18 @@ namespace SolutionExtensions.UI
             ctx.PlacementTarget = element;
             ctx.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
             ctx.IsOpen = true;
+        }
+        public static void AddMenuItem(this ObservableCollection<Control> menu, string header, RoutedEventHandler click, string tooltip = null)
+        {
+            if (header == "-")
+            {
+                menu.Add(new Separator());
+                return;
+            }
+            var item = new MenuItem() { Header = header };
+            if (click != null) item.Click += click;
+            if (tooltip != null) item.ToolTip = tooltip;
+            menu.Add(item);
         }
 
         public static void DoZoomerClick(this FrameworkElement element)

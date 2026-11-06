@@ -54,7 +54,7 @@
                             </Grid.RowDefinitions>
 
                             <StackPanel Grid.Row="0" Orientation="Horizontal">
-                                <!--G -->
+                                <!-- G -->
                                 <Border VerticalAlignment="Stretch" ToolTip="Generator"
                                         Visibility="{Binding IsGenerator, Converter={StaticResource boolToVisi}}">
                                     <Border BorderBrush="{Binding Foreground, ElementName=textg}" 
@@ -143,13 +143,23 @@
             </StackPanel.Resources>
             <Button Click="AddItem_Click" Content="✚ Add" ToolTip="Add new extension"/>
             <Button Click="Delete_Click" Content="🗙 Delete" Style="{StaticResource btnSelectedStyle}" ToolTip="Delete selected extension"/>
-            <Button Click="Run_Click" Content="▶ Run" Style="{StaticResource btnSelectedStyle}" ToolTip="Run selected extension" />
-            <Button Click="Debug_Click" Content="⚡Debug" Style="{StaticResource btnSelectedStyle}" ToolTip="Run selected extenion in debugger"/>
-            <Button Content="💡More▾" 
-                    Visibility="{Binding MenuItems, Converter={StaticResource notEmptyToVisi}}"
+            <Button Click="Run_Click" Content="▶ Run" 
+                    Style="{StaticResource btnSelectedStyle}" ToolTip="Run selected extension" 
+                    Visibility="{Binding SelectedItem.IsGenerator, Converter={StaticResource notBoolToVisi}}"/>
+            <Button Content="🔗 Assign▾" Style="{StaticResource btnSelectedStyle}" ToolTip="Assign generator to be run when saved any of currently selected file(s)." 
+                    Visibility="{Binding SelectedItem.IsGenerator, Converter={StaticResource boolToVisi}}"
                     Click="OpenContextMenu_Click">
                 <Button.ContextMenu>
-                    <ContextMenu ItemsSource="{Binding MenuItems}"/>
+                    <ContextMenu ItemsSource="{Binding AssignMenuItems}"></ContextMenu>
+                </Button.ContextMenu>
+            </Button>
+            <Button Click="Debug_Click" Content="⚡Debug" Style="{StaticResource btnSelectedStyle}" ToolTip="Run selected extenion in debugger"/>
+            
+            <Button Content="💡More▾" 
+                    Visibility="{Binding MoreMenuItems, Converter={StaticResource notEmptyToVisi}}"
+                    Click="OpenContextMenu_Click">
+                <Button.ContextMenu>
+                    <ContextMenu ItemsSource="{Binding MoreMenuItems}"/>
                 </Button.ContextMenu>
             </Button>
         </StackPanel>
@@ -264,7 +274,7 @@
                 </StackPanel>
                 <Label Content="Options"/>
                 <StackPanel Orientation="Horizontal" Margin="10,3,0,0">
-                    <CheckBox IsChecked="{Binding SelectedItem.OutOfProcess}" Content="Out of process 🛈" ToolTip="Extension is executed using anothe process, so all dlls are always reloaded and not locked."/>
+                    <CheckBox IsChecked="{Binding SelectedItem.OutOfProcess}" Content="Out of process 🛈" ToolTip="Extension is executed using another process, so all dlls are always reloaded and not locked."/>
                     <FrameworkElement Width="15"/>
                     <CheckBox IsChecked="{Binding SelectedItem.CompileBeforeRun}" Content="Compile 🛈" ToolTip="Before Running extension, it will be tried to compile containing project. Disable to make it faster."/>
                     <FrameworkElement Width="15"/>

@@ -58,10 +58,10 @@
       <Generator>SolutionFileGenerator</Generator>
     </None>
     <None Update="testCfg.sgen">
-      <Generator>SolutionConfiguredGenerator</Generator>
-      <LastGenOutput>testCfg.tst</LastGenOutput>
+      <Generator>SolutionFileGenerator</Generator>
+      <LastGenOutput>testCfg.xyz</LastGenOutput>
     </None>
-    <None Update="testCfg.tst">
+    <None Update="testCfg.xyz">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>testCfg.sgen</DependentUpon>

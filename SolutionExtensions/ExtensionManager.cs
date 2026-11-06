@@ -141,7 +141,6 @@ namespace SolutionExtensions
                     fileName = Path.Combine("$(SolutionDir)", relPath);
                 }
             }
-
             return fileName;
         }
 
@@ -320,32 +319,58 @@ namespace SolutionExtensions
             return CheckResult.Ok;
         }
 
+        /// <summary>
+        /// add files to item and if it exists on another, it is removed
+        /// </summary>
         public (int removed, int added) AddFilesToItem(ExtensionItem item, IEnumerable<ExtensionItem> extensions, string[] addFiles)
         {
-            int added = 0;
-            foreach (var fn in addFiles)
-            {
-                if (item.Files.Contains(fn))
-                    continue;
-                item.Files.Add(fn);
-                added++;
-            }
+            int added = AddFiles(item, addFiles);
+            var other = extensions.Where(ex => ex.IsGenerator && ex != item).ToArray();
+            int removed = RemoveFiles(other, addFiles);
+            return (removed, added);
+        }
+
+        public int RemoveFiles(IEnumerable<ExtensionItem> extensions, string[] files)
+        {
             int removed = 0;
-            foreach (var gen in extensions.Where(ex => ex.IsGenerator))
+            var removeFiles = files.Select(fn => GetSolutionRelativePath(fn).ToLowerInvariant());
+            foreach (var gen in extensions)
             {
-                if (gen == item) continue;
-                foreach (var existing in addFiles)
+                var exFiles = gen.Files.Select(fn => fn.ToLowerInvariant()).ToArray();
+                foreach (var fn in removeFiles)
                 {
-                    var index = gen.Files.IndexOf(existing);
+                    var index = exFiles.IndexOf(fn);
                     if (index < 0) continue;
                     gen.Files.RemoveAt(index);
                     removed++;
                 }
             }
-            return (removed, added);
+            return removed;
         }
 
-        public string RunGeneratorOnFile(string inputPath, string defaultNamespace, IVsGeneratorProgress progress, out string extension)
+        private int AddFiles(ExtensionItem item, string[] files)
+        {
+            int added = 0;
+            foreach (var fn in files)
+            {
+                if (item.Files.Contains(fn, StringComparer.InvariantCultureIgnoreCase))
+                    continue;
+                item.Files.Add(fn);
+                added++;
+            }
+            return added;
+        }
+
+        public IEnumerable<ExtensionItem> GetGeneratorsAssignedTo(IEnumerable<ExtensionItem> extensions, string fullName)
+        {
+            fullName = GetSolutionRelativePath(fullName);
+            return extensions
+                .Where(ex => ex.IsGenerator)
+                .Where(ex => ex.Files.Any(fn => String.Compare(fn, fullName, StringComparison.InvariantCultureIgnoreCase) == 0));
+        }
+
+        public string RunGeneratorOnFile(string inputPath, string defaultNamespace, 
+            Action<string> onError, out string extension)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             extension = null;
@@ -375,9 +400,44 @@ namespace SolutionExtensions
             catch (Exception ex)
             {
                 package.Log($"Error: {ex.Message}\n{ex}");
-                progress.GeneratorError(0, 1, ex.Message, 0, 0);
+                onError?.Invoke(ex.Message);
                 return null;
             }
+        }
+
+        public bool HasCustomTool(ProjectItem projectItem, out string customTool, out Property prop)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            prop = projectItem.Properties.Item("CustomTool");
+            customTool = prop.Value as string;
+            return customTool == nameof(SolutionFileGenerator);
+        }
+
+        /// <summary>
+        /// returns true if success, or already exists
+        /// </summary>
+        public bool TrySetCustomTool(ProjectItem projectItem)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if (!HasCustomTool(projectItem, out _, out var prop))
+            {
+                try
+                {
+                    prop.Value = nameof(SolutionFileGenerator);
+                }
+                catch
+                {
+                    /* if not supported, throws
+                    System.InvalidOperationException: The "None" rule is missing the "Generator" property.
+                       at Microsoft.Verify.Operation(Boolean condition, String unformattedMessage, Object arg1, Object arg2)
+                    ...
+                    at Microsoft.VisualStudio.ProjectSystem.VS.Implementation.Package.Automation.OAPropertyInfo.set_Value(Object value)
+                    at SolutionExtensions.ToolWindows.ExtensionsListToolWindow.SetCustomTool(IEnumerable`1 items)
+                    */
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }
