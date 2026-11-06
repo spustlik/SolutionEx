@@ -43,17 +43,11 @@ namespace SolutionExtensions.ToolWindows
             list.ViewModel.MoreMenuItems.AddMenuItem("(DBG) Save", Save_Click);
             list.ViewModel.MoreMenuItems.AddMenuItem("(DBG) Show colors", ShowColors_Click);
 #endif
-            list.ViewModel.PropertyChanged += VM_PropertyChanged;
         }
-
-        private void VM_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        void IExtensionsService.OpenContextMenu(ExtensionItem item, object menuTag)
         {
-            if (e.PropertyName == nameof(list.ViewModel.SelectedItem))
-            {
-                UpdateAssignMenu();
-            }
+            UpdateAssignMenu();
         }
-
         private void UpdateAssignMenu()
         {
             var menu = list.ViewModel.AssignMenuItems;

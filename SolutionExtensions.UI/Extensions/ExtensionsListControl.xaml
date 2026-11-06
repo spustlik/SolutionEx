@@ -136,24 +136,40 @@
                 </Style>
                 <Style TargetType="Button" BasedOn="{StaticResource btnStyle}">
                 </Style>
-                <Style x:Key="btnSelectedStyle" TargetType="Button" 
+                <Style x:Key="btnSelectedStyleBase" TargetType="Button" 
                        BasedOn="{StaticResource btnStyle}">
-                    <Setter Property="IsEnabled" Value="{Binding SelectedItem, Converter={StaticResource notEmpty}}"/>
+                    <!--<Setter Property="IsEnabled" Value="{Binding SelectedItem, Converter={StaticResource notEmpty}}"/>-->
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding SelectedItem}" Value="{x:Null}">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+                <Style x:Key="btnSelectedStyleEx" TargetType="Button" BasedOn="{StaticResource btnSelectedStyleBase}" >
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding SelectedItem.IsGenerator}" Value="true">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+                <Style x:Key="btnSelectedStyleGen" TargetType="Button" BasedOn="{StaticResource btnSelectedStyleBase}" >
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding SelectedItem.IsGenerator}" Value="false">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
                 </Style>
             </StackPanel.Resources>
             <Button Click="AddItem_Click" Content="✚ Add" ToolTip="Add new extension"/>
-            <Button Click="Delete_Click" Content="🗙 Delete" Style="{StaticResource btnSelectedStyle}" ToolTip="Delete selected extension"/>
+            <Button Click="Delete_Click" Content="🗙 Delete" Style="{StaticResource btnSelectedStyleBase}" ToolTip="Delete selected extension"/>
             <Button Click="Run_Click" Content="▶ Run" 
-                    Style="{StaticResource btnSelectedStyle}" ToolTip="Run selected extension" 
-                    Visibility="{Binding SelectedItem.IsGenerator, Converter={StaticResource notBoolToVisi}}"/>
-            <Button Content="🔗 Assign▾" Style="{StaticResource btnSelectedStyle}" ToolTip="Assign generator to be run when saved any of currently selected file(s)." 
-                    Visibility="{Binding SelectedItem.IsGenerator, Converter={StaticResource boolToVisi}}"
-                    Click="OpenContextMenu_Click">
+                    Style="{StaticResource btnSelectedStyleEx}" ToolTip="Run selected extension"/>
+            <Button Click="OpenContextMenu_Click" Content="🔗 Assign▾" Style="{StaticResource btnSelectedStyleGen}" ToolTip="Assign generator to be run when saved any of currently selected file(s).">
                 <Button.ContextMenu>
                     <ContextMenu ItemsSource="{Binding AssignMenuItems}"></ContextMenu>
                 </Button.ContextMenu>
             </Button>
-            <Button Click="Debug_Click" Content="⚡Debug" Style="{StaticResource btnSelectedStyle}" ToolTip="Run selected extenion in debugger"/>
+            <Button Click="Debug_Click" Content="⚡Debug" Style="{StaticResource btnSelectedStyleBase}" ToolTip="Run selected extenion in debugger"/>
             
             <Button Content="💡More▾" 
                     Visibility="{Binding MoreMenuItems, Converter={StaticResource notEmptyToVisi}}"

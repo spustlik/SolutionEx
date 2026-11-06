@@ -10,5 +10,6 @@ namespace SolutionExtensions.UI.Extensions
         bool ShowBrowseDll(ExtensionItem item, bool force);
         string[] FindExtensionClasses(ExtensionItem item);
         string GetValidation(ExtensionItem item);
+        void OpenContextMenu(ExtensionItem item, object menuTag);
     }
 }

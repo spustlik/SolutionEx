@@ -6,6 +6,9 @@ using System.Windows.Data;
 
 namespace SolutionExtensions.UI
 {
+    //returns true, if string is empty, or IList is empty
+    //you can negate result
+    // and send it to inner converter
     public class EmptyConverter : IValueConverter
     {
         public IValueConverter Inner { get; set; }

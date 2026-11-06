@@ -26,7 +26,12 @@ namespace SolutionExtensionsTestApp
         {
             extensionList.Init(new ExtensionsModel(), this);
             Load(extensionList.ViewModel.Model);
+            ContextMenuService.AddContextMenuOpeningHandler(extensionList, (s,ev) =>
+            {
+                MessageBox.Show("Context menu opening");
+            });
         }
+
 
         /** added menu **/
         private void Load_Click(object sender, RoutedEventArgs e)
@@ -60,6 +65,11 @@ namespace SolutionExtensionsTestApp
                 item.ArgumentTitle = null;
             }
 
+        }
+        void IExtensionsService.OpenContextMenu(ExtensionItem item, object menuTag)
+        {
+            extensionList.ViewModel.AssignMenuItems.Clear();
+            extensionList.ViewModel.AssignMenuItems.AddMenuItem($"assign to something", null);
         }
 
         private string GetFileName() => Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "../../solex.cfg");

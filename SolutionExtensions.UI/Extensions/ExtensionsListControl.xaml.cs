@@ -217,7 +217,9 @@ namespace SolutionExtensions.UI.Extensions
         }
         private void OpenContextMenu_Click(object sender, RoutedEventArgs e)
         {
-            (sender as FrameworkElement).OpenContextMenu();
+            var fe = (sender as FrameworkElement);
+            ExtensionsService.OpenContextMenu(this.ViewModel.SelectedItem, fe.ContextMenu.Tag);
+            fe.OpenContextMenu();
         }
         private void dragBorder_Initialized(object sender, EventArgs e)
         {
