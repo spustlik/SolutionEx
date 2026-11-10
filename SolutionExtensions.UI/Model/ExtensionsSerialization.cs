@@ -44,10 +44,8 @@ namespace SolutionExtensions.Model
             var parts = line.Split('|');
             if (parts.Length < 4)
                 return null;
-            string unescape(string prop)
-            {
-                return prop.Replace(ESCAPED_PIPE, PIPE);
-            }
+            string unescape(string prop) => prop.Replace(ESCAPED_PIPE, PIPE);
+
             parts = parts.Select(part => unescape(part)).ToArray();
             var item = new ExtensionItem()
             {
@@ -108,10 +106,8 @@ namespace SolutionExtensions.Model
                 item.Argument,
                 SaveFlags(item)
             };
-            string escape(string prop)
-            {
-                return prop.Replace(PIPE, ESCAPED_PIPE);
-            }
+            string escape(string prop) => prop.Replace(PIPE, ESCAPED_PIPE);
+
             var piped = String.Join(PIPE, props.Select(prop => escape(prop)));
             sw.WriteLine(piped);
             if (item.Files.Count > 0 && item.IsGenerator)
