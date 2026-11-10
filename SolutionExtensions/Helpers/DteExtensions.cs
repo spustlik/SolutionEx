@@ -3,6 +3,7 @@ using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Threading;
+using Microsoft.VisualStudio.VCProjectEngine;
 using SolutionExtensions.UI;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ namespace SolutionExtensions
 {
     public static class DteExtensions
     {
+        private const string CUSTOM_TOOL = "CustomTool";
         private const string SOLUTION_ITEMS_FOLDER_NAME = "Solution Items";
         private const string MISC_FILES_NAME = "Miscellaneous Files";
         public static string GetSolutionFileName(this Package package)
@@ -371,6 +373,34 @@ namespace SolutionExtensions
                 }
             }
             return s;
+        }
+
+        public static bool HasCustomTool(this ProjectItem projectItem, out string customTool, out Property prop)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            prop = projectItem.Properties.Item(CUSTOM_TOOL);
+            customTool = prop.Value as string;
+            return customTool == nameof(SolutionFileGenerator);
+        }
+
+        /// <summary>
+        /// returns true if success, or already exists
+        /// </summary>
+        public static bool TrySetCustomTool(this ProjectItem projectItem)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if (!HasCustomTool(projectItem, out _, out var prop))
+            {
+                try
+                {
+                    prop.Value = nameof(SolutionFileGenerator);
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
     }

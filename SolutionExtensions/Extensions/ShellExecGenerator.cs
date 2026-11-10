@@ -31,6 +31,7 @@ namespace SolutionExtensions
             var ps = new ProcessStartInfo
             {
                 CreateNoWindow = true,
+                WorkingDirectory = Path.GetDirectoryName(inputFileName),
                 WindowStyle = ProcessWindowStyle.Hidden,
                 UseShellExecute = false,
                 FileName = "cmd.exe",

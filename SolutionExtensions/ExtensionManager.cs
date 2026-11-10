@@ -463,39 +463,5 @@ namespace SolutionExtensions
             }
         }
 
-        private bool HasCustomTool(ProjectItem projectItem, out string customTool, out Property prop)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            prop = projectItem.Properties.Item("CustomTool");
-            customTool = prop.Value as string;
-            return customTool == nameof(SolutionFileGenerator);
-        }
-
-        /// <summary>
-        /// returns true if success, or already exists
-        /// </summary>
-        private bool TrySetCustomTool(ProjectItem projectItem)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            if (!HasCustomTool(projectItem, out _, out var prop))
-            {
-                try
-                {
-                    prop.Value = nameof(SolutionFileGenerator);
-                }
-                catch
-                {
-                    /* if not supported, throws
-                    System.InvalidOperationException: The "None" rule is missing the "Generator" property.
-                       at Microsoft.Verify.Operation(Boolean condition, String unformattedMessage, Object arg1, Object arg2)
-                    ...
-                    at Microsoft.VisualStudio.ProjectSystem.VS.Implementation.Package.Automation.OAPropertyInfo.set_Value(Object value)
-                    at SolutionExtensions.ToolWindows.ExtensionsListToolWindow.SetCustomTool(IEnumerable`1 items)
-                    */
-                    return false;
-                }
-            }
-            return true;
-        }
     }
 }

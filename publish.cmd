@@ -19,31 +19,35 @@ SET LOG=%~dp0\publish.log
 DEL %LOG% >nul
 
 ECHO --- Started at %DATE% %TIME% --->%LOG% 
-if NOT %1.==. goto %1
+rem if NOT %1.==. goto %1
 
 :stepL
-ECHO Building Launcher in Release mode
+ECHO * Building Launcher in Release mode
 %B% SolutionExtensions.Launcher/SolutionExtensions.Launcher.csproj
 type build.log>>%LOG%
 
 :stepML
-ECHO Merging Launcher
+ECHO * Merging Launcher
 cmd /c SolutionExtensions.Launcher\ilmerge.cmd %LAUNCHER% >>%LOG%
 
 :stepCL
-ECHO Copying Launcher
+ECHO * Copying Launcher
 copy /b %SRC%\libs\SolutionExtensions.Launcher.merged.exe %SRC%\SolutionExtensions>nul
 
 :stepBX
-ECHO Building VSIX in Release mode
+ECHO * Building VSIX in Release mode
 %B% %X%
 type build.log>>%LOG%
 
 del build.log>nul
+ECHO * Builded to %RES%\SolutionExtensions.vsix 
 
+if %1.==skipPublish. goto :skipPublish
 :stepP
 echo -- Ignore error, if already logged in
 %VSIX% login -publisherName "JanStuchlik" -personalAccessToken "%PAT%"
 echo --
 %VSIX% publish -payload %RES%\SolutionExtensions.vsix  -publishManifest %RES%\packageManifest.json -personalAccessToken "%PAT%"
+ECHO * Published, wait for mail
 
+:skipPublish

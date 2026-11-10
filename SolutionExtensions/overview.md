@@ -118,6 +118,8 @@ Argument can contain:
 
 
 ### Version history
+* 1.8.3 - escaping pipes in config
+* 1.8.1 - generator fixes
 * 1.8 - generators are no more using CustomTool
 * 1.7 - generators
 * 1.6.5 - still missing launcher.exe, commands reset when solution changes
@@ -147,12 +149,12 @@ Argument can contain:
 * generate mermaid diagrams for DTE https://mermaid.js.org/intro/syntax-reference.html
 * some rich ui like Task Dialog
 * more args?
-* multi-file generator support
 * generator config/args for file
 * generator with config file, which starts generating 
   * TODO: watch real source?
   * TODO: what about output and extension
-* TODO: copy of gen creates extension, not generator
+* generator to pattern like *.html
+* TODO: pipe in arguments 
 ```
 # config is defining variables, using functions
 SRC=$(SolutionDir)/myfolder/myclass.cs

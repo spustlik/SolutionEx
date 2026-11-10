@@ -10,6 +10,8 @@ namespace SolutionExtensions.Model
         public const string URL = "https://marketplace.visualstudio.com/items?itemName=JanStuchlik.SolutionExtensions2";
         private const string COMMENT = "#";
         private const string FILEDEP = "->";
+        private const string PIPE = "|";
+        private const string ESCAPED_PIPE = "\\u007C";
 
         public static void LoadFromFile(ExtensionsModel target, string filePath)
         {
@@ -42,6 +44,11 @@ namespace SolutionExtensions.Model
             var parts = line.Split('|');
             if (parts.Length < 4)
                 return null;
+            string unescape(string prop)
+            {
+                return prop.Replace(ESCAPED_PIPE, PIPE);
+            }
+            parts = parts.Select(part => unescape(part)).ToArray();
             var item = new ExtensionItem()
             {
                 Title = parts[0],
@@ -92,7 +99,21 @@ namespace SolutionExtensions.Model
 
         private static void SaveItem(StreamWriter sw, ExtensionItem item)
         {
-            sw.WriteLine($"{item.Title}|{item.ShortCutKey}|{item.ClassName}|{item.DllPath}|{item.Argument}|{SaveFlags(item)}");
+            var props = new string[]
+            {
+                item.Title,
+                item.ShortCutKey,
+                item.ClassName,
+                item.DllPath,
+                item.Argument,
+                SaveFlags(item)
+            };
+            string escape(string prop)
+            {
+                return prop.Replace(PIPE, ESCAPED_PIPE);
+            }
+            var piped = String.Join(PIPE, props.Select(prop => escape(prop)));
+            sw.WriteLine(piped);
             if (item.Files.Count > 0 && item.IsGenerator)
             {
                 foreach (var f in item.Files)
