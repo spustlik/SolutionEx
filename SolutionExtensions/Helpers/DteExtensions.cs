@@ -18,6 +18,20 @@ namespace SolutionExtensions
     {
         private const string SOLUTION_ITEMS_FOLDER_NAME = "Solution Items";
         private const string MISC_FILES_NAME = "Miscellaneous Files";
+        public static string GetSolutionFileName(this Package package)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var dte = package.GetService<DTE, DTE>();
+            return GetSolutionFileName(dte);
+        }
+
+        public static string GetSolutionFileName(this DTE dte)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if (dte.Solution == null || String.IsNullOrEmpty(dte.Solution.FullName))
+                return null;
+            return dte.Solution.FullName;
+        }
 
         public static Project FindSolutionFolder(this Solution solution, bool addIfNotExists = false)
         {

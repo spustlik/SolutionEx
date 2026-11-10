@@ -1,9 +1,7 @@
 ﻿using EnvDTE;
 using EnvDTE80;
 using Microsoft.VisualStudio.PlatformUI;
-using Microsoft.VisualStudio.Settings;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Threading;
 using SolutionExtensions.Extensions;
 using SolutionExtensions.Model;
 using System;
@@ -12,15 +10,14 @@ using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace SolutionExtensions
 {
     public class ExtensionManager
     {
         public const string SELFKEY = "SELF";
-        public const string SELF = "$(" + SELFKEY + ")";
-
+        public const string SELF = $"$({SELFKEY})";
+        private const string SOLUTIONDIR = "SOLUTIONDIR";
         private SolutionExtensionsPackage package;
 
         public ExtensionManager(SolutionExtensionsPackage package)
@@ -152,7 +149,7 @@ namespace SolutionExtensions
             {
                 switch (name)
                 {
-                    case "SOLUTIONDIR": return Path.GetDirectoryName(GetSolutionFileName());
+                    case SOLUTIONDIR: return Path.GetDirectoryName(GetSolutionFileName());
                     case SELFKEY: return SelfAssembly.Location;
                     default: return null;
                 }
@@ -283,11 +280,7 @@ namespace SolutionExtensions
 
         private string GetSolutionFileName()
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            var dte = this.package.GetService<DTE, DTE>();
-            if (dte.Solution == null || String.IsNullOrEmpty(dte.Solution.FullName))
-                return null;
-            return dte.Solution.FullName;
+            return package.GetSolutionFileName();
         }
 
         public bool IsDllExists(ExtensionItem item)

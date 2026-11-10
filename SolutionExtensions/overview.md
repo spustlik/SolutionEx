@@ -96,10 +96,26 @@ _Note:_ COM interface is late-bound and uses another approach, so interface GUID
 ### Internal extensions
 * there are some internal extensions, which you can use directly or only for inspiration
 * set dll path to $(SELF) and then pickup class name.
-* `DumpExtension` - dumps common props and collections of DTE to xml file
-* `Nest file` - nests file with same name but different extensions
-* `Create GUID` - just creates new GUID and copies into clipboard
-* `Fix Encoding` - changes encoding of all text files with non-ascii characters to UTF8
+#### DumpExtension
+dumps common props and collections of DTE to xml file
+
+#### Nest file
+nests file with same name but different extensions
+
+#### Create GUID 
+just creates new GUID and copies into clipboard
+
+#### Fix Encoding
+changes encoding of all text files with non-ascii characters to UTF8
+
+#### ShellExecGenerator
+executes generator shell command specified in Argument.
+Argument can contain:
+* `%1` - if used, here will be added input file name, else it aill be added to then end of argement
+* `%2` - if used, default namespace will be added here
+* `$(SOLUTONDIR)` - replaced by path to solution file
+
+
 ### Version history
 * 1.8 - generators are no more using CustomTool
 * 1.7 - generators

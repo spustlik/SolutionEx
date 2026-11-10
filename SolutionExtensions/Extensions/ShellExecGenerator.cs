@@ -8,9 +8,8 @@ using System.Threading.Tasks;
 namespace SolutionExtensions
 {
     //arguments:
-    //  mygen %1 %2 -debug //%1 will be finename, %2 namespace
+    //  mygen %1 %2 -debug //%1 will be filename, %2 namespace
     //  if no %1 used, it will be added to the end of the string
-    //TODO:
     // Argument can contain $(SOLUTIONDIR) or system variables (or is SDIR there?)
 
     //generator always return name of generated file(s)
@@ -35,7 +34,7 @@ namespace SolutionExtensions
                 WindowStyle = ProcessWindowStyle.Hidden,
                 UseShellExecute = false,
                 FileName = "cmd.exe",
-                Arguments = "/c " + GetCommandLine(inputFileName, ns),
+                Arguments = "/c " + GetCommandLine(dte, inputFileName, ns),
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
             };
@@ -49,9 +48,18 @@ namespace SolutionExtensions
             return lines;
         }
 
-        private string GetCommandLine(string inputFileName, string ns)
+        private string GetCommandLine(DTE dte, string inputFileName, string ns)
         {
             var s = Argument;
+            string getVariable(string name)
+            {
+                switch (name)
+                {
+                    case "SOLUTIONDIR": return Path.GetDirectoryName(dte.GetSolutionFileName());
+                    default: return null;
+                }
+            }
+            s = StringTemplates.ExpandString(s, getVariable, envVariables: false);
             var s2 = s.Replace("%1", inputFileName);
             if (s != s2)
             {
