@@ -58,7 +58,8 @@ namespace SolutionExtensions
             var package = SolutionExtensionsPackage.GetGlobal();
             try
             {
-                var result = package.ExtensionManager.RunGeneratorOnFile(inputPath, defaultNamespace);
+                var result = package.ExtensionManager.RunGeneratorOnFile(
+                    inputPath, defaultNamespace, argument: null /*!!!*/);
                 lastExtension = result.Extension;
                 if (result.Content != null)
                     return result.Content;

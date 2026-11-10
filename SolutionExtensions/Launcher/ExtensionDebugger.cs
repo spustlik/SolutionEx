@@ -60,9 +60,9 @@ namespace SolutionExtensions
             this.Launcher = launcherProcess;
         }
 
-        public async Task<GeneratorResult> GenerateAsync(string inputFilePath, string defaultNamespace)
+        public async Task<GeneratorResult> GenerateAsync(string inputFilePath, string defaultNamespace, string argument)
         {
-            var process = Launcher.CreateGeneratorProcess(dllPath, item.ClassName, monikerName, packageId, debug, inputFilePath, defaultNamespace);
+            var process = Launcher.CreateGeneratorProcess(dllPath, item.ClassName, monikerName, packageId, debug, inputFilePath, defaultNamespace, argument);
             Launcher.StartAndWait(process, debug);
             AttachVsDebugger(process);
             await process.WaitForExitAsync();

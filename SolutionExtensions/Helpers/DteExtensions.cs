@@ -90,8 +90,28 @@ namespace SolutionExtensions
         public static ProjectItem FindProjectItem(this Project project, string filePath)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            string name = Path.GetFileName(filePath);
-            return FindProjectItem(project.ProjectItems, item => string.Equals(item.Name, name, StringComparison.OrdinalIgnoreCase));
+            var projectPath = Path.GetDirectoryName(project.FileName);
+            var fileRelative = GetPathRelativeTo(filePath, projectPath, out _);
+            bool isFile(ProjectItem item)
+            {
+                var itemRelative = GetPathRelativeTo(item.FileNames[0], projectPath, out _);
+                return string.Equals(itemRelative, fileRelative, StringComparison.OrdinalIgnoreCase);
+            }
+            return FindProjectItem(project.ProjectItems, isFile);
+        }
+
+        public static string GetPathRelativeTo(string filePath, string relativeTo, out string restRelative)
+        {
+            restRelative = relativeTo;
+            if (!Path.IsPathRooted(filePath))
+                return filePath;
+            while (filePath.Length > 0 && relativeTo.Length > 0 && filePath.StartsWith(relativeTo.Substring(0, 1), StringComparison.CurrentCultureIgnoreCase))
+            {
+                filePath = filePath.Substring(1);
+                relativeTo = relativeTo.Substring(1);
+            }
+            restRelative = relativeTo;
+            return filePath;
         }
 
         public static ProjectItem FindProjectItem(this ProjectItems items, Func<ProjectItem, bool> predicate)

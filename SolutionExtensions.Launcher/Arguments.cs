@@ -57,7 +57,7 @@ namespace SolutionExtensions.Launcher
                 if (strings.Length > 5)
                     r.GeneratorDefaultNamespace = strings[5];
             }
-            if (strings.Length > 4 && r.Action == ActionEnum.Run)
+            if (strings.Length > 4)
             {
                 r.Argument = strings[4];
             }
@@ -74,10 +74,11 @@ namespace SolutionExtensions.Launcher
 
             if (cmd.Action == ActionEnum.Run)
             {
-                runner.RunArgument = cmd.Argument;
+                runner.ExecArgument = cmd.Argument;
             }
             if (cmd.Action == ActionEnum.Generate)
             {
+                runner.ExecArgument = cmd.Argument;
                 runner.GeneratorFilePath = cmd.GeneratorFilePath;
                 runner.GeneratorDefaultNamespace = cmd.GeneratorDefaultNamespace;
             }

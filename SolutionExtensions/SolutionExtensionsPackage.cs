@@ -159,20 +159,21 @@ namespace SolutionExtensions
             AddToOutputPane($"  ProjectItem is assignd to generator '{gen.Title}' [{gen.DllPath}], running");
             try
             {
+                var argument = gen.Argument;
                 var defNs = document.ProjectItem.GetDefaultNamespace();
                 GeneratorResult result;
                 if (gen.OutOfProcess)
                 {
                     var dbg = ExtensionDebugger.Create(gen, this, ExtensionManager, false);
                     var fn = document.FullName;
-                    result = JoinableTaskFactory.Run(() => dbg.GenerateAsync(fn, defNs));
+                    result = JoinableTaskFactory.Run(() => dbg.GenerateAsync(fn, defNs, argument));
                 }
                 else
                 {
-                    result = ExtensionManager.RunGeneratorOnFile(document.FullName, defNs);
+                    result = ExtensionManager.RunGeneratorOnFile(document.FullName, defNs, argument);
                 }
                 var project = document.ProjectItem.ContainingProject;
-                ExtensionManager.AssignGeneratorResultFiles(result, document.FullName, project);                
+                ExtensionManager.AssignGeneratorResultFiles(result, document.FullName, project);
             }
             catch (Exception ex)
             {

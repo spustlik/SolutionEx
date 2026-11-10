@@ -317,11 +317,12 @@ namespace SolutionExtensions.ToolWindows
                 throw new ArgumentException($"Item must be Generator");
 
             Package.Log($"Creating debugger");
-            var dbg = ExtensionDebugger.Create(item, Package, ExtensionManager, debug:true);
+            var dbg = ExtensionDebugger.Create(item, Package, ExtensionManager, debug: true);
             Package.Log($"Calling generator in debugger");
             var inputFile = projectItem.FileNames[0];
             var ns = projectItem.GetDefaultNamespace();
-            var result = ThreadHelper.JoinableTaskFactory.Run(() => dbg.GenerateAsync(inputFile, ns));
+            var result = ThreadHelper.JoinableTaskFactory.Run(() =>
+                dbg.GenerateAsync(inputFile, ns, argument));
             ExtensionManager.AssignGeneratorResultFiles(result, inputFile, projectItem.ContainingProject);
         }
 

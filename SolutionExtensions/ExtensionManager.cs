@@ -364,7 +364,7 @@ namespace SolutionExtensions
                 .Where(ex => ex.Files.Any(fn => String.Compare(fn, fullName, StringComparison.InvariantCultureIgnoreCase) == 0));
         }
 
-        public GeneratorResult RunGeneratorOnFile(string inputPath, string defaultNamespace)
+        public GeneratorResult RunGeneratorOnFile(string inputPath, string defaultNamespace, string argument)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             package.Log($"Find generator for file {inputPath}");
@@ -387,7 +387,7 @@ namespace SolutionExtensions
                 var dte = package.GetService<DTE, DTE>();
                 var content = File.ReadAllText(inputPath);
                 var result = package.JoinableTaskFactory.Run(
-                    () => ExtensionObject.GenerateAsync(ri, dte, content, inputPath, defaultNamespace)
+                    () => ExtensionObject.GenerateAsync(ri, dte, content, inputPath, defaultNamespace, argument)
                 );
                 return result;
             }
@@ -402,22 +402,50 @@ namespace SolutionExtensions
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var files = GetGeneratorResultFiles(result, inputPath);
+            //files out of project scope are added as link
+            // if file exists, it throws error
             foreach (var f in files)
             {
-                project.ProjectItems.AddFromFile(f);
+                try
+                {
+                    var found = project.FindProjectItem(f);
+                    if (found == null)
+                        project.ProjectItems.AddFromFile(f);
+                }
+                catch (Exception e)
+                {
+                    package.Log($"Error adding file '{f}': {e.Message}");
+                }
             }
             package.Log($"Generated files: {string.Join(",", files)}");
             return files;
         }
-        private string[] GetGeneratorResultFiles(GeneratorResult result, string inputPath) 
-        { 
-            var rootPath = Path.GetDirectoryName(inputPath);
+        private string[] GetGeneratorResultFiles(GeneratorResult result, string inputFilePath)
+        {
+            var rootPath = Path.GetDirectoryName(inputFilePath);
             if (result.Files.Length > 0)
             {
                 string getPath(string fileName)
                 {
-                    if (!Path.IsPathRooted(fileName))
+                    if (!Path.IsPathRooted(fileName)) //relative path, add project prefix
                         fileName = Path.GetFullPath(Path.Combine(rootPath, fileName));
+                    else
+                    {
+                        //absolute path, if not in project, copy to inputPath
+                        //C:/temp/test.xyz -> same
+                        //D:/myProjects/test.xyz -> test.xyz + myproj (!)
+                        //D:/myProjects/myproj/test.xyz -> test.xyz 
+                        //D:/myProjects/myproj/generated/test.xyz -> generated/test.xyz 
+                        var relativeFileName = DteExtensions.GetPathRelativeTo(fileName, rootPath, out var rest);
+                        if (relativeFileName == fileName || !String.IsNullOrEmpty(rest))
+                        {
+                            var fn = Path.Combine(rootPath, Path.GetFileName(fileName));
+                            if (File.Exists(fn))
+                                File.Delete(fn);
+                            File.Copy(fileName, fn);
+                            fileName = fn;
+                        }
+                    }
                     if (Path.GetExtension(fileName) == ".")
                         fileName = Path.ChangeExtension(fileName, result.Extension);
                     return fileName;
@@ -426,7 +454,7 @@ namespace SolutionExtensions
             }
             else
             {
-                var fileName = inputPath;
+                var fileName = inputFilePath;
                 if (!Path.IsPathRooted(fileName))
                     fileName = Path.GetFullPath(Path.Combine(rootPath, fileName));
                 fileName = Path.ChangeExtension(fileName, result.Extension);

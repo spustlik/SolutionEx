@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="C:\Users\jstuc\AppData\Local\Temp\output.txt" Link="output.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="myfile.xyz">
       <Generator>SolutionFileGenerator</Generator>
     </None>

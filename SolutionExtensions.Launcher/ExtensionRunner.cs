@@ -12,8 +12,8 @@ namespace SolutionExtensions.Launcher
         private readonly EnvDTE.DTE dte;
         private readonly object package;
         public bool BreakDebugger { get; set; }
-        //Run
-        public string RunArgument { get; set; }
+        //Run+Gen
+        public string ExecArgument { get; set; }
         //Generator
         public string GeneratorFilePath { get; set; }
         public string GeneratorDefaultNamespace { get; set; }
@@ -35,7 +35,7 @@ namespace SolutionExtensions.Launcher
         {
             if (BreakDebugger)
                 Debugger.Break();
-            ExtensionObject.Run(ri, dte, package, RunArgument);
+            ExtensionObject.Run(ri, dte, package, ExecArgument);
         }
         public void Generate()
         {
@@ -45,8 +45,7 @@ namespace SolutionExtensions.Launcher
         {
             if (BreakDebugger)
                 Debugger.Break();
-
-            var task = ExtensionObject.GenerateAsync(ri, dte, GeneratorContent, GeneratorFilePath, GeneratorDefaultNamespace);
+            var task = ExtensionObject.GenerateAsync(ri, dte, GeneratorContent, GeneratorFilePath, GeneratorDefaultNamespace, ExecArgument);
             task.Wait();
             GeneratorResult = task.Result;
         }

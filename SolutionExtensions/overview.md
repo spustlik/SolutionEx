@@ -109,11 +109,12 @@ just creates new GUID and copies into clipboard
 changes encoding of all text files with non-ascii characters to UTF8
 
 #### ShellExecGenerator
-executes generator shell command specified in Argument.
+executes generator shell command specified in Argument. Command is executed in same folder as input file.
 Argument can contain:
 * `%1` - if used, here will be added input file name, else it aill be added to then end of argement
 * `%2` - if used, default namespace will be added here
 * `$(SOLUTONDIR)` - replaced by path to solution file
+* any environment variables like `%TEMP%` used in argument will be replaced, because of call of cmd.exe
 
 
 ### Version history
@@ -151,6 +152,7 @@ Argument can contain:
 * generator with config file, which starts generating 
   * TODO: watch real source?
   * TODO: what about output and extension
+* TODO: copy of gen creates extension, not generator
 ```
 # config is defining variables, using functions
 SRC=$(SolutionDir)/myfolder/myclass.cs

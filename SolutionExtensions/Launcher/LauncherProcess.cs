@@ -71,7 +71,8 @@ namespace SolutionExtensions.Launcher
             string packageId,
             bool waitForDebugger,
             string inputFilePath,
-            string defaultNamespace)
+            string defaultNamespace,
+            string argument)
         {
             var args = new List<string>()
             {
@@ -81,6 +82,7 @@ namespace SolutionExtensions.Launcher
                 packageId,
                 $"\"{inputFilePath?.Replace("\"","\"\"")}\"",
                 defaultNamespace,
+                argument,
                 "/generate"
             };
             if (waitForDebugger)

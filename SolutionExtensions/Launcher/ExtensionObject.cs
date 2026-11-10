@@ -46,7 +46,7 @@ namespace SolutionExtensions
             }
         }
 
-        public static async Task<GeneratorResult> GenerateAsync(ExtensionRI ri, DTE dte, string content, string inputPath, string defaultNamespace)
+        public static async Task<GeneratorResult> GenerateAsync(ExtensionRI ri, DTE dte, string content, string inputPath, string defaultNamespace, string argument)
         {
             // string Generate(DTE dte, string input, string inputFileName, string ns)
             var method = ri.GenerateMethod;
@@ -61,10 +61,15 @@ namespace SolutionExtensions
                 parameters[3] = defaultNamespace;
             var extension = "";
             var instance = method.IsStatic ? null : Activator.CreateInstance(ri.Type);
-            var ai = ri.FindGeneratorExtensionProperty();
-            if (ai.propertyInfo != null)
+            var argProp = ri.FindArgumentProperty();
+            if (argProp.propertyInfo != null)
             {
-                var value = ai.propertyInfo.GetValue(instance);
+                argProp.propertyInfo.SetValue(instance, argument);
+            }
+            var extProp = ri.FindGeneratorExtensionProperty();
+            if (extProp.propertyInfo != null)
+            {
+                var value = extProp.propertyInfo.GetValue(instance);
                 extension = Convert.ChangeType(value, typeof(string)) as string;
             }
             try
@@ -90,11 +95,11 @@ namespace SolutionExtensions
             if (resultObj is string)
             {
                 var resultContent = resultObj as string;
-                return new GeneratorResult() { Content = resultContent,Extension=extension };
+                return new GeneratorResult() { Content = resultContent, Extension = extension };
             }
             else if (resultObj is IEnumerable<string> strings)
             {
-                return new GeneratorResult() { Files = strings.ToArray(),Extension=extension };
+                return new GeneratorResult() { Files = strings.Where(s=>!String.IsNullOrWhiteSpace(s)).ToArray(), Extension = extension };
             }
             throw new InvalidOperationException($"Unsupported result type {result.GetType()}");
         }
