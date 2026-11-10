@@ -213,7 +213,7 @@ namespace SolutionExtensions.UI.Extensions
             var item = ViewModel.SelectedItem;
             if (item == null)
                 return;
-            item.Argument = "?";
+            item.Argument = item.Argument == "?" ? "" : "?";
         }
         private void OpenContextMenu_Click(object sender, RoutedEventArgs e)
         {

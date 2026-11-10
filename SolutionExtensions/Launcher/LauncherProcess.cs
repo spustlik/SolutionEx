@@ -3,6 +3,7 @@ using EnvDTE100;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 using Process = System.Diagnostics.Process;
 
@@ -11,7 +12,6 @@ namespace SolutionExtensions.Launcher
     public class LauncherProcess
     {
         public static readonly string ERROR = "[ERROR]";
-
         public static readonly string DONE = "[DONE]";
         public static readonly string WAIT = "[WAIT]";
         public static readonly string PREPARE = "[PREPARE]";
@@ -19,6 +19,7 @@ namespace SolutionExtensions.Launcher
         public static readonly string LOG = "[LOG]";
         public static readonly string RESULT_EXT = "EXTENSION";
         public static readonly string RESULT_FILE = "OUTPUTFILE";
+        public static readonly string RESULT_CONTENTFILE = "OUTPUTCONTENTFILE";
 
 
         private StringBuilder output = new StringBuilder();
@@ -73,7 +74,7 @@ namespace SolutionExtensions.Launcher
             string defaultNamespace)
         {
             var args = new List<string>()
-            {                
+            {
                 $"\"{dllPath}\"",
                 className,
                 dteMonikerName,
@@ -119,6 +120,51 @@ namespace SolutionExtensions.Launcher
                 throw new Exception($"Launcher exited with {process.ExitCode}\n{output}");
         }
 
+        public static IEnumerable<string> GeneratorResultToStrings(GeneratorResult result)
+        {
+            if (!String.IsNullOrWhiteSpace(result.Extension))
+                yield return $"{RESULT_EXT}:{result.Extension}";
+            if (result.Content != null)
+            {
+                var tempFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".bin");
+                File.WriteAllText(tempFile, result.Content);
+                yield return $"{RESULT_CONTENTFILE}:{tempFile}";
+            }
+            else
+            {
+                foreach (var file in result.Files)
+                {
+                    yield return $"{RESULT_FILE}:{file}";
+                }
+            }
+
+
+        }
+        public static GeneratorResult GeneratorResultFromStrings(string[] lines)
+        {
+            var result = new GeneratorResult();
+            var files = new List<string>();
+            foreach (var line in lines)
+            {
+                var parts = line.Split(new[] { ':' }, 2);
+                if (parts[0] == RESULT_EXT)
+                {
+                    result.Extension = parts[1];
+                }
+                if (parts[0] == RESULT_FILE)
+                {
+                    files.Add(parts[1]);
+                }
+                if (parts[0] == RESULT_CONTENTFILE)
+                {
+                    var fn = parts[1];
+                    result.Content = File.ReadAllText(fn);
+                    File.Delete(fn);
+                }
+            }
+            result.Files = files.ToArray();
+            return result;
+        }
     }
 }
 

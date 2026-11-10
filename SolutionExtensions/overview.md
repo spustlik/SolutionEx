@@ -57,20 +57,23 @@ Instead of creating extension, you can create file generator.
 It works like any other CustomTool (warning that project type must support it).
 What to generate is specified in your class, which is stored in config.
 ```
-public class MyExtension
+public class MyGenerator
 {
-    //specify Extension of generated file
-    public string Extension => ".txt";
-    //[Description("My great generator")]
-    //inputFileName and defaultNameSpace are optional
     public string Generate(DTE dte, string input, string inputFileName, string defaultNameSpace)
     {
-        return "#this is some generated content"
+        return "#this is some generated content";        
     }
 }
 ```
+* generator class can contain
+    * `string Argument` property
+    * `Description` attribute at `Argument` or `Generate`
+    * `string Extension` property with extension of generated content (used when string is returned)
+* `Generate` method can return 
+  * `string`, `Task<string>` - generated content
+  * `string[]`, `Task<string[]` - names of generated file(s) in relative or absolute form
 
-
+### Your Extension class
 * commit and share with others in team, it is possible to share compiled assembly also
 * WARNING: `package` argument is `IServiceProvider` when debugging, 
 * else inherits from `AsyncPackage`, `Package`, and `IServiceProvider`
@@ -86,7 +89,8 @@ public class MyExtension
 * `[e]` - enumerates items, if 0, nothing happens
 * you can generate XML with expanded nodes, csharp source, or copy text to clipboard
 * some functions are in context menu
-_note:_ COM interface is late-bound and uses another approach, so interface GUID must be known to get it. Inspector is using ALL types loaded in current AppDomain (it is OK, Visual Studio has loaded all used interfaces) and asks COM object if it is implementing each of them.
+
+_Note:_ COM interface is late-bound and uses another approach, so interface GUID must be known to get it. Inspector is using ALL types loaded in current AppDomain (it is OK, Visual Studio has loaded all used interfaces) and asks COM object if it is implementing each of them.
 
 
 ### Internal extensions
@@ -97,6 +101,7 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * `Create GUID` - just creates new GUID and copies into clipboard
 * `Fix Encoding` - changes encoding of all text files with non-ascii characters to UTF8
 ### Version history
+* 1.8 - generators are no more using CustomTool
 * 1.7 - generators
 * 1.6.5 - still missing launcher.exe, commands reset when solution changes
 * 1.6.4 - missing launcher.exe, params check
@@ -126,8 +131,6 @@ _note:_ COM interface is late-bound and uses another approach, so interface GUID
 * some rich ui like Task Dialog
 * more args?
 * multi-file generator support
-* generator is not working in modern style projects
-    * try to watch documents save
 * generator config/args for file
 * generator with config file, which starts generating 
   * TODO: watch real source?

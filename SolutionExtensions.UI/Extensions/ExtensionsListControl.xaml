@@ -262,8 +262,7 @@
                 </Grid>
                 <Label Content="Class Name 🛈" ToolTip="Pick class name with Run method"/>
                 <ComboBox IsEditable="True" IsTextSearchEnabled="True" DropDownOpened="PickClass_Opened" Text="{Binding SelectedItem.ClassName}" />
-                <StackPanel
-                    Visibility="{Binding SelectedItem.IsGenerator, Converter={StaticResource notBoolToVisi}}">
+                <StackPanel>
                     <Label ToolTip="Argument property will be set with this value, or user will be asked for it.">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Visibility="{Binding SelectedItem.ArgumentTitle, Converter={StaticResource notEmptyToVisi}}">
@@ -280,11 +279,27 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBox Text="{Binding SelectedItem.Argument, UpdateSourceTrigger=PropertyChanged}"/>
-                        <Button Grid.Column="1" Margin="2,0,0,0" Click="ArgumentAsk_Click" ToolTip="Ask for argument when executing">
-                            <Path SnapsToDevicePixels="True" 
-                              Data="M0,0 L10,0 M0,1 L10,1 M0,2 L10,2 M0,0 L10,0 L10,10 0,10z" 
-                              Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                              />
+                        <Button Grid.Column="1" Margin="2,0,0,0"
+                                Visibility="{Binding SelectedItem.IsGenerator, Converter={StaticResource notBoolToVisi}}"
+                                Click="ArgumentAsk_Click" ToolTip="Ask for argument when executing">
+                            <StackPanel Orientation="Horizontal">
+                                <Path SnapsToDevicePixels="True" VerticalAlignment="Center"
+                                  Data="M0,0 L10,0 M0,1 L10,1 M0,2 L10,2 M0,0 L10,0 L10,10 0,10z" 
+                                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                  />
+                                <TextBlock Margin="5,0,0,0" Text="✓">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedItem.Argument}" Value="?">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
                         </Button>
                     </Grid>
                 </StackPanel>

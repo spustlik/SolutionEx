@@ -1,8 +1,9 @@
 ﻿using EnvDTE;
 using EnvDTE80;
 using Microsoft.VisualStudio.PlatformUI;
+using Microsoft.VisualStudio.Settings;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Threading;
 using SolutionExtensions.Extensions;
 using SolutionExtensions.Model;
 using System;
@@ -11,6 +12,7 @@ using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace SolutionExtensions
 {
@@ -369,11 +371,9 @@ namespace SolutionExtensions
                 .Where(ex => ex.Files.Any(fn => String.Compare(fn, fullName, StringComparison.InvariantCultureIgnoreCase) == 0));
         }
 
-        public string RunGeneratorOnFile(string inputPath, string defaultNamespace, 
-            Action<string> onError, out string extension)
+        public GeneratorResult RunGeneratorOnFile(string inputPath, string defaultNamespace)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            extension = null;
             package.Log($"Find generator for file {inputPath}");
             var fn = GetSolutionRelativePath(inputPath);
             var item = package.Model.Extensions
@@ -393,19 +393,56 @@ namespace SolutionExtensions
                 //ExtensionObject.RunExtension(ri, dte, package, argument);
                 var dte = package.GetService<DTE, DTE>();
                 var content = File.ReadAllText(inputPath);
-                var generated = ExtensionObject.Generate(ri, dte, content, inputPath, defaultNamespace, out extension);
-                package.Log($"Generated .{extension} file of {generated.Length} chars from {fn} of {content.Length} chars");
-                return generated;
+                var result = package.JoinableTaskFactory.Run(
+                    () => ExtensionObject.GenerateAsync(ri, dte, content, inputPath, defaultNamespace)
+                );
+                return result;
             }
             catch (Exception ex)
             {
                 package.Log($"Error: {ex.Message}\n{ex}");
-                onError?.Invoke(ex.Message);
-                return null;
+                throw;
             }
         }
 
-        public bool HasCustomTool(ProjectItem projectItem, out string customTool, out Property prop)
+        public string[] AssignGeneratorResultFiles(GeneratorResult result, string inputPath, Project project)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var files = GetGeneratorResultFiles(result, inputPath);
+            foreach (var f in files)
+            {
+                project.ProjectItems.AddFromFile(f);
+            }
+            package.Log($"Generated files: {string.Join(",", files)}");
+            return files;
+        }
+        private string[] GetGeneratorResultFiles(GeneratorResult result, string inputPath) 
+        { 
+            var rootPath = Path.GetDirectoryName(inputPath);
+            if (result.Files.Length > 0)
+            {
+                string getPath(string fileName)
+                {
+                    if (!Path.IsPathRooted(fileName))
+                        fileName = Path.GetFullPath(Path.Combine(rootPath, fileName));
+                    if (Path.GetExtension(fileName) == ".")
+                        fileName = Path.ChangeExtension(fileName, result.Extension);
+                    return fileName;
+                }
+                return result.Files.Select(fn => getPath(fn)).ToArray();
+            }
+            else
+            {
+                var fileName = inputPath;
+                if (!Path.IsPathRooted(fileName))
+                    fileName = Path.GetFullPath(Path.Combine(rootPath, fileName));
+                fileName = Path.ChangeExtension(fileName, result.Extension);
+                File.WriteAllText(fileName, result.Content);
+                return new[] { fileName };
+            }
+        }
+
+        private bool HasCustomTool(ProjectItem projectItem, out string customTool, out Property prop)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             prop = projectItem.Properties.Item("CustomTool");
@@ -416,7 +453,7 @@ namespace SolutionExtensions
         /// <summary>
         /// returns true if success, or already exists
         /// </summary>
-        public bool TrySetCustomTool(ProjectItem projectItem)
+        private bool TrySetCustomTool(ProjectItem projectItem)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             if (!HasCustomTool(projectItem, out _, out var prop))

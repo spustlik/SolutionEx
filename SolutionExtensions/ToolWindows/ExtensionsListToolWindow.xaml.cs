@@ -248,15 +248,23 @@ namespace SolutionExtensions.ToolWindows
                     caption: "Breakpoint missing") != MessageBoxResult.Yes)
                     return;
             }
-
+            var selection = GetSolutionSelectedFiles().ToArray();
+            if (debug && item.IsGenerator)
+            {
+                if (selection.Length == 0)
+                    throw new Exception($"Cannot generate without selection");
+                if (MessageBoxEx.Instance.ShowQuestion(
+                    $"Do you want to debug generator with file {selection.First().FileName}") != MessageBoxResult.Yes)
+                    return;
+            }
             if (!ExtensionManager.AskArgumentIfNeeded(item, out var argument))
                 return;
             try
             {
                 if (item.IsGenerator)
-                    throw new InvalidOperationException("Cannot run generator");
-                //GenerateInner(item, debug, argument);
-                RunInner(item, debug, argument);
+                    GeneratorDebug(item, argument, selection.First().ProjectItem);
+                else
+                    RunInner(item, debug, argument);
             }
             catch (Exception ex)
             {
@@ -294,24 +302,6 @@ namespace SolutionExtensions.ToolWindows
 #pragma warning restore VSTHRD010 
         }
 
-        private bool TrySetCustomTool(IEnumerable<FileItem> items)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-#pragma warning disable VSTHRD010
-            var allOk = true;
-            foreach (var projectItem in items.Select(x => x.ProjectItem))
-            {
-                if (ExtensionManager.TrySetCustomTool(projectItem))
-                    Package.Log($"Added custom tool to item '{projectItem.Name}'");
-                else
-                {
-                    Package.Log($"Adding custom tool to item '{projectItem.Name}' failed");
-                    allOk = false;
-                }
-            }
-            return allOk;
-#pragma warning restore VSTHRD010
-        }
         private void AssignFiles(ExtensionItem item, IEnumerable<FileItem> items)
         {
             var (removed, added) = ExtensionManager.AddFilesToItem(item, Package.Model.Extensions, items.Select(si => si.FileName).ToArray());
@@ -320,93 +310,40 @@ namespace SolutionExtensions.ToolWindows
         }
 
 
-        private void GenerateInner(ExtensionItem item, bool debug, string argument)
+        void GeneratorDebug(ExtensionItem item, string argument, ProjectItem projectItem)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-#pragma warning disable VSTHRD010 
-            Package.Log($"extension '{item.Title}' Generate() with argument '{argument}' and flags {String.Join(",", item.GetFlags())} from {Path.GetFileName(item.DllPath)},{item.ClassName}");
-            if (ExtensionManager.CompileIfNeeded(item))
-                Package.Log($"Extension recompiled");
-            var selectedFiles = GetSolutionSelectedFiles().ToArray();
-            if (selectedFiles.Length == 0)
-                throw new Exception("There are no selected item(s) in solution explorer.\nPlease select one or more and than Run again.");
-            if (selectedFiles.Length > 1)
-            {
-                if (MessageBoxEx.Instance.ShowQuestion(
-                    $"There are {selectedFiles.Length} selected items in Solution explorer.\n" +
-                    $"{String.Join(", ", selectedFiles.Select(si => Path.GetFileName(si.FileName)))}\n" +
-                    $"Do you want to assign them to generator '{item.Title}' ?\n" +
-                    $"(Generator will not run, only assigned)"
-                    ) != MessageBoxResult.Yes)
-                {
-                    return;
-                }
+            if (!item.IsGenerator)
+                throw new ArgumentException($"Item must be Generator");
 
-                AssignFiles(item, selectedFiles);
-                TrySetCustomTool(selectedFiles);
-                return;
-            }
-            {
-                //run generator with one file
-
-                //fix possible user mistake: wants to debug generator,
-                // so it is open (Selected)
-                // but wanted to generate something else
-                if (debug)
-                {
-                    if (MessageBoxEx.Instance.ShowQuestion(
-                        $"Selected item in Solution Explorer is:\n" +
-                        $"{selectedFiles.First().ProjectItem.Name}.\n" +
-                        $"Are you sure you want to debug your generator with it?"
-                        ) != MessageBoxResult.Yes)
-                    {
-                        return;
-                    }
-                }
-
-                if (debug || item.OutOfProcess)
-                {
-                    var file = selectedFiles.First();
-                    //var _ = Task.Run(async () =>
-                    //{
-                    //    await GenerateInnerUsingLauncherAsync(item, file, debug);
-                    //});
-                    Package.Log($"Calling Out-of-process generator");
-                    var _ = GenerateInnerUsingLauncherAsync(item, file, debug);
-                }
-                else
-                {
-                    AssignFiles(item, selectedFiles);
-                    TrySetCustomTool(selectedFiles);
-                    dynamic o = selectedFiles.First().ProjectItem.Object;
-                    o.RunCustomTool();
-                    Package.Log($"Done.");
-                }
-            }
-#pragma warning restore VSTHRD010
-        }
-
-        private async Task GenerateInnerUsingLauncherAsync(ExtensionItem item, FileItem file, bool debug)
-        {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
             Package.Log($"Creating debugger");
-            var dbg = ExtensionDebugger.Create(item, Package, ExtensionManager, debug);
-            var ns = file.ProjectItem.Properties.Item("CustomToolNamespace").Value as string;
-            //we need to run generator in new proces to allow Debugging
+            var dbg = ExtensionDebugger.Create(item, Package, ExtensionManager, debug:true);
             Package.Log($"Calling generator in debugger");
-            var (content, extension) = await dbg.GenerateAsync(file.ProjectItem.FileNames[0], ns);
-            //so simulate generator run
-            var genFile = Path.ChangeExtension(file.ProjectItem.FileNames[0], extension);
-            var customToolOutput = file.ProjectItem.Properties.Item("CustomToolOutput").Value as string;
-            var existing = file.ProjectItem.ProjectItems.FindProjectItem(pi => pi.FileNames[0] == genFile);
-            if (existing == null)
-            {
-                Package.Log($"Output file {Path.GetFileName(genFile)} not exists, adding ");
-                existing = file.ProjectItem.ProjectItems.AddFromFile(genFile);
-            }
-            file.ProjectItem.Properties.Item("CustomToolOutput").Value = genFile;
-            Package.Log($"Done.");
+            var inputFile = projectItem.FileNames[0];
+            var ns = projectItem.GetDefaultNamespace();
+            var result = ThreadHelper.JoinableTaskFactory.Run(() => dbg.GenerateAsync(inputFile, ns));
+            ExtensionManager.AssignGeneratorResultFiles(result, inputFile, projectItem.ContainingProject);
         }
+
+        //private async Task GenerateInnerUsingLauncherAsync(ExtensionItem item, FileItem file, bool debug)
+        //{
+        //    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+        //    var ns = file.ProjectItem.Properties.Item("CustomToolNamespace").Value as string;
+        //    //we need to run generator in new proces to allow Debugging
+        //    Package.Log($"Calling generator in debugger");
+        //    var (content, extension) = await dbg.GenerateAsync(file.ProjectItem.FileNames[0], ns);
+        //    //so simulate generator run
+        //    var genFile = Path.ChangeExtension(file.ProjectItem.FileNames[0], extension);
+        //    var customToolOutput = file.ProjectItem.Properties.Item("CustomToolOutput").Value as string;
+        //    var existing = file.ProjectItem.ProjectItems.FindProjectItem(pi => pi.FileNames[0] == genFile);
+        //    if (existing == null)
+        //    {
+        //        Package.Log($"Output file {Path.GetFileName(genFile)} not exists, adding ");
+        //        existing = file.ProjectItem.ProjectItems.AddFromFile(genFile);
+        //    }
+        //    file.ProjectItem.Properties.Item("CustomToolOutput").Value = genFile;
+        //    Package.Log($"Done.");
+        //}
 
         private void RunInner(ExtensionItem item, bool debug, string argument)
         {

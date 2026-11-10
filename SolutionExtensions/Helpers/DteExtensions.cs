@@ -273,13 +273,30 @@ namespace SolutionExtensions
                 yield return item.FileNames[(short)i];
             }
         }
+        public static string GetDefaultNamespace(this ProjectItem item)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var ns = item.Properties.Item("CustomToolNamespace").Value as string;
+            if (string.IsNullOrEmpty(ns))
+                ns = GetDefaultNamespace(item.ContainingProject);
+            return ns;
+        }
+
+        public static string GetDefaultNamespace(this Project project)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var ns = project.Properties.Item("DefaultNamespace")?.Value as string;
+            if (String.IsNullOrEmpty(ns))
+                ns = Path.GetFileNameWithoutExtension(project.Name);
+            return ns;
+        }
 
         public static IDisposable WaitCursor(this Package package)
         {
             return new WpfWaitCursorScope();
         }
 
-        
+
         [Obsolete("Use using package.WaitCursor")]
         /// <summary>
         /// use using (new Microsoft.VisualStudio.Modeling.Shell.WaitCursor())

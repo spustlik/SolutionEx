@@ -6,7 +6,6 @@ using SolutionExtensions.Launcher;
 using SolutionExtensions.Model;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -61,32 +60,15 @@ namespace SolutionExtensions
             this.Launcher = launcherProcess;
         }
 
-        public async Task<(string content, string extension)> GenerateAsync(string inputFilePath, string defaultNamespace)
+        public async Task<GeneratorResult> GenerateAsync(string inputFilePath, string defaultNamespace)
         {
             var process = Launcher.CreateGeneratorProcess(dllPath, item.ClassName, monikerName, packageId, debug, inputFilePath, defaultNamespace);
             Launcher.StartAndWait(process, debug);
             AttachVsDebugger(process);
             await process.WaitForExitAsync();
-            string extension = null;
-            string outputFile = null;
-            foreach (var line in Launcher.GetOutput().Split('\n'))
-            {
-                var parts = line.Split(new[] { ':' }, 2);
-                if (parts[0].Trim() == LauncherProcess.RESULT_EXT)
-                    extension = parts[1];
-                if (parts[0].Trim() == LauncherProcess.RESULT_FILE)
-                    outputFile = parts[1];
-            }
-            if (outputFile == null || !File.Exists(outputFile))
-                throw new Exception($"Output file cannot be found: {outputFile}");
-            var content = File.ReadAllText(outputFile);
-            File.Delete(outputFile);
-            return (content, extension);
-        }
-        
-        private void Process_Exited(object sender, EventArgs e)
-        {
-            throw new NotImplementedException();
+
+            var lines = Launcher.GetOutput().Split('\n');
+            return LauncherProcess.GeneratorResultFromStrings(lines);
         }
 
         public void Run(string argument)

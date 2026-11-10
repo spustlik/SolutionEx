@@ -1,11 +1,13 @@
 ﻿using EnvDTE;
 using SolutionExtensions.Reflector;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace SolutionExtensions
 {
@@ -29,7 +31,7 @@ namespace SolutionExtensions
             if (!string.IsNullOrEmpty(argument))
             {
                 var ai = ri.FindArgumentProperty();
-                if (ai == default || ai.propertyInfo == null) 
+                if (ai == default || ai.propertyInfo == null)
                     throw new Exception($"Missing Argument property on '{ri.Type.Name}'");
                 var argValue = Convert.ChangeType(argument, ai.propertyInfo.PropertyType);
                 ai.propertyInfo.SetValue(instance, argValue);
@@ -44,7 +46,7 @@ namespace SolutionExtensions
             }
         }
 
-        public static string Generate(ExtensionRI ri, DTE dte, string content, string inputPath, string defaultNamespace, out string extension)
+        public static async Task<GeneratorResult> GenerateAsync(ExtensionRI ri, DTE dte, string content, string inputPath, string defaultNamespace)
         {
             // string Generate(DTE dte, string input, string inputFileName, string ns)
             var method = ri.GenerateMethod;
@@ -57,9 +59,9 @@ namespace SolutionExtensions
                 parameters[2] = inputPath;
             if (parameters.Length > 3)
                 parameters[3] = defaultNamespace;
-            extension = ".cs";
+            var extension = "";
             var instance = method.IsStatic ? null : Activator.CreateInstance(ri.Type);
-            var ai = ri.FindExtensionProperty();
+            var ai = ri.FindGeneratorExtensionProperty();
             if (ai.propertyInfo != null)
             {
                 var value = ai.propertyInfo.GetValue(instance);
@@ -67,12 +69,39 @@ namespace SolutionExtensions
             }
             try
             {
-                return method.Invoke(instance, parameters) as string;
+                var resultObj = method.Invoke(instance, parameters);
+                return await GetResultAsync(resultObj, method, extension);
             }
             catch (TargetInvocationException tex)
             {
                 throw tex.InnerException;
             }
+        }
+
+        private static async Task<GeneratorResult> GetResultAsync(object result, MethodInfo method, string extension)
+        {
+            if (result == null) return new GeneratorResult() { Extension = extension };
+            var resultObj = result;
+            if (resultObj is Task task && IsTaskWithResult(resultObj.GetType()))
+            {
+                dynamic dtask = task;
+                resultObj = await dtask;
+            }
+            if (resultObj is string)
+            {
+                var resultContent = resultObj as string;
+                return new GeneratorResult() { Content = resultContent,Extension=extension };
+            }
+            else if (resultObj is IEnumerable<string> strings)
+            {
+                return new GeneratorResult() { Files = strings.ToArray(),Extension=extension };
+            }
+            throw new InvalidOperationException($"Unsupported result type {result.GetType()}");
+        }
+
+        private static bool IsTaskWithResult(Type type)
+        {
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Task<>);
         }
 
         public static string[] GetExtensionClassNames(Assembly assembly)
@@ -204,7 +233,7 @@ namespace SolutionExtensions
             var description = propertyInfo?.GetDescription();
             return (propertyInfo, description, defaultValue);
         }
-        public (PropertyInfo propertyInfo, object _) FindExtensionProperty()
+        public (PropertyInfo propertyInfo, object _) FindGeneratorExtensionProperty()
         {
             var propertyInfo = Type.GetProperty("Extension");
             return (propertyInfo, null);
@@ -267,6 +296,14 @@ namespace SolutionExtensions
                 return true;
             return false;
         }
-
     }
+
+    //Content or Files or nothing, extension when files if for file without extension
+    public class GeneratorResult
+    {
+        public string Extension { get; set; }
+        public string Content { get; set; }
+        public string[] Files { get; set; }
+    }
+
 }

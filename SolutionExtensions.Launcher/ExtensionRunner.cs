@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace SolutionExtensions.Launcher
 {
@@ -17,8 +18,7 @@ namespace SolutionExtensions.Launcher
         public string GeneratorFilePath { get; set; }
         public string GeneratorDefaultNamespace { get; set; }
         public string GeneratorContent { get; set; }
-        public string GeneratorResult { get; set; }
-        public string GeneratorExtension { get; set; }
+        public GeneratorResult GeneratorResult { get; private set; }
 
         public ExtensionRunner(ExtensionRI ri, EnvDTE.DTE dte, object package)
         {
@@ -45,8 +45,10 @@ namespace SolutionExtensions.Launcher
         {
             if (BreakDebugger)
                 Debugger.Break();
-            GeneratorResult = ExtensionObject.Generate(ri, dte, GeneratorContent, GeneratorFilePath, GeneratorDefaultNamespace, out var ext);
-            GeneratorExtension = ext;
+
+            var task = ExtensionObject.GenerateAsync(ri, dte, GeneratorContent, GeneratorFilePath, GeneratorDefaultNamespace);
+            task.Wait();
+            GeneratorResult = task.Result;
         }
     }
 }

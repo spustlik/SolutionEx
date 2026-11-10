@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -55,13 +56,21 @@ namespace SolutionExtensions
         private string GenerateString(string inputContent, string inputPath, string defaultNamespace, IVsGeneratorProgress progress)
         {
             var package = SolutionExtensionsPackage.GetGlobal();
+            try
+            {
+                var result = package.ExtensionManager.RunGeneratorOnFile(inputPath, defaultNamespace);
+                lastExtension = result.Extension;
+                if (result.Content != null)
+                    return result.Content;
+                return File.ReadAllText(result.Files[0]);
+            }
+            catch (Exception ex)
+            {
 #pragma warning disable VSTHRD010 // Invoke single-threaded types on Main thread
-            var result = package.ExtensionManager.RunGeneratorOnFile(inputPath, defaultNamespace,
-                (err) => progress.GeneratorError(0, 1, err, 0, 0),
-                out var ext);
+                progress.GeneratorError(0, 1, ex.Message, 0, 0);
 #pragma warning restore VSTHRD010 // Invoke single-threaded types on Main thread
-            lastExtension = ext;
-            return result;
+                return null;
+            }
         }
 
         #endregion

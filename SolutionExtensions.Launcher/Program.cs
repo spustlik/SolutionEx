@@ -81,10 +81,11 @@ namespace SolutionExtensions.Launcher
             Console.WriteLine($"{LauncherProcess.RUN}: Running generator");
             runner.Generate();
             Console.WriteLine($"{LauncherProcess.DONE}");
-            Console.WriteLine($"{LauncherProcess.RESULT_EXT}:{runner.GeneratorExtension}");
-            var tempFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString()+".bin");
-            File.WriteAllText(tempFile, runner.GeneratorResult);
-            Console.WriteLine($"{LauncherProcess.RESULT_FILE}:{tempFile}");
+            var result = runner.GeneratorResult;
+            foreach (var line in LauncherProcess.GeneratorResultToStrings(result))
+            {
+                Console.WriteLine(line);
+            }
         }
 
 

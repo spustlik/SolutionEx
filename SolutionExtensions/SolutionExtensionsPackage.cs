@@ -14,6 +14,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using static System.Net.Mime.MediaTypeNames;
 using Task = System.Threading.Tasks.Task;
 
 namespace SolutionExtensions
@@ -152,17 +153,32 @@ namespace SolutionExtensions
             var gen = ExtensionManager.GetGeneratorsAssignedTo(Model.Extensions, document.FullName).FirstOrDefault();
             if (gen == null)
                 return;
-            if (ExtensionManager.HasCustomTool(document.ProjectItem, out _, out _))
-                return;
-            AddToOutputPane($"  Item has no CustomTool, but is assigned to generator '{gen.Title}' [{gen.DllPath}], running");
-            var defNs = document.ProjectItem.ContainingProject.Properties.Item("DefaultNamespace")?.Value as string;
-            if (String.IsNullOrEmpty(defNs))
-                defNs = Path.GetFileNameWithoutExtension(document.ProjectItem.ContainingProject.Name);
-            var result = ExtensionManager.RunGeneratorOnFile(document.FullName, defNs,
-                (err) => MessageBoxEx.Instance.ShowError(err), out var ext);
-            var outputFileName = Path.ChangeExtension(document.FullName, ext);
-            File.WriteAllText(outputFileName, result);
-            AddToOutputPane($"  Output written to {outputFileName}");
+            //if (ExtensionManager.HasCustomTool(document.ProjectItem, out _, out _))
+            //    return;
+            //AddToOutputPane($"  Item has no CustomTool, but is assignd to generator '{gen.Title}' [{gen.DllPath}], running");
+            AddToOutputPane($"  ProjectItem is assignd to generator '{gen.Title}' [{gen.DllPath}], running");
+            try
+            {
+                var defNs = document.ProjectItem.GetDefaultNamespace();
+                GeneratorResult result;
+                if (gen.OutOfProcess)
+                {
+                    var dbg = ExtensionDebugger.Create(gen, this, ExtensionManager, false);
+                    var fn = document.FullName;
+                    result = JoinableTaskFactory.Run(() => dbg.GenerateAsync(fn, defNs));
+                }
+                else
+                {
+                    result = ExtensionManager.RunGeneratorOnFile(document.FullName, defNs);
+                }
+                var project = document.ProjectItem.ContainingProject;
+                ExtensionManager.AssignGeneratorResultFiles(result, document.FullName, project);                
+            }
+            catch (Exception ex)
+            {
+                AddToOutputPane($"Error generating file on save:" + ex);
+                MessageBoxEx.Instance.ShowError(ex.Message, $"Error generating on save");
+            }
         }
 
 
